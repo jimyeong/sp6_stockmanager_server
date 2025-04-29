@@ -26,11 +26,12 @@ type SQLDB struct {
 }
 
 func NewSQLDB(dbConfig DBConfig) *SQLDB {
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbConfig.DB_USER, dbConfig.DB_PASSWORD, dbConfig.DB_HOST, dbConfig.DB_PORT, dbConfig.DB_NAME))
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", dbConfig.DB_USER, dbConfig.DB_PASSWORD, dbConfig.DB_HOST, dbConfig.DB_PORT, dbConfig.DB_NAME))
 	if err != nil {
 		log.Fatal(err)
 		return &SQLDB{DB: nil, Err: err}
 	}
+	fmt.Println("---DB connected---")
 	return &SQLDB{DB: db, Err: nil}
 }
 

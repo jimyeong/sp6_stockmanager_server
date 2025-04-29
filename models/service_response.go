@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"reflect"
 )
@@ -27,6 +28,8 @@ type ServiceResponseWithLengthAndUserState[T any] struct {
 }
 
 func CreateServiceResponse[T any](message string, statusCode int, data T, userExists bool) ServiceResponseWithLengthAndUserState[T] {
+	fmt.Println("---CreateServiceResponse---")
+	fmt.Println("message:", message)
 	serviceResponse := ServiceResponse{
 		Code:    statusCode,
 		Message: message,
@@ -55,16 +58,14 @@ func CreateServiceResponse[T any](message string, statusCode int, data T, userEx
 	return serviceResponseWithLengthAndUserState
 }
 
-func WriteServiceResponse[T any](w http.ResponseWriter, response ServiceResponseWithLengthAndUserState[T], userExists bool) {
+func WriteServiceResponse[T any](w http.ResponseWriter, response ServiceResponseWithLengthAndUserState[T], userExists bool) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	return json.NewEncoder(w).Encode(response)
 }
 
-func WriteServiceError[T any](w http.ResponseWriter, response ServiceResponseWithLengthAndUserState[T], userExists bool) {
+func WriteServiceError[T any](w http.ResponseWriter, response ServiceResponseWithLengthAndUserState[T], userExists bool) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusInternalServerError)
-	json.NewEncoder(w).Encode(
-		CreateServiceResponse(response.Message, response.Code, response.Data, userExists),
-	)
+	return json.NewEncoder(w).Encode(response)
 }
