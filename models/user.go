@@ -15,8 +15,8 @@ type User struct {
 	PhotoURL      string    `json:"photoURL"`
 	ProviderId    string    `json:"providerId"`
 	Uid           string    `json:"uid"`
-	CreatedAt     time.Time `json:"created_at"`
-	LoginAt       time.Time `json:"login_at"`
+	CreatedAt     time.Time `json:"createdAt"`
+	LoginAt       time.Time `json:"loginAt"`
 }
 
 func (u *User) Save() (User, error) {
@@ -40,12 +40,13 @@ func (u *User) Save() (User, error) {
 func (u *User) Update(uid string) (User, error) {
 	fmt.Println("---USER UPDATE---")
 	db := GetDBInstance(GetDBConfig())
-	stmt, err := db.Prepare("UPDATE users SET email = ?, display_name = ?, photo_url = ?, phone_number = ?, email_verified = ?, is_anonymous = ?, provider_id, login_at = ? WHERE firebase_uid = ?")
+	stmt, err := db.Prepare("UPDATE users SET login_at = ? WHERE firebase_uid = ?")
 	if err != nil {
 		return User{}, err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(u.Email, u.DisplayName, u.PhotoURL, u.PhoneNumber, u.EmailVerified, u.IsAnonymous, u.ProviderId, u.LoginAt)
+	fmt.Println("updated time:", u.LoginAt)
+	_, err = stmt.Exec(u.LoginAt, uid)
 	if err != nil {
 		return User{}, err
 	}

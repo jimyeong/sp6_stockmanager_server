@@ -1,4 +1,4 @@
-package handlers
+package apis
 
 import (
 	"encoding/json"
@@ -23,20 +23,20 @@ func HandleSignIn(w http.ResponseWriter, r *http.Request) {
 	result := make([]models.User, 1)
 
 	if err != nil {
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(result)
+		models.WriteServiceError(w, "Failed to save user: uid is empty", false, false, http.StatusBadRequest)
+		if err != nil {
+			log.Printf("Failed to write service error: %v", err)
+		}
 		return
 	}
 
 	var userRequest UserRequest
 	err = json.Unmarshal(body, &userRequest)
 	if err != nil {
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(result)
+		models.WriteServiceError(w, "Failed to save user: uid is empty", false, false, http.StatusBadRequest)
+		if err != nil {
+			log.Printf("Failed to write service error: %v", err)
+		}
 		return
 	}
 
@@ -44,7 +44,7 @@ func HandleSignIn(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("user params:", user)
 
 	if user.Uid == "" {
-		err := json.NewEncoder(w).Encode(result)
+		models.WriteServiceError(w, "Failed to save user: uid is empty", false, false, http.StatusBadRequest)
 		if err != nil {
 			log.Printf("Failed to write service error: %v", err)
 		}
@@ -60,16 +60,12 @@ func HandleSignIn(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println("err:", err)
 		}
-
 	} else {
-
 		// save user
 		user, err = user.Save()
 		if err != nil {
 			// http.Error(w, "Failed to save user", http.StatusInternalServerError)
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(nil)
+			models.WriteServiceError(w, "Failed to save user", false, false, http.StatusInternalServerError)
 			if err != nil {
 				log.Printf("Failed to write service error: %v", err)
 			}
@@ -81,11 +77,6 @@ func HandleSignIn(w http.ResponseWriter, r *http.Request) {
 
 	// return user data
 	// service response
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(result)
-	if err != nil {
-		log.Printf("Failed to write service response: %v", err)
-	}
+	models.WriteServiceResponse(w, "Success", result, true, true, http.StatusOK)
 	fmt.Println("---User response sent---")
 }

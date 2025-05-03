@@ -8,7 +8,8 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
-	"github.com/jimyeongjung/owlverload_api/api/handlers"
+	"github.com/jimyeongjung/owlverload_api/apis"
+	"github.com/jimyeongjung/owlverload_api/middleware"
 	"github.com/jimyeongjung/owlverload_api/models"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
@@ -49,9 +50,44 @@ func main() {
 	// cors
 	r.Use(cors.AllowAll().Handler)
 
+	// Define authentication middleware
+	authConfig := middleware.AuthenticationConfig{
+		ValidateToken:     middleware.FirebaseTokenValidator,
+		ExcludedPaths:     []string{"/public/api/v1/auth/signin", "/public/health", "/public/api/v1/health"},
+		TokenErrorMessage: "Authentication required. Please provide a valid Bearer token.",
+	}
+
+	// Create a subrouter for protected routes
+	apiRouter := r.PathPrefix("/api/v1/").Subrouter()
+
+	// Apply authentication middleware to protected routes
+	apiRouter.Use(middleware.NewAuthentication(authConfig))
+
 	fmt.Println("@main@2", "Registering routes")
-	// Register routes
-	r.HandleFunc("/api/v1/auth/signin", handlers.HandleSignIn).Methods("POST")
+
+	// Public routes (no authentication required)
+	r.HandleFunc("/public/api/v1/auth/signin", apis.HandleSignIn).Methods("POST")
+	r.HandleFunc("/public/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	}).Methods("GET")
+	r.HandleFunc("/public/api/v1/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	}).Methods("GET")
+
+	// Protected routes (authentication required)
+	// Stock/Item routes
+	fmt.Println("--- coming in here --- ")
+	apiRouter.HandleFunc("/getItem", apis.HandleGetItemByBarcode).Methods("GET")
+	apiRouter.HandleFunc("/stockIn", apis.HandleStockIn).Methods("POST")
+	apiRouter.HandleFunc("/stockOut", apis.HandleStockOut).Methods("POST")
+	apiRouter.HandleFunc("/createItem", apis.HandleCreateItem).Methods("POST")
+	apiRouter.HandleFunc("/registerItem", apis.HandleRegisterItem).Methods("POST")
+	apiRouter.HandleFunc("/getItems", apis.HandleGetItems).Methods("GET")
+	apiRouter.HandleFunc("/searchItems", apis.HandleSearchItems).Methods("POST")
+	apiRouter.HandleFunc("/getItemsWithMissingInfo", apis.HandleGetItemsWithMissingInfo).Methods("GET")
+	apiRouter.HandleFunc("/lookupItems", apis.HandleLookupItems).Methods("POST")
 
 	// Start server
 	log.Println("Server starting on port 8080...")

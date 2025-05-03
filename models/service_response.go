@@ -1,71 +1,73 @@
 package models
 
-import (
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"reflect"
-)
+// package models
 
-type ServiceResponse struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-}
+// import (
+// 	"encoding/json"
+// 	"net/http"
+// 	"reflect"
+// )
 
-type ServiceResponseWithData[T any] struct {
-	ServiceResponse
-	Data T `json:"data"`
-}
+// type ServiceResponse struct {
+// 	Message string `json:"message"`
+// }
 
-type ServiceResponseWithLength[T any] struct {
-	ServiceResponseWithData[T]
-	dataLength int `json:"length"`
-}
+// type ServiceResponseWithData[T any] struct {
+// 	ServiceResponse
+// 	Data T `json:"payload"`
+// }
 
-type ServiceResponseWithLengthAndUserState[T any] struct {
-	ServiceResponseWithLength[T]
-	UserExists bool `json:"userExists"`
-}
+// type ServiceResponseWithLength[T any] struct {
+// 	ServiceResponseWithData[T]
+// 	dataLength int `json:"length"`
+// }
 
-func CreateServiceResponse[T any](message string, statusCode int, data T, userExists bool) ServiceResponseWithLengthAndUserState[T] {
-	fmt.Println("---CreateServiceResponse---")
-	fmt.Println("message:", message)
-	serviceResponse := ServiceResponse{
-		Code:    statusCode,
-		Message: message,
-	}
-	serviceResponseWithData := ServiceResponseWithData[T]{
-		ServiceResponse: serviceResponse,
-		Data:            data,
-	}
-	var serviceResponseWithLength ServiceResponseWithLength[T]
-	if reflect.TypeOf(data).Kind() == reflect.Array || reflect.TypeOf(data).Kind() == reflect.Slice {
-		// get length of data
-		serviceResponseWithLength = ServiceResponseWithLength[T]{
-			ServiceResponseWithData: serviceResponseWithData,
-			dataLength:              reflect.ValueOf(data).Len(),
-		}
-	} else {
-		serviceResponseWithLength = ServiceResponseWithLength[T]{
-			ServiceResponseWithData: serviceResponseWithData,
-			dataLength:              1,
-		}
-	}
-	serviceResponseWithLengthAndUserState := ServiceResponseWithLengthAndUserState[T]{
-		ServiceResponseWithLength: serviceResponseWithLength,
-		UserExists:                userExists,
-	}
-	return serviceResponseWithLengthAndUserState
-}
+// type ServiceResponseWithLengthAndUserState[T any] struct {
+// 	ServiceResponseWithLength[T]
+// 	UserExists bool `json:"userExists"`
+// }
 
-func WriteServiceResponse[T any](w http.ResponseWriter, response ServiceResponseWithLengthAndUserState[T], userExists bool) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	return json.NewEncoder(w).Encode(response)
-}
+// func CreateServiceResponse[T any](message string, data T, userExists bool) ServiceResponseWithLengthAndUserState[T] {
+// 	serviceResponse := ServiceResponse{
+// 		Message: message,
+// 	}
+// 	serviceResponseWithData := ServiceResponseWithData[T]{
+// 		ServiceResponse: serviceResponse,
+// 		Data:            data,
+// 	}
+// 	var serviceResponseWithLength ServiceResponseWithLength[T]
+// 	if reflect.TypeOf(data).Kind() == reflect.Array || reflect.TypeOf(data).Kind() == reflect.Slice {
+// 		// get length of data
+// 		serviceResponseWithLength = ServiceResponseWithLength[T]{
+// 			ServiceResponseWithData: serviceResponseWithData,
+// 			dataLength:              reflect.ValueOf(data).Len(),
+// 		}
+// 	} else {
+// 		serviceResponseWithLength = ServiceResponseWithLength[T]{
+// 			ServiceResponseWithData: serviceResponseWithData,
+// 			dataLength:              1,
+// 		}
+// 	}
+// 	serviceResponseWithLengthAndUserState := ServiceResponseWithLengthAndUserState[T]{
+// 		ServiceResponseWithLength: serviceResponseWithLength,
+// 		UserExists:                userExists,
+// 	}
+// 	return serviceResponseWithLengthAndUserState
+// }
 
-func WriteServiceError[T any](w http.ResponseWriter, response ServiceResponseWithLengthAndUserState[T], userExists bool) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusInternalServerError)
-	return json.NewEncoder(w).Encode(response)
-}
+// func WriteServiceResponse[T any](w http.ResponseWriter, message string, data T, userExists bool) {
+// 	w.Header().Set("Content-Type", "application/json")
+// 	w.WriteHeader(http.StatusOK)
+// 	json.NewEncoder(w).Encode(
+// 		CreateServiceResponse(message, data, userExists),
+// 	)
+// }
+
+// func WriteServiceError(w http.ResponseWriter, message string, userExists bool) {
+// 	w.Header().Set("Content-Type", "application/json")
+// 	w.WriteHeader(http.StatusInternalServerError)
+// 	payload := make([]string, 0)
+// 	json.NewEncoder(w).Encode(
+// 		CreateServiceResponse(message, payload, userExists),
+// 	)
+// }
