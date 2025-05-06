@@ -17,6 +17,7 @@ type Item struct {
 	ImagePath         string    `json:"imagePath"`
 	CreatedAt         time.Time `json:"createdAt,omitempty"`
 	Stock             []Stock   `json:"stock"`
+	Tag               []Tag     `json:"tag"`
 }
 type Stock struct {
 	StockId        string    `json:"stockId"`
@@ -185,12 +186,14 @@ func StockOut(itemID string, quantity int, userID string, notes string) error {
 	return tx.Commit()
 }
 
-// GetAllItems retrieves all items from the database
+// GetAllItems retrieves all items from the database with their tags
 func GetAllItems() ([]Item, error) {
 	fmt.Println("---GETALLITEMS---")
 	db := GetDBInstance(GetDBConfig())
 	var items []Item
+	var itemMap = make(map[string]*Item) // Map to store items by ID for easy access
 
+	// First query to get all items
 	query := "SELECT id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items"
 	rows, err := db.Query(query)
 	if err != nil {
@@ -213,6 +216,9 @@ func GetAllItems() ([]Item, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		// Store a reference to the item in the map
+		itemMap[item.ID] = &item
 		items = append(items, item)
 	}
 
@@ -220,7 +226,64 @@ func GetAllItems() ([]Item, error) {
 		return nil, err
 	}
 
-	return items, nil
+	// Now fetch tags for all items in a single query
+	tagQuery := `
+	SELECT it.item_id, t.id, t.name, IFNULL(t.category, ''), t.created_at
+	FROM item_tags it
+	JOIN tags t ON it.tag_id = t.id
+	`
+	tagRows, err := db.Query(tagQuery)
+	if err != nil {
+		// Continue even if there's an error fetching tags
+		fmt.Printf("Error fetching tags: %v\n", err)
+	} else {
+		defer tagRows.Close()
+
+		for tagRows.Next() {
+			var itemID string
+			var tag Tag
+
+			err := tagRows.Scan(
+				&itemID,
+				&tag.ID,
+				&tag.TagName,
+				// &tag.Category,
+				// &tag.CreatedAt,
+			)
+			if err != nil {
+				fmt.Printf("Error scanning tag: %v\n", err)
+				continue
+			}
+
+			// Add tag to the appropriate item
+			if item, exists := itemMap[itemID]; exists {
+				item.Tag = append(item.Tag, tag)
+			}
+		}
+
+		if err = tagRows.Err(); err != nil {
+			fmt.Printf("Error in tag rows: %v\n", err)
+		}
+	}
+
+	// Fetch stock information for each item
+	for i, item := range items {
+		stocks, err := GetStocksByItemId(item.ID)
+		if err != nil {
+			// Continue with empty stock if there's an error
+			items[i].Stock = []Stock{}
+		} else {
+			items[i].Stock = stocks
+		}
+	}
+
+	// Convert the map values back to a slice
+	var result []Item
+	for _, item := range itemMap {
+		result = append(result, *item)
+	}
+
+	return result, nil
 }
 
 func GetItemByCode(code string) (Item, error) {
@@ -305,6 +368,7 @@ func SearchItemsByField(searchType string, value string) ([]Item, error) {
 	fmt.Println("---SEARCHITEMSBYFIELD---", searchType, value)
 	db := GetDBInstance(GetDBConfig())
 	var items []Item
+	var itemMap = make(map[string]*Item) // Map to store items by ID for easy access
 	var query string
 
 	// Add % wildcards for LIKE query
@@ -343,6 +407,9 @@ func SearchItemsByField(searchType string, value string) ([]Item, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		// Store a reference to the item in the map
+		itemMap[item.ID] = &item
 		items = append(items, item)
 	}
 
@@ -350,5 +417,83 @@ func SearchItemsByField(searchType string, value string) ([]Item, error) {
 		return nil, err
 	}
 
-	return items, nil
+	// Now fetch tags for all items in a single query
+	if len(items) > 0 {
+		// Build a list of item IDs for the IN clause
+		var itemIDs []string
+		for _, item := range items {
+			itemIDs = append(itemIDs, item.ID)
+		}
+
+		// Create placeholders for SQL query
+		placeholders := ""
+		args := make([]interface{}, len(itemIDs))
+
+		for i, itemID := range itemIDs {
+			if i > 0 {
+				placeholders += ", "
+			}
+			placeholders += "?"
+			args[i] = itemID
+		}
+
+		tagQuery := `
+		SELECT it.item_id, t.id, t.name, IFNULL(t.category, ''), t.created_at
+		FROM item_tags it
+		JOIN tags t ON it.tag_id = t.id
+		WHERE it.item_id IN (` + placeholders + `)`
+
+		tagRows, err := db.Query(tagQuery, args...)
+		if err != nil {
+			// Continue even if there's an error fetching tags
+			fmt.Printf("Error fetching tags: %v\n", err)
+		} else {
+			defer tagRows.Close()
+
+			for tagRows.Next() {
+				var itemID string
+				var tag Tag
+
+				err := tagRows.Scan(
+					&itemID,
+					&tag.ID,
+					&tag.TagName,
+					// &tag.Category,
+					// &tag.CreatedAt,
+				)
+				if err != nil {
+					fmt.Printf("Error scanning tag: %v\n", err)
+					continue
+				}
+
+				// Add tag to the appropriate item
+				if item, exists := itemMap[itemID]; exists {
+					item.Tag = append(item.Tag, tag)
+				}
+			}
+
+			if err = tagRows.Err(); err != nil {
+				fmt.Printf("Error in tag rows: %v\n", err)
+			}
+		}
+
+		// Fetch stock information for each item
+		for i, item := range items {
+			stocks, err := GetStocksByItemId(item.ID)
+			if err != nil {
+				// Continue with empty stock if there's an error
+				items[i].Stock = []Stock{}
+			} else {
+				items[i].Stock = stocks
+			}
+		}
+	}
+
+	// Convert the map values back to a slice with updated references
+	var result []Item
+	for _, item := range itemMap {
+		result = append(result, *item)
+	}
+
+	return result, nil
 }

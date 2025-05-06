@@ -89,6 +89,15 @@ func main() {
 	apiRouter.HandleFunc("/getItemsWithMissingInfo", apis.HandleGetItemsWithMissingInfo).Methods("GET")
 	apiRouter.HandleFunc("/lookupItems", apis.HandleLookupItems).Methods("POST")
 
+	// Tag routes
+	apiRouter.HandleFunc("/tags", apis.HandleGetAllTags).Methods("GET")
+	apiRouter.HandleFunc("/tags/create", apis.HandleCreateTag).Methods("POST")
+	apiRouter.HandleFunc("/tags/popular", apis.HandleGetPopularTags).Methods("GET")
+	apiRouter.HandleFunc("/tags/search", apis.HandleSearchTags).Methods("GET")
+	apiRouter.HandleFunc("/tags/item", apis.HandleGetTagsForItem).Methods("GET")
+	apiRouter.HandleFunc("/tags/associate", apis.HandleAssociateItemWithTags).Methods("POST")
+	apiRouter.HandleFunc("/recommendations", apis.HandleGetRecommendedItems).Methods("POST")
+
 	// Start server
 	log.Println("Server starting on port 8080...")
 	log.Fatal(http.ListenAndServe(":8080", r))

@@ -516,26 +516,28 @@ func HandleGetItems(w http.ResponseWriter, r *http.Request) {
 		filteredItems = items
 	}
 
-	// For each item, fetch its stock information
-	var itemsWithStock []map[string]interface{}
+	// For each item, the stock and tag information should already be populated
+	// from our updated GetAllItems function
+	var itemsWithStockAndTags []map[string]interface{}
 	for _, item := range filteredItems {
-		// Get stock information for this item
-		stocks, err := models.GetStocksByItemId(item.ID)
-		if err != nil {
-			log.Printf("Error retrieving stock for item %s: %v", item.ID, err)
-			// Continue anyway, we'll just return the item without stock
+		// Create a composite response with item, its stock, and tags
+		// Use the tags field that's now included in the item
+
+		// Extract tag names for simplicity in the response
+		var tagNames []string
+		for _, tag := range item.Tag {
+			tagNames = append(tagNames, tag.TagName)
 		}
 
-		// Create a composite response with item and its stock
 		itemData := map[string]interface{}{
-			"item":  item,
-			"stock": stocks,
+			"item":     item,
+			"tagNames": tagNames,
 		}
 
-		itemsWithStock = append(itemsWithStock, itemData)
+		itemsWithStockAndTags = append(itemsWithStockAndTags, itemData)
 	}
 
-	models.WriteServiceResponse(w, "Items retrieved successfully", itemsWithStock, true, true, http.StatusOK)
+	models.WriteServiceResponse(w, "Items retrieved successfully", itemsWithStockAndTags, true, true, http.StatusOK)
 }
 
 // HandleSearchItems handles POST requests to search for items with more complex criteria
@@ -627,28 +629,27 @@ func HandleSearchItems(w http.ResponseWriter, r *http.Request) {
 		filteredItems = filteredItems[startIndex:endIndex]
 	}
 
-	// For each item in the results, fetch its stock information
-	var itemsWithStock []map[string]interface{}
+	// For each item in the results, the stock and tag information should already be populated
+	var itemsWithStockAndTags []map[string]interface{}
 	for _, item := range filteredItems {
-		// Get stock information for this item
-		stocks, err := models.GetStocksByItemId(item.ID)
-		if err != nil {
-			log.Printf("Error retrieving stock for item %s: %v", item.ID, err)
-			stocks = []models.Stock{} // Empty array if error
+		// Extract tag names for simplicity in the response
+		var tagNames []string
+		for _, tag := range item.Tag {
+			tagNames = append(tagNames, tag.TagName)
 		}
 
-		// Create a composite response with item and its stock
+		// Create a composite response with item, its stock, and tags
 		itemData := map[string]interface{}{
-			"item":  item,
-			"stock": stocks,
+			"item":     item,
+			"tagNames": tagNames,
 		}
 
-		itemsWithStock = append(itemsWithStock, itemData)
+		itemsWithStockAndTags = append(itemsWithStockAndTags, itemData)
 	}
 
 	// Prepare the response with metadata
 	response := map[string]interface{}{
-		"items":  itemsWithStock,
+		"items":  itemsWithStockAndTags,
 		"total":  len(filteredItems),
 		"offset": searchRequest.Offset,
 		"limit":  searchRequest.Limit,
@@ -717,29 +718,27 @@ func HandleLookupItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For each item, fetch its stock information
-	var itemsWithStock []models.Item
+	// Items will already have stock and tag information from our model functions
+	var itemsWithStockAndTags []map[string]interface{}
 	for _, item := range items {
-		// Get stock information for this item
-		stocks, err := models.GetStocksByItemId(item.ID)
-		if err != nil {
-			log.Printf("Error retrieving stock for item %s: %v", item.ID, err)
-			stocks = []models.Stock{} // Empty array if error
+		// Extract tag names for simplicity in the response
+		var tagNames []string
+		for _, tag := range item.Tag {
+			tagNames = append(tagNames, tag.TagName)
 		}
-		item.Stock = stocks
 
-		// Create a composite response with item and its stock
-		// itemData := map[string]interface{}{
-		// 	"item":  item,
-		// 	"stock": stocks,
-		// }
+		// Create a response with item and tag names
+		itemData := map[string]interface{}{
+			"item":     item,
+			"tagNames": tagNames,
+		}
 
-		itemsWithStock = append(itemsWithStock, item)
+		itemsWithStockAndTags = append(itemsWithStockAndTags, itemData)
 	}
 
 	// Prepare the response
 	response := map[string]interface{}{
-		"items":      itemsWithStock,
+		"items":      itemsWithStockAndTags,
 		"total":      len(items),
 		"searchType": lookupRequest.SearchType,
 		"value":      lookupRequest.Value,
