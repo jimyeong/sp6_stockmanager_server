@@ -16,6 +16,10 @@ type Item struct {
 	AvailableForOrder int       `json:"availableForOrder"`
 	ImagePath         string    `json:"imagePath"`
 	CreatedAt         time.Time `json:"createdAt,omitempty"`
+	NameJpn           string    `json:"nameJpn"`
+	NameChn           string    `json:"nameChn"`
+	NameKor           string    `json:"nameKor"`
+	NameEng           string    `json:"nameEng"`
 	Stock             []Stock   `json:"stock"`
 	Tag               []Tag     `json:"tag"`
 }
@@ -110,6 +114,91 @@ func CreateItem(item Item) (Item, error) {
 	}
 
 	return item, nil
+}
+
+// UpdateItem updates an existing item in the database
+func UpdateItem(item Item) (Item, error) {
+	fmt.Println("---UPDATEITEM---", item)
+
+	if item.ID == "" && (item.BarCode == "" || item.Code == "") {
+		return Item{}, fmt.Errorf("item ID or barcode and code are required for update")
+	}
+
+	db := GetDBInstance(GetDBConfig())
+
+	// First check if the item exists
+	var existingItem Item
+	var err error
+
+	if item.ID != "" {
+		// If ID is provided, get item by ID
+		existingItem, err = GetItemById(item.ID)
+	} else if item.Code != "" {
+		// Try to get by code
+		existingItem, err = GetItemByCode(item.Code)
+	}
+
+	if err != nil {
+		return Item{}, fmt.Errorf("item not found: %v", err)
+	}
+
+	// If fields are not provided in the update, keep the existing values
+	if item.Name == "" {
+		item.Name = existingItem.Name
+	}
+
+	if item.Type == "" {
+		item.Type = existingItem.Type
+	}
+
+	if item.ImagePath == "" {
+		item.ImagePath = existingItem.ImagePath
+	}
+
+	// Use the existing ID to ensure we're updating the right item
+	if item.ID == "" {
+		item.ID = existingItem.ID
+	}
+
+	// We won't update the CreatedAt timestamp
+	item.CreatedAt = existingItem.CreatedAt
+
+	// Prepare update query
+	query := `
+	UPDATE items 
+	SET name = ?, type = ?, name_jpn = ?, name_chn = ?, name_kor = ?, name_eng = ?, barcode = ?, available_for_order = ?, image_path = ?
+	WHERE id = ?`
+
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		return Item{}, err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		item.Name,
+		item.Type,
+		item.NameJpn,
+		item.NameChn,
+		item.NameKor,
+		item.NameEng,
+		item.BarCode,
+		item.AvailableForOrder,
+		item.ImagePath,
+		item.ID,
+	)
+
+	if err != nil {
+		return Item{}, err
+	}
+
+	// Get the updated item to return
+	updatedItem, err := GetItemById(item.ID)
+	if err != nil {
+		return item, nil // Return the input item if we can't fetch the updated one
+	}
+
+	return updatedItem, nil
 }
 
 // StockIn adds quantity to an item's stock
@@ -324,8 +413,8 @@ func GetItemById(id string) (Item, error) {
 	fmt.Println("---GETITEMBYID---", id)
 	db := GetDBInstance(GetDBConfig())
 	var item Item
-	query := "SELECT * FROM items WHERE id = ?"
-	err := db.QueryRow(query, id).Scan(&item.ID, &item.Code, &item.BarCode, &item.Name, &item.Type, &item.AvailableForOrder, &item.ImagePath, &item.CreatedAt)
+	query := "SELECT id, code, IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '')	 FROM items WHERE id = ?"
+	err := db.QueryRow(query, id).Scan(&item.ID, &item.Code, &item.BarCode, &item.Name, &item.Type, &item.AvailableForOrder, &item.ImagePath, &item.CreatedAt, &item.NameJpn, &item.NameChn, &item.NameKor, &item.NameEng)
 	if err != nil {
 		return Item{}, err
 	}

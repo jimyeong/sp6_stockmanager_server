@@ -95,20 +95,22 @@ func HandleGetRecommendedItems(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Extract tag names for each item for easier access on the client side
-	var itemsWithTagNames []map[string]interface{}
-	for _, item := range items {
-		var tagNames []string
-		for _, tag := range item.Tag {
-			tagNames = append(tagNames, tag.TagName)
-		}
+	// var itemsWithTagNames []map[string]interface{}
+	var itemsWithTagNames []models.Item
+	itemsWithTagNames = items
+	// for _, item := range items {
+	// 	// var tagNames []string
+	// 	// for _, tag := range item.Tag {
+	// 	// 	tagNames = append(tagNames, tag.TagName)
+	// 	// }
 
-		itemData := map[string]interface{}{
-			"itemDetail": item,
-			"tagNames":   tagNames,
-		}
+	// 	// itemData := map[string]interface{}{
+	// 	// 	"tagNames": tagNames,
+	// 	// 	"item":     item,
+	// 	// }
 
-		itemsWithTagNames = append(itemsWithTagNames, itemData)
-	}
+	// 	itemsWithTagNames = append(itemsWithTagNames, item)
+	// }
 
 	// Prepare the response with pagination info
 	payload := map[string]interface{}{

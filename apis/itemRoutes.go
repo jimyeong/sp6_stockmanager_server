@@ -456,6 +456,76 @@ func HandleRegisterItem(w http.ResponseWriter, r *http.Request) {
 	HandleCreateItem(w, r)
 }
 
+// HandleUpdateItem handles PUT requests to update an existing item
+func HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
+
+	// Get authenticated user ID from context
+	userID := middleware.GetUserIDFromContext(r)
+	if userID == "" {
+		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
+		return
+	}
+
+	// Parse the request body
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		models.WriteServiceError(w, "Failed to read request body", false, true, http.StatusBadRequest)
+		return
+	}
+
+	var item models.Item
+	err = json.Unmarshal(body, &item)
+	if err != nil {
+		models.WriteServiceError(w, "Invalid request format", false, true, http.StatusBadRequest)
+		return
+	}
+
+	// Validate the item has the required fields for update (barcode or code)
+	if item.BarCode == "" && item.Code == "" && item.ID == "" {
+		models.WriteServiceError(w, "At least one of barcode, code, or ID is required for update", false, true, http.StatusBadRequest)
+		return
+	}
+
+	// Update the item
+	updatedItem, err := models.UpdateItem(item)
+	if err != nil {
+		log.Printf("Error updating item: %v", err)
+		models.WriteServiceError(w, fmt.Sprintf("Failed to update item: %v", err), false, true, http.StatusInternalServerError)
+		return
+	}
+
+	// Get stock and tag information for the updated item
+	stocks, err := models.GetStocksByItemId(updatedItem.ID)
+	if err == nil {
+		updatedItem.Stock = stocks
+	} else {
+		updatedItem.Stock = []models.Stock{} // Empty array if error
+	}
+
+	// Fetch tags for the item
+	tags, err := models.GetTagsForItem(updatedItem.ID)
+	if err == nil {
+		updatedItem.Tag = tags
+	} else {
+		updatedItem.Tag = []models.Tag{} // Empty array if error
+	}
+
+	// Extract tag names for convenience
+	var tagNames []string
+	for _, tag := range updatedItem.Tag {
+		tagNames = append(tagNames, tag.TagName)
+	}
+
+	// Prepare response
+	response := map[string]interface{}{
+		"item":     updatedItem,
+		"tagNames": tagNames,
+		"message":  "Item updated successfully",
+	}
+
+	models.WriteServiceResponse(w, "Item updated successfully", response, true, true, http.StatusOK)
+}
+
 // HandleGetItems handles GET requests to get all items
 func HandleGetItems(w http.ResponseWriter, r *http.Request) {
 	// Get authentication user ID from context
