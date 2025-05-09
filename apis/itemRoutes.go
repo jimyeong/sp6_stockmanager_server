@@ -51,23 +51,24 @@ type GetItemRequest struct {
 // date: Date;
 // userId: string;
 type StockInRequest struct {
-	Barcode   string    `json:"barcode"`
-	Code      string    `json:"code"`
-	ItemID    string    `json:"itemId"`
-	StockType string    `json:"stockType"`
-	Quantity  int       `json:"quantity"`
-	Date      time.Time `json:"date"`
-	UserID    string    `json:"userId"`
-	Notes     string    `json:"notes"`
+	Barcode    string    `json:"barcode"`
+	Code       string    `json:"code"`
+	ItemID     string    `json:"itemId"`
+	StockType  string    `json:"stockType"`
+	Quantity   int       `json:"quantity"`
+	ExpiryDate time.Time `json:"expiryDate"`
+	Location   string    `json:"location"`
+	UserID     string    `json:"userId"`
+	Notes      string    `json:"notes"`
 }
 
 type StockOutRequest struct {
 	Barcode   string    `json:"barcode"`
 	Code      string    `json:"code"`
-	ItemID    string    `json:"itemId"`
+	ItemID    string    `json:"item_id"`
 	StockType string    `json:"stockType"` // BOX, BUNDLE, SINGLE
 	Quantity  int       `json:"quantity"`
-	UserID    string    `json:"userId"`
+	UserEmail string    `json:"user_email"`
 	Date      time.Time `json:"date"`
 }
 
@@ -153,11 +154,8 @@ func HandleGetItemByBarcode(w http.ResponseWriter, r *http.Request) {
 // HandleStockIn handles POST requests to add stock
 func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user ID from context
-	userID := middleware.GetUserIDFromContext(r)
-	if userID == "" {
-		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
-		return
-	}
+	_, userEmail, userName := middleware.GetUserFromContext(r)
+	fmt.Println("@@@USER NAME", userName)
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -209,11 +207,13 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 
 	// Create a new stock record
 	stock := models.Stock{
-		StockId:        fmt.Sprintf("stock_%d", time.Now().UnixNano()),
-		ItemId:         itemID,
-		RegisteredDate: request.Date,
-		Notes:          request.Notes,
-		CreatedAt:      time.Now(),
+		StockId:           fmt.Sprintf("stock_%d", time.Now().UnixNano()),
+		ItemId:            itemID,
+		ExpiryDate:        request.ExpiryDate,
+		Notes:             request.Notes,
+		CreatedAt:         time.Now(),
+		Location:          request.Location,
+		RegisteringPerson: userName,
 	}
 
 	// Set the appropriate stock quantity based on type
@@ -243,7 +243,7 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 		ItemID:          itemID,
 		Quantity:        request.Quantity,
 		TransactionType: "in",
-		UserID:          userID, // Use authenticated user ID
+		UserEmail:       userEmail, // Use authe	nticated user ID
 		Notes:           request.Notes,
 		CreatedAt:       time.Now(),
 	}
@@ -260,8 +260,8 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 // HandleStockOut handles POST requests to remove stock
 func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user ID from context
-	userID := middleware.GetUserIDFromContext(r)
-	if userID == "" {
+	userID, userEmail, _ := middleware.GetUserFromContext(r)
+	if userID == 0 {
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
 	}
@@ -366,7 +366,7 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 		ItemID:          itemID,
 		Quantity:        request.Quantity,
 		TransactionType: "out",
-		UserID:          userID, // Use authenticated user ID
+		UserEmail:       userEmail, // Use authenticated user ID
 		Notes:           "",
 		CreatedAt:       time.Now(),
 	}

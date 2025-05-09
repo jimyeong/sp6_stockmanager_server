@@ -10,7 +10,7 @@ import (
 type Item struct {
 	ID                string    `json:"id"`
 	Code              string    `json:"code"`
-	BarCode           string    `json:"barCode"`
+	BarCode           string    `json:"barcode"`
 	Name              string    `json:"name"`
 	Type              string    `json:"type"`
 	AvailableForOrder int       `json:"availableForOrder"`
@@ -24,14 +24,16 @@ type Item struct {
 	Tag               []Tag     `json:"tag"`
 }
 type Stock struct {
-	StockId        string    `json:"stockId"`
-	ItemId         string    `json:"itemId"`
-	BoxNumber      int       `json:"boxNumber"`
-	SingleNumber   int       `json:"singleNumber"`
-	BundleNumber   int       `json:"bundleNumber"`
-	RegisteredDate time.Time `json:"registeredDate"`
-	Notes          string    `json:"notes"`
-	CreatedAt      time.Time `json:"createdAt,omitempty"`
+	StockId           string    `json:"stockId"`
+	ItemId            string    `json:"itemId"`
+	BoxNumber         int       `json:"boxNumber"`
+	SingleNumber      int       `json:"singleNumber"`
+	BundleNumber      int       `json:"bundleNumber"`
+	ExpiryDate        time.Time `json:"expiryDate"`
+	Location          string    `json:"location"`
+	RegisteringPerson string    `json:"registeringPerson"`
+	Notes             string    `json:"notes"`
+	CreatedAt         time.Time `json:"createdAt,omitempty"`
 }
 
 type StockTransaction struct {
@@ -39,7 +41,7 @@ type StockTransaction struct {
 	ItemID          string    `json:"itemId"`
 	Quantity        int       `json:"quantity"`
 	TransactionType string    `json:"transactionType"` // "in" or "out"
-	UserID          string    `json:"userId"`
+	UserEmail       string    `json:"user_email"`
 	Notes           string    `json:"notes"`
 	CreatedAt       time.Time `json:"createdAt"`
 }
@@ -50,7 +52,7 @@ func GetItemByBarcode(barcode string) (Item, error) {
 	db := GetDBInstance(GetDBConfig())
 	var item Item
 
-	query := "SELECT id, code, barcode, name, type, available_for_order, image_path, created_at FROM items WHERE barcode = ?"
+	query := "SELECT item_id, code, barcode, name, type, available_for_order, image_path, created_at FROM items WHERE barcode = ?"
 	err := db.QueryRow(query, barcode).Scan(
 		&item.ID,
 		&item.Code,
@@ -66,9 +68,30 @@ func GetItemByBarcode(barcode string) (Item, error) {
 		if err == sql.ErrNoRows {
 			return item, errors.New("item not found")
 		}
-
 		return item, err
 	}
+	stocks := []Stock{}
+	query = "SELECT box_number, single_number, bundle_number, stock_id, expiry_date, location, registering_person, notes, created_at FROM stocks WHERE fkproduct_id = ?"
+	rows, err := db.Query(query, item.ID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return item, errors.New("stock not found")
+		}
+		return item, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var stock Stock
+		err = rows.Scan(&stock.BoxNumber, &stock.SingleNumber, &stock.BundleNumber, &stock.StockId, &stock.ExpiryDate, &stock.Location, &stock.RegisteringPerson, &stock.Notes, &stock.CreatedAt)
+		if err != nil {
+			return item, err
+		}
+		stocks = append(stocks, stock)
+	}
+	if err = rows.Err(); err != nil {
+		return item, err
+	}
+	item.Stock = stocks
 
 	return item, nil
 }
@@ -239,7 +262,7 @@ func StockOut(itemID string, quantity int, userID string, notes string) error {
 
 	// First check if there's enough stock
 	var currentQuantity int
-	queryCheck := "SELECT quantity_in_stock FROM items WHERE id = ?"
+	queryCheck := "SELECT quantity_in_stock FROM items WHERE item_id = ?"
 	err := db.QueryRow(queryCheck, itemID).Scan(&currentQuantity)
 	if err != nil {
 		return err
@@ -283,7 +306,7 @@ func GetAllItems() ([]Item, error) {
 	var itemMap = make(map[string]*Item) // Map to store items by ID for easy access
 
 	// First query to get all items
-	query := "SELECT id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items"
+	query := "SELECT item_id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items"
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -391,8 +414,8 @@ func GetItemByCode(code string) (Item, error) {
 func AddStock(stock Stock) error {
 	fmt.Println("---ADDSTOCK---", stock)
 	db := GetDBInstance(GetDBConfig())
-	query := "INSERT INTO stocks (stock_id, item_id, box_number, single_number, bundle_number, registered_date, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-	_, err := db.Exec(query, stock.StockId, stock.ItemId, stock.BoxNumber, stock.SingleNumber, stock.BundleNumber, stock.RegisteredDate, stock.Notes, stock.CreatedAt)
+	query := "INSERT INTO stocks ( fkproduct_id, box_number, single_number, bundle_number, expiry_date, location, registering_person, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ? )"
+	_, err := db.Exec(query, stock.ItemId, stock.BoxNumber, stock.SingleNumber, stock.BundleNumber, stock.ExpiryDate, stock.Location, stock.RegisteringPerson, stock.Notes)
 	if err != nil {
 		return err
 	}
@@ -401,8 +424,9 @@ func AddStock(stock Stock) error {
 func SaveStockTransaction(transaction StockTransaction) error {
 	fmt.Println("---SAVESTOCKTRANSACTION---", transaction)
 	db := GetDBInstance(GetDBConfig())
-	query := "INSERT INTO stock_transactions (id, item_id, quantity, type, user_id, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
-	_, err := db.Exec(query, transaction.ID, transaction.ItemID, transaction.Quantity, transaction.TransactionType, transaction.UserID, transaction.Notes, transaction.CreatedAt)
+	fmt.Println("@@@transaction.UserEmail", transaction.UserEmail)
+	query := "INSERT INTO stock_transactions ( fkitem_id, quantity, transaction_type, fkuser_email) VALUES (?, ?, ?, ?)"
+	_, err := db.Exec(query, transaction.ItemID, transaction.Quantity, transaction.TransactionType, transaction.UserEmail)
 	if err != nil {
 		return err
 	}
@@ -413,7 +437,7 @@ func GetItemById(id string) (Item, error) {
 	fmt.Println("---GETITEMBYID---", id)
 	db := GetDBInstance(GetDBConfig())
 	var item Item
-	query := "SELECT id, code, IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '')	 FROM items WHERE id = ?"
+	query := "SELECT item_id, code, IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '')	 FROM items WHERE item_id = ?"
 	err := db.QueryRow(query, id).Scan(&item.ID, &item.Code, &item.BarCode, &item.Name, &item.Type, &item.AvailableForOrder, &item.ImagePath, &item.CreatedAt, &item.NameJpn, &item.NameChn, &item.NameKor, &item.NameEng)
 	if err != nil {
 		return Item{}, err
@@ -425,7 +449,7 @@ func GetStocksByItemId(stockId string) ([]Stock, error) {
 	fmt.Println("---GETSTOCKBYITEMID---", stockId)
 	db := GetDBInstance(GetDBConfig())
 	var stocks []Stock
-	query := "SELECT * FROM stocks WHERE stock_id = ?"
+	query := "SELECT * FROM stocks WHERE fkproduct_id = ?"
 	rows, err := db.Query(query, stockId)
 	if err != nil {
 		return nil, err
@@ -433,7 +457,7 @@ func GetStocksByItemId(stockId string) ([]Stock, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var stock Stock
-		err := rows.Scan(&stock.StockId, &stock.ItemId, &stock.BoxNumber, &stock.SingleNumber, &stock.BundleNumber, &stock.RegisteredDate, &stock.Notes, &stock.CreatedAt)
+		err := rows.Scan(&stock.StockId, &stock.ItemId, &stock.BoxNumber, &stock.SingleNumber, &stock.BundleNumber, &stock.ExpiryDate, &stock.Location, &stock.RegisteringPerson, &stock.Notes, &stock.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -466,11 +490,11 @@ func SearchItemsByField(searchType string, value string) ([]Item, error) {
 	// Determine which field to search
 	switch searchType {
 	case "code":
-		query = "SELECT id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items WHERE code LIKE ?"
+		query = "SELECT item_id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items WHERE code LIKE ?"
 	case "barcode":
-		query = "SELECT id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items WHERE barcode LIKE ?"
+		query = "SELECT item_id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items WHERE barcode LIKE ?"
 	case "name":
-		query = "SELECT id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items WHERE name LIKE ?"
+		query = "SELECT item_id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items WHERE name LIKE ?"
 	default:
 		return nil, fmt.Errorf("invalid search type: %s", searchType)
 	}

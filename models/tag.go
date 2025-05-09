@@ -110,10 +110,10 @@ func GetItemsByTags(tagIDs []string) ([]Item, error) {
 
 	// Query to get items that have any of the given tags
 	query := `
-	SELECT DISTINCT i.id, IFNULL(i.code, ''), IFNULL(i.barcode, ''), IFNULL(i.name, ''), 
+	SELECT DISTINCT i.item_id, IFNULL(i.code, ''), IFNULL(i.barcode, ''), IFNULL(i.name, ''), 
 	IFNULL(i.type, ''), IFNULL(i.available_for_order, 0), IFNULL(i.image_path, ''), i.created_at
 	FROM items i
-	JOIN item_tags it ON i.id = it.item_id
+	JOIN item_tags it ON i.item_id = it.item_id
 	WHERE it.tag_id IN (` + placeholders + `)
 	ORDER BY i.created_at DESC
 	LIMIT 50`
@@ -380,9 +380,9 @@ func GetRecommendedItems(tagIDs []string, limit int, page int) ([]Item, int, err
 
 	// First, get the total count for pagination info
 	countQuery := `
-	SELECT COUNT(DISTINCT i.id)
+	SELECT COUNT(DISTINCT i.item_id)
 	FROM items i
-	JOIN item_tags it ON i.id = it.item_id
+	JOIN item_tags it ON i.item_id = it.item_id
 	WHERE it.tag_id IN (` + placeholders + `)`
 
 	var totalCount int
@@ -395,13 +395,13 @@ func GetRecommendedItems(tagIDs []string, limit int, page int) ([]Item, int, err
 	// This query counts how many of the requested tags each item has
 	// Then sorts by the tag match count (most matching tags first)
 	query := `
-	SELECT i.id, IFNULL(i.code, ''), IFNULL(i.barcode, ''), IFNULL(i.name, ''), 
+	SELECT i.item_id, IFNULL(i.code, ''), IFNULL(i.barcode, ''), IFNULL(i.name, ''), 
 	IFNULL(i.type, ''), IFNULL(i.available_for_order, 0), IFNULL(i.image_path, ''), i.created_at,
 	COUNT(it.tag_id) as tag_match_count
 	FROM items i
-	JOIN item_tags it ON i.id = it.item_id
+	JOIN item_tags it ON i.item_id = it.item_id
 	WHERE it.tag_id IN (` + placeholders + `)
-	GROUP BY i.id
+	GROUP BY i.item_id
 	ORDER BY tag_match_count DESC, i.created_at DESC
 	LIMIT ? OFFSET ?`
 
@@ -438,17 +438,17 @@ func GetRecommendedItems(tagIDs []string, limit int, page int) ([]Item, int, err
 	// Fetch tag information for each item
 	itemMap := make(map[string]*Item)
 	var itemIDs []string
-	
+
 	for i := range items {
 		itemMap[items[i].ID] = &items[i]
 		itemIDs = append(itemIDs, items[i].ID)
 	}
-	
+
 	if len(itemIDs) > 0 {
 		// Build item placeholders
 		itemPlaceholders := ""
 		itemArgs := make([]interface{}, len(itemIDs))
-		
+
 		for i, itemID := range itemIDs {
 			if i > 0 {
 				itemPlaceholders += ", "
@@ -456,24 +456,24 @@ func GetRecommendedItems(tagIDs []string, limit int, page int) ([]Item, int, err
 			itemPlaceholders += "?"
 			itemArgs[i] = itemID
 		}
-		
+
 		// Query to get tags for these items
 		tagQuery := `
 		SELECT it.item_id, t.id, t.name
 		FROM item_tags it
 		JOIN tags t ON it.tag_id = t.id
 		WHERE it.item_id IN (` + itemPlaceholders + `)`
-		
+
 		tagRows, err := db.Query(tagQuery, itemArgs...)
 		if err != nil {
 			fmt.Printf("Error fetching tags: %v\n", err)
 		} else {
 			defer tagRows.Close()
-			
+
 			for tagRows.Next() {
 				var itemID string
 				var tag Tag
-				
+
 				err := tagRows.Scan(
 					&itemID,
 					&tag.ID,
@@ -483,7 +483,7 @@ func GetRecommendedItems(tagIDs []string, limit int, page int) ([]Item, int, err
 					fmt.Printf("Error scanning tag: %v\n", err)
 					continue
 				}
-				
+
 				// Add tag to the appropriate item
 				if item, exists := itemMap[itemID]; exists {
 					item.Tag = append(item.Tag, tag)

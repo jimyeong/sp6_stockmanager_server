@@ -7,6 +7,7 @@ import (
 
 // User represents user data in the system
 type User struct {
+	ID            int       `json:"user_id"`
 	DisplayName   string    `json:"displayName"`
 	Email         string    `json:"email"`
 	EmailVerified bool      `json:"emailVerified"`
@@ -35,6 +36,7 @@ func (u *User) Save() (User, error) {
 		fmt.Println("Save error:", err)
 		return User{}, err
 	}
+	fmt.Println("@@@save user:", u)
 	return *u, nil
 }
 func (u *User) Update(uid string) (User, error) {

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/jimyeongjung/owlverload_api/middleware"
 	"github.com/jimyeongjung/owlverload_api/models"
 )
 
@@ -56,7 +57,7 @@ func HandleSignIn(w http.ResponseWriter, r *http.Request) {
 	if isSaved {
 		// update login time
 		user.LoginAt = time.Now()
-		_, err = user.Update(user.Uid)
+		user, err = user.Update(user.Uid)
 		if err != nil {
 			fmt.Println("err:", err)
 		}
@@ -72,6 +73,15 @@ func HandleSignIn(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+
+	fmt.Println("@@@USER", user)
+	fmt.Println("@@@USER ID", user.ID)
+	fmt.Println("@@@USER EMAIL", user.Email)
+	fmt.Println("@@@USER NAME", user.DisplayName)
+	userID := user.ID
+	userEmail := user.Email
+	userName := user.DisplayName
+	middleware.SaveUserIDToContext(r, userID, userEmail, userName)
 
 	result[0] = user
 
