@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jimyeongjung/owlverload_api/middleware"
+	"github.com/jimyeongjung/owlverload_api/firebase"
 	"github.com/jimyeongjung/owlverload_api/models"
 )
 
@@ -154,7 +154,9 @@ func HandleGetItemByBarcode(w http.ResponseWriter, r *http.Request) {
 // HandleStockIn handles POST requests to add stock
 func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user ID from context
-	_, userEmail, userName := middleware.GetUserFromContext(r)
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userName := tokenClaims.DisplayName
+	userEmail := tokenClaims.Email
 	fmt.Println("@@@USER NAME", userName)
 
 	body, err := io.ReadAll(r.Body)
@@ -260,8 +262,10 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 // HandleStockOut handles POST requests to remove stock
 func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user ID from context
-	userID, userEmail, _ := middleware.GetUserFromContext(r)
-	if userID == 0 {
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	fmt.Println("@@@USER NAME", userEmail)
+	if userEmail == "" {
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
 	}
@@ -383,8 +387,10 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 // HandleCreateItem handles POST requests to create a new item
 func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user ID from context
-	userID := middleware.GetUserIDFromContext(r)
-	if userID == "" {
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	fmt.Println("@@@USER NAME", userEmail)
+	if userEmail == "" {
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
 	}
@@ -460,8 +466,10 @@ func HandleRegisterItem(w http.ResponseWriter, r *http.Request) {
 func HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
 
 	// Get authenticated user ID from context
-	userID := middleware.GetUserIDFromContext(r)
-	if userID == "" {
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	fmt.Println("@@@USER NAME", userEmail)
+	if userEmail == "" {
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
 	}
@@ -529,8 +537,10 @@ func HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
 // HandleGetItems handles GET requests to get all items
 func HandleGetItems(w http.ResponseWriter, r *http.Request) {
 	// Get authentication user ID from context
-	userID := middleware.GetUserIDFromContext(r)
-	if userID == "" {
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	fmt.Println("@@@USER NAME", userEmail)
+	if userEmail == "" {
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
 	}
@@ -613,8 +623,10 @@ func HandleGetItems(w http.ResponseWriter, r *http.Request) {
 // HandleSearchItems handles POST requests to search for items with more complex criteria
 func HandleSearchItems(w http.ResponseWriter, r *http.Request) {
 	// Get authentication user ID from context
-	userID := middleware.GetUserIDFromContext(r)
-	if userID == "" {
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	fmt.Println("@@@USER NAME", userEmail)
+	if userEmail == "" {
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
 	}
@@ -731,8 +743,10 @@ func HandleSearchItems(w http.ResponseWriter, r *http.Request) {
 // HandleLookupItems handles POST requests to search for items by field with LIKE queries
 func HandleLookupItems(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user ID from context
-	userID := middleware.GetUserIDFromContext(r)
-	if userID == "" {
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	fmt.Println("@@@USER NAME", userEmail)
+	if userEmail == "" {
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
 	}
@@ -820,8 +834,10 @@ func HandleLookupItems(w http.ResponseWriter, r *http.Request) {
 // HandleGetItemsWithMissingInfo handles GET requests to get items with missing information
 func HandleGetItemsWithMissingInfo(w http.ResponseWriter, r *http.Request) {
 	// Get authentication user ID from context
-	userID := middleware.GetUserIDFromContext(r)
-	if userID == "" {
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	fmt.Println("@@@USER NAME", userEmail)
+	if userEmail == "" {
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
 	}

@@ -9,6 +9,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/jimyeongjung/owlverload_api/apis"
+	"github.com/jimyeongjung/owlverload_api/firebase"
 	"github.com/jimyeongjung/owlverload_api/middleware"
 	"github.com/jimyeongjung/owlverload_api/models"
 	"github.com/joho/godotenv"
@@ -50,18 +51,33 @@ func main() {
 	// cors
 	r.Use(cors.AllowAll().Handler)
 
-	// Define authentication middleware
-	authConfig := middleware.AuthenticationConfig{
-		ValidateToken:     middleware.FirebaseTokenValidator,
-		ExcludedPaths:     []string{"/public/api/v1/auth/signin", "/public/health", "/public/api/v1/health"},
-		TokenErrorMessage: "Authentication required. Please provide a valid Bearer token.",
+	// Initialize Firebase app
+	firebaseClient, err := firebase.InitFirebaseApp()
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	// Define authentication middleware
+	// authConfig := middleware.AuthenticationConfig{
+	// 	ValidateToken:     middleware.FirebaseTokenValidator,
+	// 	ExcludedPaths:     []string{"/public/api/v1/auth/signin", "/public/health", "/public/api/v1/health"},
+	// 	TokenErrorMessage: "Authentication required. Please provide a valid Bearer token.",
+	// }
+
+	// Apply authentication middleware to protected routes
+	// You can use either the original middleware or the new ValidateFirebaseToken middleware
+
+	// Option 1: Original authentication middleware
+	// apiRouter.Use(middleware.NewAuthentication(authConfig))
+
+	// Option 2: New token validation middleware (simpler and more focused)
 
 	// Create a subrouter for protected routes
 	apiRouter := r.PathPrefix("/api/v1/").Subrouter()
-
-	// Apply authentication middleware to protected routes
-	apiRouter.Use(middleware.NewAuthentication(authConfig))
+	apiRouter.Use(func(next http.Handler) http.Handler {
+		fmt.Println("--- coming in here 2--- ")
+		return middleware.ValidateFirebaseToken(next, firebaseClient)
+	})
 
 	fmt.Println("@main@2", "Registering routes")
 

@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/jimyeongjung/owlverload_api/middleware"
+	"github.com/jimyeongjung/owlverload_api/firebase"
 	"github.com/jimyeongjung/owlverload_api/models"
 )
 
@@ -31,8 +31,10 @@ type AssociateTagsRequest struct {
 // HandleGetRecommendedItems handles requests for item recommendations based on tags with pagination
 func HandleGetRecommendedItems(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user ID from context
-	userID := middleware.GetUserIDFromContext(r)
-	if userID == "" {
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	fmt.Println("@@@USER NAME", userEmail)
+	if userEmail == "" {
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
 	}
@@ -138,8 +140,10 @@ func HandleGetRecommendedItems(w http.ResponseWriter, r *http.Request) {
 // HandleGetAllTags handles requests to get all tags
 func HandleGetAllTags(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user ID from context
-	userID := middleware.GetUserIDFromContext(r)
-	if userID == "" {
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	fmt.Println("@@@USER NAME", userEmail)
+	if userEmail == "" {
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
 	}
@@ -180,8 +184,10 @@ func HandleGetAllTags(w http.ResponseWriter, r *http.Request) {
 // HandleCreateTag handles requests to create a new tag
 func HandleCreateTag(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user ID from context
-	userID := middleware.GetUserIDFromContext(r)
-	if userID == "" {
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	fmt.Println("@@@USER NAME", userEmail)
+	if userEmail == "" {
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
 	}
@@ -224,7 +230,10 @@ func HandleCreateTag(w http.ResponseWriter, r *http.Request) {
 // HandleAssociateItemWithTags handles requests to associate an item with tags
 func HandleAssociateItemWithTags(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user ID from context
-	userID := middleware.GetUserIDFromContext(r)
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	userID := tokenClaims.UID
+	fmt.Println("@@@USER NAME", userEmail)
 	if userID == "" {
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
@@ -278,7 +287,10 @@ func HandleAssociateItemWithTags(w http.ResponseWriter, r *http.Request) {
 // HandleGetTagsForItem handles requests to get all tags for a specific item
 func HandleGetTagsForItem(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user ID from context
-	userID := middleware.GetUserIDFromContext(r)
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	userID := tokenClaims.UID
+	fmt.Println("@@@USER NAME", userEmail)
 	if userID == "" {
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
@@ -311,7 +323,10 @@ func HandleGetTagsForItem(w http.ResponseWriter, r *http.Request) {
 // HandleGetPopularTags handles requests to get the most popular tags
 func HandleGetPopularTags(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user ID from context
-	userID := middleware.GetUserIDFromContext(r)
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	userID := tokenClaims.UID
+	fmt.Println("@@@USER NAME", userEmail)
 	if userID == "" {
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
@@ -349,8 +364,10 @@ func HandleGetPopularTags(w http.ResponseWriter, r *http.Request) {
 // HandleSearchTags handles requests to search for tags by name
 func HandleSearchTags(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user ID from context
-	userID := middleware.GetUserIDFromContext(r)
-	if userID == "" {
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	fmt.Println("@@@USER NAME", userEmail)
+	if userEmail == "" {
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
 	}
