@@ -121,14 +121,6 @@ func HandleGetItemByBarcode(w http.ResponseWriter, r *http.Request) {
 				Success:    true,
 				UserExists: true,
 			})
-
-			// w.Write([]byte("Item not found"))
-			// json.NewEncoder(w).Encode(models.ServiceResponse{
-			// 	Message:    "Item not found",
-			// 	Payload:    nil,
-			// 	Success:    false,
-			// 	UserExists: true,
-			// })
 			return
 			// return
 		}
@@ -148,7 +140,7 @@ func HandleGetItemByBarcode(w http.ResponseWriter, r *http.Request) {
 
 	// If we get here, item wasn't found
 	log.Printf("Error getting item: %v", err)
-	models.WriteServiceError(w, "Item not found", false, true, http.StatusNotFound)
+	models.WriteServiceError(w, "Item not found", true, true, http.StatusNotFound)
 }
 
 // HandleStockIn handles POST requests to add stock
