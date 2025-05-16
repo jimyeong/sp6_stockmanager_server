@@ -63,13 +63,12 @@ type StockInRequest struct {
 }
 
 type StockOutRequest struct {
-	Barcode   string    `json:"barcode"`
-	Code      string    `json:"code"`
-	ItemID    string    `json:"item_id"`
-	StockType string    `json:"stockType"` // BOX, BUNDLE, SINGLE
-	Quantity  int       `json:"quantity"`
-	UserEmail string    `json:"user_email"`
-	Date      time.Time `json:"date"`
+	Stock     models.Stock `json:"stock"`
+	StockType string       `json:"stockType"` // BOX, BUNDLE, SINGLE
+	Quantity  int          `json:"quantity"`
+	UserEmail string       `json:"user_email"`
+	Date      time.Time    `json:"date"`
+	Notes     string       `json:"notes"`
 }
 
 // SearchItemsRequest defines parameters for searching items
@@ -269,15 +268,17 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var request StockOutRequest
+
 	err = json.Unmarshal(body, &request)
+	fmt.Println("---request---", request)
 	if err != nil {
 		models.WriteServiceError(w, "Invalid request format", false, true, http.StatusBadRequest)
 		return
 	}
 
 	// Validate request
-	if request.ItemID == "" && request.Barcode == "" && request.Code == "" {
-		models.WriteServiceError(w, "Item ID, Barcode, or Code is required", false, true, http.StatusBadRequest)
+	if request.Stock.StockId == "" {
+		models.WriteServiceError(w, "Stock ID is required", false, true, http.StatusBadRequest)
 		return
 	}
 
@@ -285,85 +286,45 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 		models.WriteServiceError(w, "Quantity must be greater than 0", false, true, http.StatusBadRequest)
 		return
 	}
-
+	fmt.Println("---StockTYPE---", request.StockType)
 	if request.StockType == "" {
 		models.WriteServiceError(w, "Stock type is required (BOX, BUNDLE, or SINGLE)", false, true, http.StatusBadRequest)
 		return
 	}
 
-	// If itemID is not provided, try to get it from barcode or code
-	var itemID string
-	var item models.Item
-	if request.ItemID != "" {
-		itemID = request.ItemID
-		// Get item to check available stock
-		item, err = models.GetItemById(itemID)
+	// Calculate the amount of stock available
+
+	deductedQuantity := request.Stock.BoxNumber - request.Quantity
+	if deductedQuantity < 0 {
+		models.WriteServiceError(w, fmt.Sprintf("Stock can't be deducted more than you have. current Quantity %d, requested Quantity %d", request.Stock.BoxNumber, request.Quantity), false, true, http.StatusBadRequest)
+		return
+	}
+
+	if deductedQuantity > 0 {
+		err = models.UpdateStock(request.Stock.StockId, request.Stock.ItemId, deductedQuantity)
 		if err != nil {
-			models.WriteServiceError(w, fmt.Sprintf("Failed to find item: %v", err), false, true, http.StatusNotFound)
+			log.Printf("Error updating stock: %v", err)
+			models.WriteServiceError(w, fmt.Sprintf("Failed to update stock: %v", err), false, true, http.StatusInternalServerError)
 			return
 		}
-	} else {
-		if request.Barcode != "" {
-			item, err = models.GetItemByBarcode(request.Barcode)
-		} else if request.Code != "" {
-			item, err = models.GetItemByCode(request.Code)
-		}
-
+	}
+	if deductedQuantity == 0 {
+		err = models.RemoveStock(request.Stock.StockId)
 		if err != nil {
-			models.WriteServiceError(w, fmt.Sprintf("Failed to find item: %v", err), false, true, http.StatusNotFound)
+			log.Printf("Error removing stock: %v", err)
+			models.WriteServiceError(w, fmt.Sprintf("Failed to remove stock: %v", err), false, true, http.StatusInternalServerError)
 			return
 		}
-		itemID = item.ID
-	}
-
-	// Check if there's enough stock
-	stocks, err := models.GetStocksByItemId(itemID)
-	if err != nil {
-		models.WriteServiceError(w, fmt.Sprintf("Failed to retrieve stock: %v", err), false, true, http.StatusInternalServerError)
-		return
-	}
-
-	// Calculate total available in the requested stock type
-	var availableQuantity int
-	switch request.StockType {
-	case "BOX":
-		for _, stock := range stocks {
-			availableQuantity += stock.BoxNumber
-		}
-	case "BUNDLE":
-		for _, stock := range stocks {
-			availableQuantity += stock.BundleNumber
-		}
-	case "SINGLE":
-		for _, stock := range stocks {
-			availableQuantity += stock.SingleNumber
-		}
-	default:
-		models.WriteServiceError(w, "Invalid stock type. Must be BOX, BUNDLE, or SINGLE", false, true, http.StatusBadRequest)
-		return
-	}
-
-	if availableQuantity < request.Quantity {
-		models.WriteServiceError(w, fmt.Sprintf("Insufficient stock. Requested: %d, Available: %d", request.Quantity, availableQuantity), false, true, http.StatusBadRequest)
-		return
-	}
-
-	// Remove stock
-	err = models.RemoveStock(itemID, request.StockType, request.Quantity)
-	if err != nil {
-		log.Printf("Error removing stock: %v", err)
-		models.WriteServiceError(w, fmt.Sprintf("Failed to remove stock: %v", err), false, true, http.StatusInternalServerError)
-		return
 	}
 
 	// Record the transaction
 	transaction := models.StockTransaction{
-		ID:              fmt.Sprintf("transaction_%d", time.Now().UnixNano()),
-		ItemID:          itemID,
+		ID:              userEmail,
+		ItemID:          request.Stock.ItemId,
 		Quantity:        request.Quantity,
 		TransactionType: "out",
 		UserEmail:       userEmail, // Use authenticated user ID
-		Notes:           "",
+		Notes:           request.Notes,
 		CreatedAt:       time.Now(),
 	}
 

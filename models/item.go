@@ -287,9 +287,8 @@ func StockOut(itemID string, quantity int, userID string, notes string) error {
 	}
 
 	// 2. Create stock transaction record
-	transactionID := fmt.Sprintf("transaction_%d", time.Now().UnixNano())
-	transactionQuery := "INSERT INTO stock_transactions (id, item_id, quantity, type, user_id, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
-	_, err = tx.Exec(transactionQuery, transactionID, itemID, quantity, "out", userID, notes, time.Now())
+	transactionQuery := "INSERT INTO stock_transactions (item_id, quantity, type, user_id, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
+	_, err = tx.Exec(transactionQuery, itemID, quantity, "out", userID, notes, time.Now())
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -465,11 +464,21 @@ func GetStocksByItemId(stockId string) ([]Stock, error) {
 	}
 	return stocks, nil
 }
-
-func RemoveStock(stockId string, stockType string, quantity int) error {
+func UpdateStock(stockId string, stockType string, quantity int) error {
 	db := GetDBInstance(GetDBConfig())
-	query := "UPDATE stocks SET box_number = box_number - ?, single_number = single_number - ?, bundle_number = bundle_number - ? WHERE stock_id = ?"
-	_, err := db.Exec(query, quantity, quantity, quantity, stockId)
+	query := "UPDATE stocks SET box_number = box_number - ? WHERE stock_id = ?"
+	_, err := db.Exec(query, quantity, stockId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func RemoveStock(stockId string) error {
+	db := GetDBInstance(GetDBConfig())
+	// delete row from stocks table
+	query := "DELETE FROM stocks WHERE stock_id = ?"
+	_, err := db.Exec(query, stockId)
 	if err != nil {
 		return err
 	}
