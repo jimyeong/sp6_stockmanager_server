@@ -66,7 +66,7 @@ type StockOutRequest struct {
 	Stock     models.Stock `json:"stock"`
 	StockType string       `json:"stockType"` // BOX, BUNDLE, SINGLE
 	Quantity  int          `json:"quantity"`
-	UserEmail string       `json:"user_email"`
+	UserEmail string       `json:"userEmail"`
 	Date      time.Time    `json:"date"`
 	Notes     string       `json:"notes"`
 }
@@ -142,7 +142,7 @@ func HandleGetItemByBarcode(w http.ResponseWriter, r *http.Request) {
 	models.WriteServiceError(w, "Item not found", true, true, http.StatusNotFound)
 }
 
-// HandleStockIn handles POST requests to add stock
+// HandleStockIn handles POST requests to add stock with transaction support
 func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user ID from context
 	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
@@ -222,35 +222,57 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Save the stock
-	err = models.AddStock(stock)
+	// Get database instance and start a transaction
+	db := models.GetDBInstance(models.GetDBConfig())
+	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("Error adding stock: %v", err)
+		log.Printf("Failed to start transaction: %v", err)
+		models.WriteServiceError(w, "Internal server error", false, true, http.StatusInternalServerError)
+		return
+	}
+
+	// Defer a rollback in case anything fails
+	// If the transaction commits successfully, this rollback will be a no-op
+	defer func() {
+		if tx != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// Insert stock within transaction
+	stockQuery := "INSERT INTO stocks (fkproduct_id, box_number, single_number, bundle_number, expiry_date, location, registering_person, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+	_, err = tx.Exec(stockQuery, stock.ItemId, stock.BoxNumber, stock.SingleNumber, stock.BundleNumber, stock.ExpiryDate, stock.Location, stock.RegisteringPerson, stock.Notes)
+	if err != nil {
+		log.Printf("Error adding stock in transaction: %v", err)
 		models.WriteServiceError(w, fmt.Sprintf("Failed to add stock: %v", err), false, true, http.StatusInternalServerError)
 		return
 	}
 
-	// Record the transaction
-	transaction := models.StockTransaction{
-		ID:              fmt.Sprintf("transaction_%d", time.Now().UnixNano()),
-		ItemID:          itemID,
-		Quantity:        request.Quantity,
-		TransactionType: "in",
-		UserEmail:       userEmail, // Use authe	nticated user ID
-		Notes:           request.Notes,
-		CreatedAt:       time.Now(),
-	}
-
-	err = models.SaveStockTransaction(transaction)
+	// Record the transaction within the same DB transaction
+	transactionQuery := "INSERT INTO stock_transactions (fkitem_id, quantity, transaction_type, fkuser_email) VALUES (?, ?, ?, ?)"
+	_, err = tx.Exec(transactionQuery, itemID, request.Quantity, "in", userEmail)
 	if err != nil {
-		log.Printf("Error recording transaction: %v", err)
-		// Continue anyway since the stock was already added
+		log.Printf("Error recording transaction in DB transaction: %v", err)
+		models.WriteServiceError(w, fmt.Sprintf("Failed to record transaction: %v", err), false, true, http.StatusInternalServerError)
+		return
 	}
 
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		log.Printf("Error committing transaction: %v", err)
+		models.WriteServiceError(w, "Failed to complete the stock operation. Please try again.", false, true, http.StatusInternalServerError)
+		return
+	}
+
+	// Set tx to nil to prevent the deferred rollback from doing anything
+	tx = nil
+
+	// Return success response
 	models.WriteServiceResponse(w, "Stock added successfully", stock, true, true, http.StatusOK)
 }
 
-// HandleStockOut handles POST requests to remove stock
+// HandleStockOut handles POST requests to remove stock with transaction support
 func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user ID from context
 	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
@@ -286,6 +308,7 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 		models.WriteServiceError(w, "Quantity must be greater than 0", false, true, http.StatusBadRequest)
 		return
 	}
+
 	fmt.Println("---StockTYPE---", request.StockType)
 	if request.StockType == "" {
 		models.WriteServiceError(w, "Stock type is required (BOX, BUNDLE, or SINGLE)", false, true, http.StatusBadRequest)
@@ -293,47 +316,71 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Calculate the amount of stock available
-
 	deductedQuantity := request.Stock.BoxNumber - request.Quantity
 	if deductedQuantity < 0 {
-		models.WriteServiceError(w, fmt.Sprintf("Stock can't be deducted more than you have. current Quantity %d, requested Quantity %d", request.Stock.BoxNumber, request.Quantity), false, true, http.StatusBadRequest)
+		models.WriteServiceError(w, fmt.Sprintf("Stock can't be deducted more than you have. Current quantity %d, requested quantity %d", request.Stock.BoxNumber, request.Quantity), false, true, http.StatusBadRequest)
 		return
 	}
 
+	// Get database instance and start a transaction
+	db := models.GetDBInstance(models.GetDBConfig())
+	tx, err := db.Begin()
+	if err != nil {
+		log.Printf("Failed to start transaction: %v", err)
+		models.WriteServiceError(w, "Internal server error", false, true, http.StatusInternalServerError)
+		return
+	}
+
+	// Defer a rollback in case anything fails
+	// If the transaction commits successfully, this rollback will be a no-op
+	defer func() {
+		if tx != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// Update or remove stock within the transaction
 	if deductedQuantity > 0 {
-		err = models.UpdateStock(request.Stock.StockId, request.Stock.ItemId, deductedQuantity)
+		// Update stock quantity
+		query := "UPDATE stocks SET box_number = box_number - ? WHERE stock_id = ?"
+		_, err = tx.Exec(query, request.Quantity, request.Stock.StockId)
 		if err != nil {
-			log.Printf("Error updating stock: %v", err)
+			log.Printf("Error updating stock in transaction: %v", err)
 			models.WriteServiceError(w, fmt.Sprintf("Failed to update stock: %v", err), false, true, http.StatusInternalServerError)
 			return
 		}
-	}
-	if deductedQuantity == 0 {
-		err = models.RemoveStock(request.Stock.StockId)
+	} else if deductedQuantity == 0 {
+		// Remove stock completely
+		query := "DELETE FROM stocks WHERE stock_id = ?"
+		_, err = tx.Exec(query, request.Stock.StockId)
 		if err != nil {
-			log.Printf("Error removing stock: %v", err)
+			log.Printf("Error removing stock in transaction: %v", err)
 			models.WriteServiceError(w, fmt.Sprintf("Failed to remove stock: %v", err), false, true, http.StatusInternalServerError)
 			return
 		}
 	}
 
-	// Record the transaction
-	transaction := models.StockTransaction{
-		ID:              userEmail,
-		ItemID:          request.Stock.ItemId,
-		Quantity:        request.Quantity,
-		TransactionType: "out",
-		UserEmail:       userEmail, // Use authenticated user ID
-		Notes:           request.Notes,
-		CreatedAt:       time.Now(),
-	}
-
-	err = models.SaveStockTransaction(transaction)
+	// Record the transaction within the same DB transaction
+	transactionQuery := "INSERT INTO stock_transactions (fkitem_id, quantity, transaction_type, fkuser_email) VALUES (?, ?, ?, ?)"
+	_, err = tx.Exec(transactionQuery, request.Stock.ItemId, request.Quantity, "out", userEmail)
 	if err != nil {
-		log.Printf("Error recording transaction: %v", err)
-		// Continue anyway since the stock was already removed
+		log.Printf("Error recording transaction in DB transaction: %v", err)
+		models.WriteServiceError(w, fmt.Sprintf("Failed to record transaction: %v", err), false, true, http.StatusInternalServerError)
+		return
 	}
 
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		log.Printf("Error committing transaction: %v", err)
+		models.WriteServiceError(w, "Failed to complete the stock operation. Please try again.", false, true, http.StatusInternalServerError)
+		return
+	}
+
+	// Set tx to nil to prevent the deferred rollback from doing anything
+	tx = nil
+
+	// Return success response
 	models.WriteServiceResponse(w, "Stock removed successfully", nil, true, true, http.StatusOK)
 }
 

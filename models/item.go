@@ -41,9 +41,9 @@ type StockTransaction struct {
 	ItemID          string    `json:"itemId"`
 	Quantity        int       `json:"quantity"`
 	TransactionType string    `json:"transactionType"` // "in" or "out"
-	UserEmail       string    `json:"user_email"`
+	UserEmail       string    `json:"userEmail"`
 	Notes           string    `json:"notes"`
-	CreatedAt       time.Time `json:"createdAt"`
+	CreatedAt       time.Time `json:"createdAt,omitempty"`
 }
 
 // GetItemByBarcode retrieves an item by its barcode
@@ -71,7 +71,7 @@ func GetItemByBarcode(barcode string) (Item, error) {
 		return item, err
 	}
 	stocks := []Stock{}
-	query = "SELECT box_number, single_number, bundle_number, stock_id, expiry_date, location, registering_person, notes, created_at FROM stocks WHERE fkproduct_id = ?"
+	query = "SELECT box_number, single_number, bundle_number, stock_id, fkproduct_id,expiry_date, location, registering_person, notes, created_at FROM stocks WHERE fkproduct_id = ?"
 	rows, err := db.Query(query, item.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -82,7 +82,7 @@ func GetItemByBarcode(barcode string) (Item, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var stock Stock
-		err = rows.Scan(&stock.BoxNumber, &stock.SingleNumber, &stock.BundleNumber, &stock.StockId, &stock.ExpiryDate, &stock.Location, &stock.RegisteringPerson, &stock.Notes, &stock.CreatedAt)
+		err = rows.Scan(&stock.BoxNumber, &stock.SingleNumber, &stock.BundleNumber, &stock.StockId, &stock.ItemId, &stock.ExpiryDate, &stock.Location, &stock.RegisteringPerson, &stock.Notes, &stock.CreatedAt)
 		if err != nil {
 			return item, err
 		}
@@ -103,7 +103,7 @@ func CreateItem(item Item) (Item, error) {
 
 	// Generate a unique ID if not provided
 	if item.ID == "" {
-		item.ID = fmt.Sprintf("item_%d", time.Now().UnixNano())
+		item.ID = fmt.Sprintf("item_%id", time.Now().UnixNano())
 	}
 
 	now := time.Now()
