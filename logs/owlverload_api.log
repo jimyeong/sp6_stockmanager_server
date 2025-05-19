@@ -1,0 +1,14 @@
+2025/05/19 18:08:14 [2025-05-19 18:08:14.310] [INFO] [main.go:39] Starting Owlverload API server
+2025/05/19 18:08:14 [2025-05-19 18:08:14.311] [INFO] [main.go:44] Loaded development environment
+2025/05/19 18:08:14 [2025-05-19 18:08:14.311] [TRACE] [db.go:33] Entering db.go:33
+2025/05/19 18:08:14 [2025-05-19 18:08:14.311] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/05/19 18:08:14 [2025-05-19 18:08:14.311] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/05/19 18:08:14 [2025-05-19 18:08:14.314] [INFO] [db.go:59] Database connected successfully
+2025/05/19 18:08:14 [2025-05-19 18:08:14.314] [TRACE] [db.go:60] Exiting db.go:60
+2025/05/19 18:08:24 [2025-05-19 18:08:24.722] [INFO] [main.go:39] Starting Owlverload API server
+2025/05/19 18:08:24 [2025-05-19 18:08:24.722] [INFO] [main.go:44] Loaded development environment
+2025/05/19 18:08:24 [2025-05-19 18:08:24.722] [TRACE] [db.go:33] Entering db.go:33
+2025/05/19 18:08:24 [2025-05-19 18:08:24.722] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/05/19 18:08:24 [2025-05-19 18:08:24.722] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/05/19 18:08:24 [2025-05-19 18:08:24.724] [INFO] [db.go:59] Database connected successfully
+2025/05/19 18:08:24 [2025-05-19 18:08:24.724] [TRACE] [db.go:60] Exiting db.go:60

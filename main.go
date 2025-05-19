@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -12,19 +13,41 @@ import (
 	"github.com/jimyeongjung/owlverload_api/firebase"
 	"github.com/jimyeongjung/owlverload_api/middleware"
 	"github.com/jimyeongjung/owlverload_api/models"
+	"github.com/jimyeongjung/owlverload_api/utils"
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 )
 
 func main() {
 	var err error
+	
+	// Initialize logger
+	logDir := "./logs"
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		log.Printf("Failed to create log directory: %v", err)
+	}
+	
+	logFile := filepath.Join(logDir, "owlverload_api.log")
+	if err := utils.InitLogger(logFile); err != nil {
+		log.Printf("Failed to initialize logger: %v", err)
+	}
+	defer utils.Close()
+	
+	// Set log level (Debug to see all logs)
+	utils.SetLogLevel(utils.LevelDebug)
+	
+	utils.Info("Starting Owlverload API server")
+	
+	// Load environment variables
 	if os.Getenv("ENV") == "development" {
 		err = godotenv.Load(".env.development")
+		utils.Info("Loaded development environment")
 	} else {
 		err = godotenv.Load(".env.production")
+		utils.Info("Loaded production environment")
 	}
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		utils.Fatal("Error loading .env file: %v", err)
 	}
 
 	// db connection

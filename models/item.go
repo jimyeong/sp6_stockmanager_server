@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"time"
+
+	"github.com/jimyeongjung/owlverload_api/utils"
 )
 
 type Item struct {
@@ -433,35 +435,114 @@ func SaveStockTransaction(transaction StockTransaction) error {
 }
 
 func GetItemById(id string) (Item, error) {
-	fmt.Println("---GETITEMBYID---", id)
+	defer utils.Trace()()
+	utils.Info("Getting item by ID: %s", id)
+
+	if id == "" {
+		utils.Error("Empty item ID provided to GetItemById")
+		return Item{}, fmt.Errorf("empty item ID")
+	}
+
 	db := GetDBInstance(GetDBConfig())
+	if db == nil {
+		utils.Error("Failed to get database instance")
+		return Item{}, fmt.Errorf("database connection error")
+	}
+
 	var item Item
-	query := "SELECT item_id, code, IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '')	 FROM items WHERE item_id = ?"
-	err := db.QueryRow(query, id).Scan(&item.ID, &item.Code, &item.BarCode, &item.Name, &item.Type, &item.AvailableForOrder, &item.ImagePath, &item.CreatedAt, &item.NameJpn, &item.NameChn, &item.NameKor, &item.NameEng)
+	query := "SELECT item_id, code, IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), " +
+		"IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, " +
+		"IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') " +
+		"FROM items WHERE item_id = ?"
+
+	utils.Debug("Executing query: %s with item ID: %s", query, id)
+
+	err := db.QueryRow(query, id).Scan(
+		&item.ID,
+		&item.Code,
+		&item.BarCode,
+		&item.Name,
+		&item.Type,
+		&item.AvailableForOrder,
+		&item.ImagePath,
+		&item.CreatedAt,
+		&item.NameJpn,
+		&item.NameChn,
+		&item.NameKor,
+		&item.NameEng,
+	)
+
 	if err != nil {
+		if err == sql.ErrNoRows {
+			utils.Warn("No item found with ID: %s", id)
+			return Item{}, fmt.Errorf("item not found")
+		}
+		utils.Error("Error querying item with ID %s: %v", id, err)
 		return Item{}, err
 	}
+
+	utils.Info("Successfully retrieved item: ID=%s, Name='%s', Code=%s",
+		item.ID, item.Name, item.Code)
 	return item, nil
 }
 
-func GetStocksByItemId(stockId string) ([]Stock, error) {
-	fmt.Println("---GETSTOCKBYITEMID---", stockId)
+func GetStocksByItemId(itemId string) ([]Stock, error) {
+	defer utils.Trace()()
+	utils.Info("Getting stocks for item ID: %s", itemId)
+
+	if itemId == "" {
+		utils.Error("Empty item ID provided to GetStocksByItemId")
+		return nil, fmt.Errorf("empty item ID")
+	}
+
 	db := GetDBInstance(GetDBConfig())
+	if db == nil {
+		utils.Error("Failed to get database instance")
+		return nil, fmt.Errorf("database connection error")
+	}
+
 	var stocks []Stock
 	query := "SELECT stock_id, fkproduct_id, box_number, single_number, bundle_number, expiry_date, location, registering_person, notes, created_at FROM stocks WHERE fkproduct_id = ?"
-	rows, err := db.Query(query, stockId)
+	utils.Debug("Executing query: %s with item ID: %s", query, itemId)
+
+	rows, err := db.Query(query, itemId)
 	if err != nil {
+		utils.Error("Error querying stocks for item %s: %v", itemId, err)
 		return nil, err
 	}
 	defer rows.Close()
+
+	stockCount := 0
 	for rows.Next() {
 		var stock Stock
-		err := rows.Scan(&stock.StockId, &stock.ItemId, &stock.BoxNumber, &stock.SingleNumber, &stock.BundleNumber, &stock.ExpiryDate, &stock.Location, &stock.RegisteringPerson, &stock.Notes, &stock.CreatedAt)
+		err := rows.Scan(
+			&stock.StockId,
+			&stock.ItemId,
+			&stock.BoxNumber,
+			&stock.SingleNumber,
+			&stock.BundleNumber,
+			&stock.ExpiryDate,
+			&stock.Location,
+			&stock.RegisteringPerson,
+			&stock.Notes,
+			&stock.CreatedAt,
+		)
 		if err != nil {
+			utils.Error("Error scanning stock row: %v", err)
 			return nil, err
 		}
+		utils.Debug("Found stock: ID=%s, BoxNumber=%d, Location=%s",
+			stock.StockId, stock.BoxNumber, stock.Location)
 		stocks = append(stocks, stock)
+		stockCount++
 	}
+
+	if err = rows.Err(); err != nil {
+		utils.Error("Error iterating through rows: %v", err)
+		return nil, err
+	}
+
+	utils.Info("Retrieved %d stocks for item %s", stockCount, itemId)
 	return stocks, nil
 }
 func UpdateStock(stockId string, stockType string, quantity int) error {

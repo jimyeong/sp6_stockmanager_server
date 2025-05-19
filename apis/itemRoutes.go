@@ -11,6 +11,7 @@ import (
 
 	"github.com/jimyeongjung/owlverload_api/firebase"
 	"github.com/jimyeongjung/owlverload_api/models"
+	"github.com/jimyeongjung/owlverload_api/utils"
 )
 
 type ItemStock struct {
@@ -267,7 +268,7 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 
 	// Set tx to nil to prevent the deferred rollback from doing anything
 	tx = nil
-	
+
 	// Fetch the updated stock list for the item
 	updatedStocks, err := models.GetStocksByItemId(itemID)
 	if err != nil {
@@ -276,7 +277,7 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 		models.WriteServiceResponse(w, "Stock added successfully", stock, true, true, http.StatusOK)
 		return
 	}
-	
+
 	// Get the updated item data
 	updatedItem, err := models.GetItemById(itemID)
 	if err != nil {
@@ -285,77 +286,98 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 		models.WriteServiceResponse(w, "Stock added successfully", updatedStocks, true, true, http.StatusOK)
 		return
 	}
-	
+
 	// Update the item with the new stock data
 	updatedItem.Stock = updatedStocks
-	
+
 	// Create a response with the updated item and stock information
 	response := map[string]interface{}{
-		"item": updatedItem,
-		"message": "Stock added successfully",
+		"item":          updatedItem,
+		"message":       "Stock added successfully",
 		"updatedStocks": updatedStocks,
-		"addedStock": stock,
+		"addedStock":    stock,
 	}
-	
+
 	// Return success response with the updated item and stock information
 	models.WriteServiceResponse(w, "Stock added successfully", response, true, true, http.StatusOK)
 }
 
 // HandleStockOut handles POST requests to remove stock with transaction support
 func HandleStockOut(w http.ResponseWriter, r *http.Request) {
+	// Add function tracing for debugging
+	defer utils.Trace()()
+	utils.Info("Starting HandleStockOut operation")
+
 	// Get authenticated user ID from context
 	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
 	userEmail := tokenClaims.Email
-	fmt.Println("@@@USER NAME", userEmail)
+	utils.Info("User handling stock out: %s", userEmail)
+
 	if userEmail == "" {
+		utils.Warn("Unauthorized stock out attempt - missing user email")
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
 	}
 
+	utils.Debug("Reading request body")
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
+		utils.Error("Failed to read request body: %v", err)
 		models.WriteServiceError(w, "Failed to read request body", false, true, http.StatusBadRequest)
 		return
 	}
 
 	var request StockOutRequest
-
+	utils.Debug("Unmarshaling request JSON")
 	err = json.Unmarshal(body, &request)
-	fmt.Println("---request---", request)
+	utils.Debug("Request content: %+v", request)
+
 	if err != nil {
+		utils.Error("Invalid request format: %v", err)
 		models.WriteServiceError(w, "Invalid request format", false, true, http.StatusBadRequest)
 		return
 	}
 
 	// Validate request
+	utils.Debug("Validating request")
 	if request.Stock.StockId == "" {
+		utils.Warn("Missing stock ID in request")
 		models.WriteServiceError(w, "Stock ID is required", false, true, http.StatusBadRequest)
 		return
 	}
 
 	if request.Quantity <= 0 {
+		utils.Warn("Invalid quantity in request: %d", request.Quantity)
 		models.WriteServiceError(w, "Quantity must be greater than 0", false, true, http.StatusBadRequest)
 		return
 	}
 
-	fmt.Println("---StockTYPE---", request.StockType)
+	utils.Debug("Stock type: %s", request.StockType)
 	if request.StockType == "" {
+		utils.Warn("Missing stock type in request")
 		models.WriteServiceError(w, "Stock type is required (BOX, BUNDLE, or SINGLE)", false, true, http.StatusBadRequest)
 		return
 	}
 
 	// Calculate the amount of stock available
 	deductedQuantity := request.Stock.BoxNumber - request.Quantity
+	utils.Debug("Current stock: %d, Requested quantity: %d, Remaining: %d",
+		request.Stock.BoxNumber, request.Quantity, deductedQuantity)
+
 	if deductedQuantity < 0 {
-		models.WriteServiceError(w, fmt.Sprintf("Stock can't be deducted more than you have. Current quantity %d, requested quantity %d", request.Stock.BoxNumber, request.Quantity), false, true, http.StatusBadRequest)
+		utils.Warn("Insufficient stock - current: %d, requested: %d",
+			request.Stock.BoxNumber, request.Quantity)
+		models.WriteServiceError(w, fmt.Sprintf("Stock can't be deducted more than you have. Current quantity %d, requested quantity %d",
+			request.Stock.BoxNumber, request.Quantity), false, true, http.StatusBadRequest)
 		return
 	}
 
 	// Get database instance and start a transaction
+	utils.Info("Getting database instance and starting transaction")
 	db := models.GetDBInstance(models.GetDBConfig())
 	tx, err := db.Begin()
 	if err != nil {
-		log.Printf("Failed to start transaction: %v", err)
+		utils.Error("Failed to start transaction: %v", err)
 		models.WriteServiceError(w, "Internal server error", false, true, http.StatusInternalServerError)
 		return
 	}
@@ -364,6 +386,7 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	// If the transaction commits successfully, this rollback will be a no-op
 	defer func() {
 		if tx != nil {
+			utils.Warn("Rolling back transaction - this is expected if there was an error")
 			tx.Rollback()
 		}
 	}()
@@ -371,73 +394,87 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	// Update or remove stock within the transaction
 	if deductedQuantity > 0 {
 		// Update stock quantity
+		utils.Info("Updating stock quantity")
 		query := "UPDATE stocks SET box_number = box_number - ? WHERE stock_id = ?"
 		_, err = tx.Exec(query, request.Quantity, request.Stock.StockId)
 		if err != nil {
-			log.Printf("Error updating stock in transaction: %v", err)
+			utils.Error("Error updating stock in transaction: %v", err)
 			models.WriteServiceError(w, fmt.Sprintf("Failed to update stock: %v", err), false, true, http.StatusInternalServerError)
 			return
 		}
+		utils.Debug("Stock quantity updated successfully")
 	} else if deductedQuantity == 0 {
 		// Remove stock completely
+		utils.Info("Removing stock completely")
 		query := "DELETE FROM stocks WHERE stock_id = ?"
 		_, err = tx.Exec(query, request.Stock.StockId)
 		if err != nil {
-			log.Printf("Error removing stock in transaction: %v", err)
+			utils.Error("Error removing stock in transaction: %v", err)
 			models.WriteServiceError(w, fmt.Sprintf("Failed to remove stock: %v", err), false, true, http.StatusInternalServerError)
 			return
 		}
+		utils.Debug("Stock removed successfully")
 	}
 
 	// Record the transaction within the same DB transaction
+	utils.Info("Recording stock transaction")
 	transactionQuery := "INSERT INTO stock_transactions (fkitem_id, quantity, transaction_type, fkuser_email) VALUES (?, ?, ?, ?)"
 	_, err = tx.Exec(transactionQuery, request.Stock.ItemId, request.Quantity, "out", userEmail)
 	if err != nil {
-		log.Printf("Error recording transaction in DB transaction: %v", err)
+		utils.Error("Error recording transaction in DB: %v", err)
 		models.WriteServiceError(w, fmt.Sprintf("Failed to record transaction: %v", err), false, true, http.StatusInternalServerError)
 		return
 	}
+	utils.Debug("Transaction recorded successfully")
 
 	// Commit the transaction
+	utils.Info("Committing transaction")
 	err = tx.Commit()
 	if err != nil {
-		log.Printf("Error committing transaction: %v", err)
+		utils.Error("Error committing transaction: %v", err)
 		models.WriteServiceError(w, "Failed to complete the stock operation. Please try again.", false, true, http.StatusInternalServerError)
 		return
 	}
+	utils.Info("Transaction committed successfully")
 
 	// Set tx to nil to prevent the deferred rollback from doing anything
 	tx = nil
-	
+
 	// Fetch the updated stock list for the item
+	utils.Info("Fetching updated stock list for item: %s", request.Stock.ItemId)
 	updatedStocks, err := models.GetStocksByItemId(request.Stock.ItemId)
 	if err != nil {
-		log.Printf("Error fetching updated stock list: %v", err)
+		utils.Error("Error fetching updated stock list: %v", err)
 		// Continue anyway - we'll just return a success message without the updated stock list
 		models.WriteServiceResponse(w, "Stock removed successfully", nil, true, true, http.StatusOK)
 		return
 	}
-	
+	utils.Debug("Successfully fetched %d updated stock records", len(updatedStocks))
+
 	// Get the updated item data
+	utils.Info("Fetching updated item data for item: %s", request.Stock.ItemId)
 	updatedItem, err := models.GetItemById(request.Stock.ItemId)
 	if err != nil {
-		log.Printf("Error fetching updated item: %v", err)
+		utils.Error("Error fetching updated item: %v", err)
 		// Return just the updated stocks if we can't get the item
 		models.WriteServiceResponse(w, "Stock removed successfully", updatedStocks, true, true, http.StatusOK)
 		return
 	}
-	
+	utils.Debug("Successfully fetched updated item data")
+
 	// Update the item with the new stock data
 	updatedItem.Stock = updatedStocks
-	
+
 	// Create a response with the updated item and stock information
+	utils.Info("Preparing response with updated item and stock information")
 	response := map[string]interface{}{
-		"item": updatedItem,
-		"message": "Stock removed successfully",
+		"item":          updatedItem,
+		"message":       "Stock removed successfully",
 		"updatedStocks": updatedStocks,
 	}
-	
+
 	// Return success response with the updated stock list
+	utils.Info("Stock out operation completed successfully")
 	models.WriteServiceResponse(w, "Stock removed successfully", response, true, true, http.StatusOK)
 }
 
