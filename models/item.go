@@ -448,7 +448,7 @@ func GetStocksByItemId(stockId string) ([]Stock, error) {
 	fmt.Println("---GETSTOCKBYITEMID---", stockId)
 	db := GetDBInstance(GetDBConfig())
 	var stocks []Stock
-	query := "SELECT * FROM stocks WHERE fkproduct_id = ?"
+	query := "SELECT stock_id, fkproduct_id, box_number, single_number, bundle_number, expiry_date, location, registering_person, notes, created_at FROM stocks WHERE fkproduct_id = ?"
 	rows, err := db.Query(query, stockId)
 	if err != nil {
 		return nil, err

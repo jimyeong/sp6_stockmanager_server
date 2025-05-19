@@ -267,9 +267,38 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 
 	// Set tx to nil to prevent the deferred rollback from doing anything
 	tx = nil
-
-	// Return success response
-	models.WriteServiceResponse(w, "Stock added successfully", stock, true, true, http.StatusOK)
+	
+	// Fetch the updated stock list for the item
+	updatedStocks, err := models.GetStocksByItemId(itemID)
+	if err != nil {
+		log.Printf("Error fetching updated stock list: %v", err)
+		// Continue anyway - we'll just return the original stock data
+		models.WriteServiceResponse(w, "Stock added successfully", stock, true, true, http.StatusOK)
+		return
+	}
+	
+	// Get the updated item data
+	updatedItem, err := models.GetItemById(itemID)
+	if err != nil {
+		log.Printf("Error fetching updated item: %v", err)
+		// Return just the updated stocks if we can't get the item
+		models.WriteServiceResponse(w, "Stock added successfully", updatedStocks, true, true, http.StatusOK)
+		return
+	}
+	
+	// Update the item with the new stock data
+	updatedItem.Stock = updatedStocks
+	
+	// Create a response with the updated item and stock information
+	response := map[string]interface{}{
+		"item": updatedItem,
+		"message": "Stock added successfully",
+		"updatedStocks": updatedStocks,
+		"addedStock": stock,
+	}
+	
+	// Return success response with the updated item and stock information
+	models.WriteServiceResponse(w, "Stock added successfully", response, true, true, http.StatusOK)
 }
 
 // HandleStockOut handles POST requests to remove stock with transaction support
@@ -379,9 +408,37 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 
 	// Set tx to nil to prevent the deferred rollback from doing anything
 	tx = nil
-
-	// Return success response
-	models.WriteServiceResponse(w, "Stock removed successfully", nil, true, true, http.StatusOK)
+	
+	// Fetch the updated stock list for the item
+	updatedStocks, err := models.GetStocksByItemId(request.Stock.ItemId)
+	if err != nil {
+		log.Printf("Error fetching updated stock list: %v", err)
+		// Continue anyway - we'll just return a success message without the updated stock list
+		models.WriteServiceResponse(w, "Stock removed successfully", nil, true, true, http.StatusOK)
+		return
+	}
+	
+	// Get the updated item data
+	updatedItem, err := models.GetItemById(request.Stock.ItemId)
+	if err != nil {
+		log.Printf("Error fetching updated item: %v", err)
+		// Return just the updated stocks if we can't get the item
+		models.WriteServiceResponse(w, "Stock removed successfully", updatedStocks, true, true, http.StatusOK)
+		return
+	}
+	
+	// Update the item with the new stock data
+	updatedItem.Stock = updatedStocks
+	
+	// Create a response with the updated item and stock information
+	response := map[string]interface{}{
+		"item": updatedItem,
+		"message": "Stock removed successfully",
+		"updatedStocks": updatedStocks,
+	}
+	
+	// Return success response with the updated stock list
+	models.WriteServiceResponse(w, "Stock removed successfully", response, true, true, http.StatusOK)
 }
 
 // HandleCreateItem handles POST requests to create a new item
