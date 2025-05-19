@@ -3,6 +3,7 @@ package firebase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -16,10 +17,12 @@ func InitFirebaseApp() (*auth.Client, error) {
 	ctx := context.Background()
 	credJSON := os.Getenv("FIREBASE_CREDENTIALS")
 	if credJSON == "" {
+		fmt.Println("---FIREBASE_CREDENTIALS is not set---")
 		return nil, errors.New("FIREBASE_CREDENTIALS is not set")
 	}
 	credBytes := []byte(credJSON)
 
+	fmt.Println("---credBytes---", credBytes)
 	opt := option.WithCredentialsJSON(credBytes)
 
 	app, err := firebase.NewApp(ctx, nil, opt)
