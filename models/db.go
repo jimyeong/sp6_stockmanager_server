@@ -43,6 +43,9 @@ func NewSQLDB(dbConfig DBConfig) *SQLDB {
 	connStr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
 		dbConfig.DB_USER, dbConfig.DB_PASSWORD, dbConfig.DB_HOST, dbConfig.DB_PORT, dbConfig.DB_NAME)
 	fmt.Println("@@@@@@@@@@@@@@@@@@---connStr---", connStr)
+	fmt.Println("@@@@@@@@@@@@@@@@@@---dbConfig.DB_HOST---", dbConfig.DB_HOST)
+	fmt.Println("@@@@@@@@@@@@@@@@@@---dbConfig.DB_PORT---", dbConfig.DB_PORT)
+	fmt.Println("@@@@@@@@@@@@@@@@@@---dbConfig.DB_NAME---", dbConfig.DB_NAME)
 
 	db, err := sql.Open("mysql", connStr)
 	if err != nil {
