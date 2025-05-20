@@ -46,7 +46,6 @@ func NewSQLDB(dbConfig DBConfig) *SQLDB {
 	fmt.Println("@@@@@@@@@@@@@@@@@@---dbConfig.DB_HOST---", dbConfig.DB_HOST)
 	fmt.Println("@@@@@@@@@@@@@@@@@@---dbConfig.DB_PORT---", dbConfig.DB_PORT)
 	fmt.Println("@@@@@@@@@@@@@@@@@@---dbConfig.DB_NAME---", dbConfig.DB_NAME)
-
 	db, err := sql.Open("mysql", connStr)
 	if err != nil {
 		utils.Error("Failed to open database connection: %v", err)
