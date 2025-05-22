@@ -12,3 +12,73 @@
 2025/05/19 18:08:24 [2025-05-19 18:08:24.722] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
 2025/05/19 18:08:24 [2025-05-19 18:08:24.724] [INFO] [db.go:59] Database connected successfully
 2025/05/19 18:08:24 [2025-05-19 18:08:24.724] [TRACE] [db.go:60] Exiting db.go:60
+2025/05/20 08:35:31 [2025-05-20 08:35:31.292] [INFO] [main.go:39] Starting Owlverload API server
+2025/05/20 08:35:31 [2025-05-20 08:35:31.293] [INFO] [main.go:44] Loaded development environment
+2025/05/20 08:35:31 [2025-05-20 08:35:31.293] [TRACE] [db.go:33] Entering db.go:33
+2025/05/20 08:35:31 [2025-05-20 08:35:31.293] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/05/20 08:35:31 [2025-05-20 08:35:31.293] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/05/20 08:35:31 [2025-05-20 08:35:31.295] [INFO] [db.go:62] Database connected successfully
+2025/05/20 08:35:31 [2025-05-20 08:35:31.295] [TRACE] [db.go:63] Exiting db.go:63
+2025/05/22 06:48:56 [2025-05-22 06:48:56.683] [INFO] [main.go:39] Starting Owlverload API server
+2025/05/22 06:48:56 [2025-05-22 06:48:56.684] [INFO] [main.go:44] Loaded development environment
+2025/05/22 06:48:56 [2025-05-22 06:48:56.684] [TRACE] [db.go:33] Entering db.go:33
+2025/05/22 06:48:56 [2025-05-22 06:48:56.684] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/05/22 06:48:56 [2025-05-22 06:48:56.684] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/05/22 06:48:56 [2025-05-22 06:48:56.686] [INFO] [db.go:62] Database connected successfully
+2025/05/22 06:48:56 [2025-05-22 06:48:56.686] [TRACE] [db.go:63] Exiting db.go:63
+2025/05/22 06:48:59 [2025-05-22 06:48:59.783] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 06:48:59 [2025-05-22 06:48:59.783] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 06:48:59 [2025-05-22 06:48:59.783] [INFO] [db.go:143] Initializing database instance (first call)
+2025/05/22 06:48:59 [2025-05-22 06:48:59.783] [TRACE] [db.go:33] Entering db.go:33
+2025/05/22 06:48:59 [2025-05-22 06:48:59.784] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/05/22 06:48:59 [2025-05-22 06:48:59.784] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/05/22 06:48:59 [2025-05-22 06:48:59.785] [INFO] [db.go:62] Database connected successfully
+2025/05/22 06:48:59 [2025-05-22 06:48:59.785] [TRACE] [db.go:63] Exiting db.go:63
+2025/05/22 06:48:59 [2025-05-22 06:48:59.787] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 06:48:59 [2025-05-22 06:48:59.787] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 06:48:59 [2025-05-22 06:48:59.788] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 06:48:59 [2025-05-22 06:48:59.788] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 06:49:20 [2025-05-22 06:49:20.916] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 06:49:20 [2025-05-22 06:49:20.916] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 06:49:20 [2025-05-22 06:49:20.918] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 06:49:20 [2025-05-22 06:49:20.918] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 06:49:20 [2025-05-22 06:49:20.920] [TRACE] [itemRoutes.go:308] Entering itemRoutes.go:308
+2025/05/22 06:49:20 [2025-05-22 06:49:20.920] [INFO] [itemRoutes.go:309] Starting HandleStockOut operation
+2025/05/22 06:49:20 [2025-05-22 06:49:20.920] [INFO] [itemRoutes.go:314] User handling stock out: idjjm92@gmail.com
+2025/05/22 06:49:20 [2025-05-22 06:49:20.920] [DEBUG] [itemRoutes.go:322] Reading request body
+2025/05/22 06:49:20 [2025-05-22 06:49:20.920] [DEBUG] [itemRoutes.go:331] Unmarshaling request JSON
+2025/05/22 06:49:20 [2025-05-22 06:49:20.920] [DEBUG] [itemRoutes.go:333] Request content: {Stock:{StockId:33 ItemId:46 BoxNumber:4 SingleNumber:0 BundleNumber:0 ExpiryDate:2025-06-17 08:46:32 +0000 UTC Location: RegisteringPerson:정지명 Notes: CreatedAt:2025-05-18 09:46:40 +0000 UTC} StockType:BOX Quantity:1 UserEmail: Date:0001-01-01 00:00:00 +0000 UTC Notes:}
+2025/05/22 06:49:20 [2025-05-22 06:49:20.920] [DEBUG] [itemRoutes.go:342] Validating request
+2025/05/22 06:49:20 [2025-05-22 06:49:20.921] [DEBUG] [itemRoutes.go:355] Stock type: BOX
+2025/05/22 06:49:20 [2025-05-22 06:49:20.921] [DEBUG] [itemRoutes.go:364] Current stock: 4, Requested quantity: 1, Remaining: 3
+2025/05/22 06:49:20 [2025-05-22 06:49:20.921] [INFO] [itemRoutes.go:376] Getting database instance and starting transaction
+2025/05/22 06:49:20 [2025-05-22 06:49:20.921] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 06:49:20 [2025-05-22 06:49:20.921] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 06:49:20 [2025-05-22 06:49:20.922] [INFO] [itemRoutes.go:397] Updating stock quantity
+2025/05/22 06:49:20 [2025-05-22 06:49:20.924] [DEBUG] [itemRoutes.go:405] Stock quantity updated successfully
+2025/05/22 06:49:20 [2025-05-22 06:49:20.924] [INFO] [itemRoutes.go:420] Recording stock transaction
+2025/05/22 06:49:20 [2025-05-22 06:49:20.926] [DEBUG] [itemRoutes.go:428] Transaction recorded successfully
+2025/05/22 06:49:20 [2025-05-22 06:49:20.926] [INFO] [itemRoutes.go:431] Committing transaction
+2025/05/22 06:49:20 [2025-05-22 06:49:20.929] [INFO] [itemRoutes.go:438] Transaction committed successfully
+2025/05/22 06:49:20 [2025-05-22 06:49:20.929] [INFO] [itemRoutes.go:444] Fetching updated stock list for item: 46
+2025/05/22 06:49:20 [2025-05-22 06:49:20.930] [TRACE] [item.go:490] Entering item.go:490
+2025/05/22 06:49:20 [2025-05-22 06:49:20.930] [INFO] [item.go:491] Getting stocks for item ID: 46
+2025/05/22 06:49:20 [2025-05-22 06:49:20.930] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 06:49:20 [2025-05-22 06:49:20.930] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 06:49:20 [2025-05-22 06:49:20.930] [DEBUG] [item.go:506] Executing query: SELECT stock_id, fkproduct_id, box_number, single_number, bundle_number, expiry_date, location, registering_person, notes, created_at FROM stocks WHERE fkproduct_id = ? with item ID: 46
+2025/05/22 06:49:20 [2025-05-22 06:49:20.932] [DEBUG] [item.go:534] Found stock: ID=33, BoxNumber=3, Location=
+2025/05/22 06:49:20 [2025-05-22 06:49:20.932] [INFO] [item.go:545] Retrieved 1 stocks for item 46
+2025/05/22 06:49:20 [2025-05-22 06:49:20.932] [TRACE] [item.go:546] Exiting item.go:546
+2025/05/22 06:49:20 [2025-05-22 06:49:20.932] [DEBUG] [itemRoutes.go:452] Successfully fetched 1 updated stock records
+2025/05/22 06:49:20 [2025-05-22 06:49:20.932] [INFO] [itemRoutes.go:455] Fetching updated item data for item: 46
+2025/05/22 06:49:20 [2025-05-22 06:49:20.932] [TRACE] [item.go:438] Entering item.go:438
+2025/05/22 06:49:20 [2025-05-22 06:49:20.932] [INFO] [item.go:439] Getting item by ID: 46
+2025/05/22 06:49:20 [2025-05-22 06:49:20.933] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 06:49:20 [2025-05-22 06:49:20.933] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 06:49:20 [2025-05-22 06:49:20.933] [DEBUG] [item.go:458] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 46
+2025/05/22 06:49:20 [2025-05-22 06:49:20.935] [INFO] [item.go:484] Successfully retrieved item: ID=46, Name='치킨 불닭 오리지날 멀티팩', Code=105095
+2025/05/22 06:49:20 [2025-05-22 06:49:20.935] [TRACE] [item.go:486] Exiting item.go:486
+2025/05/22 06:49:20 [2025-05-22 06:49:20.935] [DEBUG] [itemRoutes.go:463] Successfully fetched updated item data
+2025/05/22 06:49:20 [2025-05-22 06:49:20.935] [INFO] [itemRoutes.go:469] Preparing response with updated item and stock information
+2025/05/22 06:49:20 [2025-05-22 06:49:20.935] [INFO] [itemRoutes.go:477] Stock out operation completed successfully
+2025/05/22 06:49:20 [2025-05-22 06:49:20.935] [TRACE] [itemRoutes.go:479] Exiting itemRoutes.go:479
