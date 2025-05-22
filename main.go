@@ -137,6 +137,9 @@ func main() {
 	apiRouter.HandleFunc("/tags/item", apis.HandleGetTagsForItem).Methods("GET")
 	apiRouter.HandleFunc("/tags/associate", apis.HandleAssociateItemWithTags).Methods("POST")
 	apiRouter.HandleFunc("/recommendations", apis.HandleGetRecommendedItems).Methods("POST")
+	
+	// Barcode routes
+	apiRouter.HandleFunc("/saveBarcode", apis.HandleSaveBarcode).Methods("POST")
 
 	// Start server
 	log.Println("Server starting on port 8080...")

@@ -82,3 +82,175 @@
 2025/05/22 06:49:20 [2025-05-22 06:49:20.935] [INFO] [itemRoutes.go:469] Preparing response with updated item and stock information
 2025/05/22 06:49:20 [2025-05-22 06:49:20.935] [INFO] [itemRoutes.go:477] Stock out operation completed successfully
 2025/05/22 06:49:20 [2025-05-22 06:49:20.935] [TRACE] [itemRoutes.go:479] Exiting itemRoutes.go:479
+2025/05/22 09:29:34 [2025-05-22 09:29:34.326] [INFO] [main.go:39] Starting Owlverload API server
+2025/05/22 09:29:34 [2025-05-22 09:29:34.326] [INFO] [main.go:44] Loaded development environment
+2025/05/22 09:29:34 [2025-05-22 09:29:34.326] [TRACE] [db.go:33] Entering db.go:33
+2025/05/22 09:29:34 [2025-05-22 09:29:34.326] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/05/22 09:29:34 [2025-05-22 09:29:34.326] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/05/22 09:29:34 [2025-05-22 09:29:34.327] [INFO] [db.go:62] Database connected successfully
+2025/05/22 09:29:34 [2025-05-22 09:29:34.327] [TRACE] [db.go:63] Exiting db.go:63
+2025/05/22 09:29:41 [2025-05-22 09:29:41.311] [INFO] [main.go:39] Starting Owlverload API server
+2025/05/22 09:29:41 [2025-05-22 09:29:41.311] [INFO] [main.go:44] Loaded development environment
+2025/05/22 09:29:41 [2025-05-22 09:29:41.311] [TRACE] [db.go:33] Entering db.go:33
+2025/05/22 09:29:41 [2025-05-22 09:29:41.311] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/05/22 09:29:41 [2025-05-22 09:29:41.311] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/05/22 09:29:41 [2025-05-22 09:29:41.313] [INFO] [db.go:62] Database connected successfully
+2025/05/22 09:29:41 [2025-05-22 09:29:41.313] [TRACE] [db.go:63] Exiting db.go:63
+2025/05/22 09:49:46 [2025-05-22 09:49:46.228] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 09:49:46 [2025-05-22 09:49:46.229] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 09:49:46 [2025-05-22 09:49:46.229] [INFO] [db.go:143] Initializing database instance (first call)
+2025/05/22 09:49:46 [2025-05-22 09:49:46.229] [TRACE] [db.go:33] Entering db.go:33
+2025/05/22 09:49:46 [2025-05-22 09:49:46.230] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/05/22 09:49:46 [2025-05-22 09:49:46.230] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/05/22 09:49:46 [2025-05-22 09:49:46.232] [INFO] [db.go:62] Database connected successfully
+2025/05/22 09:49:46 [2025-05-22 09:49:46.232] [TRACE] [db.go:63] Exiting db.go:63
+2025/05/22 09:49:46 [2025-05-22 09:49:46.234] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 09:49:46 [2025-05-22 09:49:46.234] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 09:52:28 [2025-05-22 09:52:28.134] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 09:52:28 [2025-05-22 09:52:28.135] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 09:52:28 [2025-05-22 09:52:28.136] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 09:52:28 [2025-05-22 09:52:28.136] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 09:52:28 [2025-05-22 09:52:28.138] [TRACE] [barcodeRoutes.go:20] Entering barcodeRoutes.go:20
+2025/05/22 09:52:28 [2025-05-22 09:52:28.138] [INFO] [barcodeRoutes.go:21] Starting HandleSaveBarcode operation
+2025/05/22 09:52:28 [2025-05-22 09:52:28.138] [INFO] [barcodeRoutes.go:26] User handling barcode save: idjjm92@gmail.com
+2025/05/22 09:52:28 [2025-05-22 09:52:28.138] [DEBUG] [barcodeRoutes.go:35] Reading request body
+2025/05/22 09:52:28 [2025-05-22 09:52:28.138] [DEBUG] [barcodeRoutes.go:44] Unmarshaling request JSON
+2025/05/22 09:52:28 [2025-05-22 09:52:28.138] [DEBUG] [barcodeRoutes.go:53] Validating request
+2025/05/22 09:52:28 [2025-05-22 09:52:28.138] [INFO] [barcodeRoutes.go:61] Saving barcode: 8801073110502
+2025/05/22 09:52:28 [2025-05-22 09:52:28.138] [TRACE] [barcode.go:19] Entering barcode.go:19
+2025/05/22 09:52:28 [2025-05-22 09:52:28.138] [INFO] [barcode.go:20] Saving barcode: 8801073110502
+2025/05/22 09:52:28 [2025-05-22 09:52:28.138] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 09:52:28 [2025-05-22 09:52:28.138] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 09:52:28 [2025-05-22 09:52:28.139] [INFO] [barcode.go:42] Starting transaction to save barcode
+2025/05/22 09:52:28 [2025-05-22 09:52:28.139] [ERROR] [barcode.go:62] Error checking if barcode exists: Error 1054 (42S22): Unknown column 'code' in 'where clause'
+2025/05/22 09:52:28 [2025-05-22 09:52:28.140] [WARN] [barcode.go:52] Rolling back transaction - this happens if there was an error
+2025/05/22 09:52:28 [2025-05-22 09:52:28.140] [TRACE] [barcode.go:63] Exiting barcode.go:63
+2025/05/22 09:52:28 [2025-05-22 09:52:28.140] [ERROR] [barcodeRoutes.go:65] Error saving barcode: error checking existing barcode: Error 1054 (42S22): Unknown column 'code' in 'where clause'
+2025/05/22 09:52:28 [2025-05-22 09:52:28.140] [TRACE] [barcodeRoutes.go:67] Exiting barcodeRoutes.go:67
+2025/05/22 09:57:58 [2025-05-22 09:57:58.554] [INFO] [main.go:39] Starting Owlverload API server
+2025/05/22 09:57:58 [2025-05-22 09:57:58.555] [INFO] [main.go:44] Loaded development environment
+2025/05/22 09:57:58 [2025-05-22 09:57:58.555] [TRACE] [db.go:33] Entering db.go:33
+2025/05/22 09:57:58 [2025-05-22 09:57:58.555] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/05/22 09:57:58 [2025-05-22 09:57:58.555] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/05/22 09:57:58 [2025-05-22 09:57:58.558] [INFO] [db.go:62] Database connected successfully
+2025/05/22 09:57:58 [2025-05-22 09:57:58.558] [TRACE] [db.go:63] Exiting db.go:63
+2025/05/22 10:05:06 [2025-05-22 10:05:06.671] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 10:05:06 [2025-05-22 10:05:06.671] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 10:05:06 [2025-05-22 10:05:06.671] [INFO] [db.go:143] Initializing database instance (first call)
+2025/05/22 10:05:06 [2025-05-22 10:05:06.671] [TRACE] [db.go:33] Entering db.go:33
+2025/05/22 10:05:06 [2025-05-22 10:05:06.671] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/05/22 10:05:06 [2025-05-22 10:05:06.671] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/05/22 10:05:06 [2025-05-22 10:05:06.674] [INFO] [db.go:62] Database connected successfully
+2025/05/22 10:05:06 [2025-05-22 10:05:06.674] [TRACE] [db.go:63] Exiting db.go:63
+2025/05/22 10:05:06 [2025-05-22 10:05:06.676] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 10:05:06 [2025-05-22 10:05:06.676] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 10:05:11 [2025-05-22 10:05:11.184] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 10:05:11 [2025-05-22 10:05:11.184] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 10:05:11 [2025-05-22 10:05:11.185] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 10:05:11 [2025-05-22 10:05:11.185] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 10:05:11 [2025-05-22 10:05:11.187] [TRACE] [barcodeRoutes.go:20] Entering barcodeRoutes.go:20
+2025/05/22 10:05:11 [2025-05-22 10:05:11.188] [INFO] [barcodeRoutes.go:21] Starting HandleSaveBarcode operation
+2025/05/22 10:05:11 [2025-05-22 10:05:11.188] [INFO] [barcodeRoutes.go:26] User handling barcode save: idjjm92@gmail.com
+2025/05/22 10:05:11 [2025-05-22 10:05:11.188] [DEBUG] [barcodeRoutes.go:35] Reading request body
+2025/05/22 10:05:11 [2025-05-22 10:05:11.188] [DEBUG] [barcodeRoutes.go:44] Unmarshaling request JSON
+2025/05/22 10:05:11 [2025-05-22 10:05:11.188] [DEBUG] [barcodeRoutes.go:53] Validating request
+2025/05/22 10:05:11 [2025-05-22 10:05:11.188] [INFO] [barcodeRoutes.go:61] Saving barcode: 8801073110502
+2025/05/22 10:05:11 [2025-05-22 10:05:11.188] [TRACE] [barcode.go:19] Entering barcode.go:19
+2025/05/22 10:05:11 [2025-05-22 10:05:11.188] [INFO] [barcode.go:20] Saving barcode: 8801073110502
+2025/05/22 10:05:11 [2025-05-22 10:05:11.188] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 10:05:11 [2025-05-22 10:05:11.188] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 10:05:11 [2025-05-22 10:05:11.188] [INFO] [barcode.go:42] Starting transaction to save barcode
+2025/05/22 10:05:11 [2025-05-22 10:05:11.191] [ERROR] [barcode.go:75] Error inserting barcode: Error 1054 (42S22): Unknown column 'id' in 'field list'
+2025/05/22 10:05:11 [2025-05-22 10:05:11.192] [WARN] [barcode.go:52] Rolling back transaction - this happens if there was an error
+2025/05/22 10:05:11 [2025-05-22 10:05:11.192] [TRACE] [barcode.go:76] Exiting barcode.go:76
+2025/05/22 10:05:11 [2025-05-22 10:05:11.192] [ERROR] [barcodeRoutes.go:65] Error saving barcode: error saving barcode: Error 1054 (42S22): Unknown column 'id' in 'field list'
+2025/05/22 10:05:11 [2025-05-22 10:05:11.192] [TRACE] [barcodeRoutes.go:67] Exiting barcodeRoutes.go:67
+2025/05/22 10:05:57 [2025-05-22 10:05:57.281] [INFO] [main.go:39] Starting Owlverload API server
+2025/05/22 10:05:57 [2025-05-22 10:05:57.282] [INFO] [main.go:44] Loaded development environment
+2025/05/22 10:05:57 [2025-05-22 10:05:57.282] [TRACE] [db.go:33] Entering db.go:33
+2025/05/22 10:05:57 [2025-05-22 10:05:57.282] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/05/22 10:05:57 [2025-05-22 10:05:57.282] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/05/22 10:05:57 [2025-05-22 10:05:57.284] [INFO] [db.go:62] Database connected successfully
+2025/05/22 10:05:57 [2025-05-22 10:05:57.284] [TRACE] [db.go:63] Exiting db.go:63
+2025/05/22 10:06:02 [2025-05-22 10:06:02.899] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 10:06:02 [2025-05-22 10:06:02.899] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 10:06:02 [2025-05-22 10:06:02.899] [INFO] [db.go:143] Initializing database instance (first call)
+2025/05/22 10:06:02 [2025-05-22 10:06:02.899] [TRACE] [db.go:33] Entering db.go:33
+2025/05/22 10:06:02 [2025-05-22 10:06:02.899] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/05/22 10:06:02 [2025-05-22 10:06:02.899] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/05/22 10:06:02 [2025-05-22 10:06:02.902] [INFO] [db.go:62] Database connected successfully
+2025/05/22 10:06:02 [2025-05-22 10:06:02.902] [TRACE] [db.go:63] Exiting db.go:63
+2025/05/22 10:06:02 [2025-05-22 10:06:02.904] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 10:06:02 [2025-05-22 10:06:02.904] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 10:06:02 [2025-05-22 10:06:02.906] [TRACE] [barcodeRoutes.go:20] Entering barcodeRoutes.go:20
+2025/05/22 10:06:02 [2025-05-22 10:06:02.906] [INFO] [barcodeRoutes.go:21] Starting HandleSaveBarcode operation
+2025/05/22 10:06:02 [2025-05-22 10:06:02.906] [INFO] [barcodeRoutes.go:26] User handling barcode save: idjjm92@gmail.com
+2025/05/22 10:06:02 [2025-05-22 10:06:02.906] [DEBUG] [barcodeRoutes.go:35] Reading request body
+2025/05/22 10:06:02 [2025-05-22 10:06:02.906] [DEBUG] [barcodeRoutes.go:44] Unmarshaling request JSON
+2025/05/22 10:06:02 [2025-05-22 10:06:02.906] [DEBUG] [barcodeRoutes.go:53] Validating request
+2025/05/22 10:06:02 [2025-05-22 10:06:02.906] [INFO] [barcodeRoutes.go:61] Saving barcode: 8801073110502
+2025/05/22 10:06:02 [2025-05-22 10:06:02.906] [TRACE] [barcode.go:19] Entering barcode.go:19
+2025/05/22 10:06:02 [2025-05-22 10:06:02.906] [INFO] [barcode.go:20] Saving barcode: 8801073110502
+2025/05/22 10:06:02 [2025-05-22 10:06:02.906] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 10:06:02 [2025-05-22 10:06:02.906] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 10:06:02 [2025-05-22 10:06:02.906] [INFO] [barcode.go:42] Starting transaction to save barcode
+2025/05/22 10:06:02 [2025-05-22 10:06:02.908] [ERROR] [barcode.go:75] Error inserting barcode: Error 1054 (42S22): Unknown column 'code' in 'field list'
+2025/05/22 10:06:02 [2025-05-22 10:06:02.908] [WARN] [barcode.go:52] Rolling back transaction - this happens if there was an error
+2025/05/22 10:06:02 [2025-05-22 10:06:02.908] [TRACE] [barcode.go:76] Exiting barcode.go:76
+2025/05/22 10:06:02 [2025-05-22 10:06:02.908] [ERROR] [barcodeRoutes.go:65] Error saving barcode: error saving barcode: Error 1054 (42S22): Unknown column 'code' in 'field list'
+2025/05/22 10:06:02 [2025-05-22 10:06:02.909] [TRACE] [barcodeRoutes.go:67] Exiting barcodeRoutes.go:67
+2025/05/22 10:06:31 [2025-05-22 10:06:31.865] [INFO] [main.go:39] Starting Owlverload API server
+2025/05/22 10:06:31 [2025-05-22 10:06:31.866] [INFO] [main.go:44] Loaded development environment
+2025/05/22 10:06:31 [2025-05-22 10:06:31.866] [TRACE] [db.go:33] Entering db.go:33
+2025/05/22 10:06:31 [2025-05-22 10:06:31.866] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/05/22 10:06:31 [2025-05-22 10:06:31.866] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/05/22 10:06:31 [2025-05-22 10:06:31.867] [INFO] [db.go:62] Database connected successfully
+2025/05/22 10:06:31 [2025-05-22 10:06:31.867] [TRACE] [db.go:63] Exiting db.go:63
+2025/05/22 10:06:34 [2025-05-22 10:06:34.631] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 10:06:34 [2025-05-22 10:06:34.631] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 10:06:34 [2025-05-22 10:06:34.631] [INFO] [db.go:143] Initializing database instance (first call)
+2025/05/22 10:06:34 [2025-05-22 10:06:34.631] [TRACE] [db.go:33] Entering db.go:33
+2025/05/22 10:06:34 [2025-05-22 10:06:34.631] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/05/22 10:06:34 [2025-05-22 10:06:34.631] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/05/22 10:06:34 [2025-05-22 10:06:34.633] [INFO] [db.go:62] Database connected successfully
+2025/05/22 10:06:34 [2025-05-22 10:06:34.633] [TRACE] [db.go:63] Exiting db.go:63
+2025/05/22 10:06:34 [2025-05-22 10:06:34.634] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 10:06:34 [2025-05-22 10:06:34.634] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 10:06:34 [2025-05-22 10:06:34.634] [TRACE] [barcodeRoutes.go:20] Entering barcodeRoutes.go:20
+2025/05/22 10:06:34 [2025-05-22 10:06:34.634] [INFO] [barcodeRoutes.go:21] Starting HandleSaveBarcode operation
+2025/05/22 10:06:34 [2025-05-22 10:06:34.634] [INFO] [barcodeRoutes.go:26] User handling barcode save: idjjm92@gmail.com
+2025/05/22 10:06:34 [2025-05-22 10:06:34.634] [DEBUG] [barcodeRoutes.go:35] Reading request body
+2025/05/22 10:06:34 [2025-05-22 10:06:34.634] [DEBUG] [barcodeRoutes.go:44] Unmarshaling request JSON
+2025/05/22 10:06:34 [2025-05-22 10:06:34.634] [DEBUG] [barcodeRoutes.go:53] Validating request
+2025/05/22 10:06:34 [2025-05-22 10:06:34.634] [INFO] [barcodeRoutes.go:61] Saving barcode: 8801073110502
+2025/05/22 10:06:34 [2025-05-22 10:06:34.634] [TRACE] [barcode.go:19] Entering barcode.go:19
+2025/05/22 10:06:34 [2025-05-22 10:06:34.635] [INFO] [barcode.go:20] Saving barcode: 8801073110502
+2025/05/22 10:06:34 [2025-05-22 10:06:34.635] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 10:06:34 [2025-05-22 10:06:34.635] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 10:06:34 [2025-05-22 10:06:34.635] [INFO] [barcode.go:42] Starting transaction to save barcode
+2025/05/22 10:06:34 [2025-05-22 10:06:34.636] [INFO] [barcode.go:80] Committing transaction
+2025/05/22 10:06:34 [2025-05-22 10:06:34.637] [INFO] [barcode.go:90] Successfully saved barcode: 8801073110502 with ID: barcode_1747904794635057000
+2025/05/22 10:06:34 [2025-05-22 10:06:34.637] [TRACE] [barcode.go:91] Exiting barcode.go:91
+2025/05/22 10:06:34 [2025-05-22 10:06:34.637] [INFO] [barcodeRoutes.go:71] Barcode saved successfully: 8801073110502
+2025/05/22 10:06:34 [2025-05-22 10:06:34.637] [TRACE] [barcodeRoutes.go:79] Exiting barcodeRoutes.go:79
+2025/05/22 10:06:58 [2025-05-22 10:06:58.528] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 10:06:58 [2025-05-22 10:06:58.529] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 10:06:58 [2025-05-22 10:06:58.530] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 10:06:58 [2025-05-22 10:06:58.530] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 10:06:58 [2025-05-22 10:06:58.531] [TRACE] [barcodeRoutes.go:20] Entering barcodeRoutes.go:20
+2025/05/22 10:06:58 [2025-05-22 10:06:58.531] [INFO] [barcodeRoutes.go:21] Starting HandleSaveBarcode operation
+2025/05/22 10:06:58 [2025-05-22 10:06:58.531] [INFO] [barcodeRoutes.go:26] User handling barcode save: idjjm92@gmail.com
+2025/05/22 10:06:58 [2025-05-22 10:06:58.531] [DEBUG] [barcodeRoutes.go:35] Reading request body
+2025/05/22 10:06:58 [2025-05-22 10:06:58.531] [DEBUG] [barcodeRoutes.go:44] Unmarshaling request JSON
+2025/05/22 10:06:58 [2025-05-22 10:06:58.531] [DEBUG] [barcodeRoutes.go:53] Validating request
+2025/05/22 10:06:58 [2025-05-22 10:06:58.531] [INFO] [barcodeRoutes.go:61] Saving barcode: 8801073110502
+2025/05/22 10:06:58 [2025-05-22 10:06:58.531] [TRACE] [barcode.go:19] Entering barcode.go:19
+2025/05/22 10:06:58 [2025-05-22 10:06:58.531] [INFO] [barcode.go:20] Saving barcode: 8801073110502
+2025/05/22 10:06:58 [2025-05-22 10:06:58.531] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/22 10:06:58 [2025-05-22 10:06:58.531] [DEBUG] [db.go:140] Getting database instance
+2025/05/22 10:06:58 [2025-05-22 10:06:58.531] [INFO] [barcode.go:42] Starting transaction to save barcode
+2025/05/22 10:06:58 [2025-05-22 10:06:58.532] [WARN] [barcode.go:67] Barcode 8801073110502 already exists
+2025/05/22 10:06:58 [2025-05-22 10:06:58.532] [WARN] [barcode.go:52] Rolling back transaction - this happens if there was an error
+2025/05/22 10:06:58 [2025-05-22 10:06:58.532] [TRACE] [barcode.go:68] Exiting barcode.go:68
+2025/05/22 10:06:58 [2025-05-22 10:06:58.532] [ERROR] [barcodeRoutes.go:65] Error saving barcode: barcode 8801073110502 already exists
+2025/05/22 10:06:58 [2025-05-22 10:06:58.532] [TRACE] [barcodeRoutes.go:67] Exiting barcodeRoutes.go:67
