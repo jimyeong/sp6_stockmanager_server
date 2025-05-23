@@ -254,3 +254,78 @@
 2025/05/22 10:06:58 [2025-05-22 10:06:58.532] [TRACE] [barcode.go:68] Exiting barcode.go:68
 2025/05/22 10:06:58 [2025-05-22 10:06:58.532] [ERROR] [barcodeRoutes.go:65] Error saving barcode: barcode 8801073110502 already exists
 2025/05/22 10:06:58 [2025-05-22 10:06:58.532] [TRACE] [barcodeRoutes.go:67] Exiting barcodeRoutes.go:67
+2025/05/23 14:29:11 [2025-05-23 14:29:11.989] [INFO] [main.go:39] Starting Owlverload API server
+2025/05/23 14:29:11 [2025-05-23 14:29:11.990] [INFO] [main.go:44] Loaded development environment
+2025/05/23 14:29:11 [2025-05-23 14:29:11.990] [TRACE] [db.go:33] Entering db.go:33
+2025/05/23 14:29:11 [2025-05-23 14:29:11.990] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/05/23 14:29:11 [2025-05-23 14:29:11.990] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/05/23 14:29:11 [2025-05-23 14:29:11.992] [INFO] [db.go:62] Database connected successfully
+2025/05/23 14:29:11 [2025-05-23 14:29:11.992] [TRACE] [db.go:63] Exiting db.go:63
+2025/05/23 14:29:18 [2025-05-23 14:29:18.478] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/23 14:29:18 [2025-05-23 14:29:18.478] [DEBUG] [db.go:140] Getting database instance
+2025/05/23 14:29:18 [2025-05-23 14:29:18.478] [INFO] [db.go:143] Initializing database instance (first call)
+2025/05/23 14:29:18 [2025-05-23 14:29:18.478] [TRACE] [db.go:33] Entering db.go:33
+2025/05/23 14:29:18 [2025-05-23 14:29:18.478] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/05/23 14:29:18 [2025-05-23 14:29:18.478] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/05/23 14:29:18 [2025-05-23 14:29:18.481] [INFO] [db.go:62] Database connected successfully
+2025/05/23 14:29:18 [2025-05-23 14:29:18.481] [TRACE] [db.go:63] Exiting db.go:63
+2025/05/23 14:29:18 [2025-05-23 14:29:18.482] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/23 14:29:18 [2025-05-23 14:29:18.482] [DEBUG] [db.go:140] Getting database instance
+2025/05/23 14:29:18 [2025-05-23 14:29:18.483] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/23 14:29:18 [2025-05-23 14:29:18.483] [DEBUG] [db.go:140] Getting database instance
+2025/05/23 14:29:24 [2025-05-23 14:29:24.654] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/23 14:29:24 [2025-05-23 14:29:24.654] [DEBUG] [db.go:140] Getting database instance
+2025/05/23 14:29:24 [2025-05-23 14:29:24.655] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/23 14:29:24 [2025-05-23 14:29:24.655] [DEBUG] [db.go:140] Getting database instance
+2025/05/23 14:29:24 [2025-05-23 14:29:24.656] [TRACE] [itemRoutes.go:308] Entering itemRoutes.go:308
+2025/05/23 14:29:24 [2025-05-23 14:29:24.656] [INFO] [itemRoutes.go:309] Starting HandleStockOut operation
+2025/05/23 14:29:24 [2025-05-23 14:29:24.656] [INFO] [itemRoutes.go:314] User handling stock out: idjjm92@gmail.com
+2025/05/23 14:29:24 [2025-05-23 14:29:24.656] [DEBUG] [itemRoutes.go:322] Reading request body
+2025/05/23 14:29:24 [2025-05-23 14:29:24.656] [DEBUG] [itemRoutes.go:331] Unmarshaling request JSON
+2025/05/23 14:29:24 [2025-05-23 14:29:24.656] [DEBUG] [itemRoutes.go:333] Request content: {Stock:{StockId:33 ItemId:46 BoxNumber:3 SingleNumber:0 BundleNumber:0 ExpiryDate:2025-06-17 08:46:32 +0000 UTC Location: RegisteringPerson:정지명 Notes: CreatedAt:2025-05-18 09:46:40 +0000 UTC} StockType:BOX Quantity:1 UserEmail: Date:0001-01-01 00:00:00 +0000 UTC Notes:}
+2025/05/23 14:29:24 [2025-05-23 14:29:24.656] [DEBUG] [itemRoutes.go:342] Validating request
+2025/05/23 14:29:24 [2025-05-23 14:29:24.656] [DEBUG] [itemRoutes.go:355] Stock type: BOX
+2025/05/23 14:29:24 [2025-05-23 14:29:24.656] [DEBUG] [itemRoutes.go:364] Current stock: 3, Requested quantity: 1, Remaining: 2
+2025/05/23 14:29:24 [2025-05-23 14:29:24.656] [INFO] [itemRoutes.go:376] Getting database instance and starting transaction
+2025/05/23 14:29:24 [2025-05-23 14:29:24.656] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/23 14:29:24 [2025-05-23 14:29:24.656] [DEBUG] [db.go:140] Getting database instance
+2025/05/23 14:29:24 [2025-05-23 14:29:24.658] [INFO] [itemRoutes.go:397] Updating stock quantity
+2025/05/23 14:29:24 [2025-05-23 14:29:24.658] [DEBUG] [itemRoutes.go:405] Stock quantity updated successfully
+2025/05/23 14:29:24 [2025-05-23 14:29:24.658] [INFO] [itemRoutes.go:420] Recording stock transaction
+2025/05/23 14:29:24 [2025-05-23 14:29:24.659] [DEBUG] [itemRoutes.go:428] Transaction recorded successfully
+2025/05/23 14:29:24 [2025-05-23 14:29:24.659] [INFO] [itemRoutes.go:431] Committing transaction
+2025/05/23 14:29:24 [2025-05-23 14:29:24.661] [INFO] [itemRoutes.go:438] Transaction committed successfully
+2025/05/23 14:29:24 [2025-05-23 14:29:24.661] [INFO] [itemRoutes.go:444] Fetching updated stock list for item: 46
+2025/05/23 14:29:24 [2025-05-23 14:29:24.661] [TRACE] [item.go:490] Entering item.go:490
+2025/05/23 14:29:24 [2025-05-23 14:29:24.661] [INFO] [item.go:491] Getting stocks for item ID: 46
+2025/05/23 14:29:24 [2025-05-23 14:29:24.661] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/23 14:29:24 [2025-05-23 14:29:24.661] [DEBUG] [db.go:140] Getting database instance
+2025/05/23 14:29:24 [2025-05-23 14:29:24.661] [DEBUG] [item.go:506] Executing query: SELECT stock_id, fkproduct_id, box_number, single_number, bundle_number, expiry_date, location, registering_person, notes, created_at FROM stocks WHERE fkproduct_id = ? with item ID: 46
+2025/05/23 14:29:24 [2025-05-23 14:29:24.661] [DEBUG] [item.go:534] Found stock: ID=33, BoxNumber=2, Location=
+2025/05/23 14:29:24 [2025-05-23 14:29:24.661] [INFO] [item.go:545] Retrieved 1 stocks for item 46
+2025/05/23 14:29:24 [2025-05-23 14:29:24.661] [TRACE] [item.go:546] Exiting item.go:546
+2025/05/23 14:29:24 [2025-05-23 14:29:24.661] [DEBUG] [itemRoutes.go:452] Successfully fetched 1 updated stock records
+2025/05/23 14:29:24 [2025-05-23 14:29:24.661] [INFO] [itemRoutes.go:455] Fetching updated item data for item: 46
+2025/05/23 14:29:24 [2025-05-23 14:29:24.661] [TRACE] [item.go:438] Entering item.go:438
+2025/05/23 14:29:24 [2025-05-23 14:29:24.661] [INFO] [item.go:439] Getting item by ID: 46
+2025/05/23 14:29:24 [2025-05-23 14:29:24.661] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/23 14:29:24 [2025-05-23 14:29:24.661] [DEBUG] [db.go:140] Getting database instance
+2025/05/23 14:29:24 [2025-05-23 14:29:24.661] [DEBUG] [item.go:458] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 46
+2025/05/23 14:29:24 [2025-05-23 14:29:24.662] [INFO] [item.go:484] Successfully retrieved item: ID=46, Name='치킨 불닭 오리지날 멀티팩', Code=105095
+2025/05/23 14:29:24 [2025-05-23 14:29:24.662] [TRACE] [item.go:486] Exiting item.go:486
+2025/05/23 14:29:24 [2025-05-23 14:29:24.662] [DEBUG] [itemRoutes.go:463] Successfully fetched updated item data
+2025/05/23 14:29:24 [2025-05-23 14:29:24.662] [INFO] [itemRoutes.go:469] Preparing response with updated item and stock information
+2025/05/23 14:29:24 [2025-05-23 14:29:24.662] [INFO] [itemRoutes.go:477] Stock out operation completed successfully
+2025/05/23 14:29:24 [2025-05-23 14:29:24.662] [TRACE] [itemRoutes.go:479] Exiting itemRoutes.go:479
+2025/05/23 14:30:47 [2025-05-23 14:30:47.176] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/23 14:30:47 [2025-05-23 14:30:47.176] [DEBUG] [db.go:140] Getting database instance
+2025/05/23 14:30:47 [2025-05-23 14:30:47.177] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/23 14:30:47 [2025-05-23 14:30:47.177] [DEBUG] [db.go:140] Getting database instance
+2025/05/23 14:30:47 [2025-05-23 14:30:47.177] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/23 14:30:47 [2025-05-23 14:30:47.177] [DEBUG] [db.go:140] Getting database instance
+2025/05/23 14:31:08 [2025-05-23 14:31:08.986] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/23 14:31:08 [2025-05-23 14:31:08.986] [DEBUG] [db.go:140] Getting database instance
+2025/05/23 14:31:08 [2025-05-23 14:31:08.988] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/23 14:31:08 [2025-05-23 14:31:08.988] [DEBUG] [db.go:140] Getting database instance
+2025/05/23 14:31:08 [2025-05-23 14:31:08.989] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/05/23 14:31:08 [2025-05-23 14:31:08.989] [DEBUG] [db.go:140] Getting database instance
