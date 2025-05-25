@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -89,13 +90,13 @@ type LookupItemRequest struct {
 
 // HandleGetItemByBarcode handles GET requests to get an item by barcode
 func HandleGetItemByBarcode(w http.ResponseWriter, r *http.Request) {
+
 	// Get barcode from query params
 	barcode := r.URL.Query().Get("barcode")
-	code := r.URL.Query().Get("code")
-	fmt.Println("barcode", barcode)
+	// itemId := mux.Vars(r)["itemId"]
 
-	if barcode == "" && code == "" {
-		models.WriteServiceError(w, "Either barcode or code is required", false, true, http.StatusBadRequest)
+	if barcode == "" {
+		models.WriteServiceError(w, "Either barcode or code or itemId is required", false, true, http.StatusBadRequest)
 		return
 	}
 
@@ -126,16 +127,6 @@ func HandleGetItemByBarcode(w http.ResponseWriter, r *http.Request) {
 		}
 		models.WriteServiceResponse(w, "Item found", item, true, true, http.StatusOK)
 		return
-	}
-
-	// If barcode search failed or wasn't provided, try by code
-	if code != "" {
-		// Assuming we have a GetItemByCode function
-		item, err = models.GetItemByCode(code)
-		if err == nil {
-			models.WriteServiceResponse(w, "Item found", item, true, true, http.StatusOK)
-			return
-		}
 	}
 
 	// If we get here, item wasn't found
@@ -1036,4 +1027,86 @@ func HandleGetItemsWithMissingInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	models.WriteServiceResponse(w, "Items with missing information retrieved successfully", response, true, true, http.StatusOK)
+}
+
+// HandleGetItemsPaginated handles GET requests to get items with pagination
+func HandleGetItemsPaginated(w http.ResponseWriter, r *http.Request) {
+	// Get authentication user ID from context
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	fmt.Println("@@@USER NAME", userEmail)
+	if userEmail == "" {
+		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
+		return
+	}
+
+	// Get pagination parameters from query string
+	pageStr := r.URL.Query().Get("page")
+	limitStr := r.URL.Query().Get("limit")
+
+	// Set default values
+	page := 1
+	limit := 10
+
+	// Parse page parameter
+	if pageStr != "" {
+		if p, err := strconv.Atoi(pageStr); err == nil && p > 0 {
+			page = p
+		}
+	}
+
+	// Parse limit parameter
+	if limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 && l <= 100 {
+			limit = l
+		}
+	}
+
+	// Calculate offset
+	offset := (page - 1) * limit
+
+	// Fetch paginated items from database
+	items, totalCount, err := models.GetItemsPaginated(offset, limit)
+	if err != nil {
+		log.Printf("Error retrieving paginated items: %v", err)
+		models.WriteServiceError(w, "Failed to retrieve items", false, true, http.StatusInternalServerError)
+		return
+	}
+
+	// For each item, populate stock and tag information
+	// var itemsWithStockAndTags []map[string]interface{}
+	// for _, item := range items {
+	// 	// Extract tag names for simplicity in the response
+	// 	var tagNames []string
+	// 	for _, tag := range item.Tag {
+	// 		tagNames = append(tagNames, tag.TagName)
+	// 	}
+
+	// 	itemData := map[string]interface{}{
+	// 		"item":     item,
+	// 		"tagNames": tagNames,
+	// 	}
+
+	// 	itemsWithStockAndTags = append(itemsWithStockAndTags, itemData)
+	// }
+
+	// Calculate pagination metadata
+	totalPages := (totalCount + limit - 1) / limit
+	hasNext := page < totalPages
+	hasPrev := page > 1
+
+	// Prepare the response with pagination metadata
+	response := map[string]interface{}{
+		"items": items,
+		"pagination": map[string]interface{}{
+			"page":       page,
+			"limit":      limit,
+			"totalItems": totalCount,
+			"totalPages": totalPages,
+			"hasNext":    hasNext,
+			"hasPrev":    hasPrev,
+		},
+	}
+
+	models.WriteServiceResponse(w, "Items retrieved successfully", response, true, true, http.StatusOK)
 }

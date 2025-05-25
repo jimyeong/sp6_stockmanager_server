@@ -20,24 +20,24 @@ import (
 
 func main() {
 	var err error
-	
+
 	// Initialize logger
 	logDir := "./logs"
 	if err := os.MkdirAll(logDir, 0755); err != nil {
 		log.Printf("Failed to create log directory: %v", err)
 	}
-	
+
 	logFile := filepath.Join(logDir, "owlverload_api.log")
 	if err := utils.InitLogger(logFile); err != nil {
 		log.Printf("Failed to initialize logger: %v", err)
 	}
 	defer utils.Close()
-	
+
 	// Set log level (Debug to see all logs)
 	utils.SetLogLevel(utils.LevelDebug)
-	
+
 	utils.Info("Starting Owlverload API server")
-	
+
 	// Load environment variables
 	if os.Getenv("ENV") == "development" {
 		err = godotenv.Load(".env.development")
@@ -125,6 +125,7 @@ func main() {
 	apiRouter.HandleFunc("/registerItem", apis.HandleRegisterItem).Methods("POST")
 	apiRouter.HandleFunc("/updateItem", apis.HandleUpdateItem).Methods("PUT")
 	apiRouter.HandleFunc("/getItems", apis.HandleGetItems).Methods("GET")
+	apiRouter.HandleFunc("/getItemsPaginated", apis.HandleGetItemsPaginated).Methods("GET")
 	apiRouter.HandleFunc("/searchItems", apis.HandleSearchItems).Methods("POST")
 	apiRouter.HandleFunc("/getItemsWithMissingInfo", apis.HandleGetItemsWithMissingInfo).Methods("GET")
 	apiRouter.HandleFunc("/lookupItems", apis.HandleLookupItems).Methods("POST")
@@ -137,7 +138,7 @@ func main() {
 	apiRouter.HandleFunc("/tags/item", apis.HandleGetTagsForItem).Methods("GET")
 	apiRouter.HandleFunc("/tags/associate", apis.HandleAssociateItemWithTags).Methods("POST")
 	apiRouter.HandleFunc("/recommendations", apis.HandleGetRecommendedItems).Methods("POST")
-	
+
 	// Barcode routes
 	apiRouter.HandleFunc("/saveBarcode", apis.HandleSaveBarcode).Methods("POST")
 
