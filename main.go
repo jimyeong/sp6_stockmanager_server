@@ -118,7 +118,9 @@ func main() {
 	// Protected routes (authentication required)
 	// Stock/Item routes
 	fmt.Println("--- coming in here --- ")
-	apiRouter.HandleFunc("/getItem", apis.HandleGetItemByBarcode).Methods("GET")
+	// apiRouter.HandleFunc("/getItem", apis.HandleGetItemByBarcode).Methods("GET")
+	apiRouter.HandleFunc("/editItem/{itemId}", apis.HandleGetItemById).Methods("GET")
+	apiRouter.HandleFunc("/getItemByBarcode", apis.HandleGetItemByBarcode).Methods("GET")
 	apiRouter.HandleFunc("/stockIn", apis.HandleStockIn).Methods("POST")
 	apiRouter.HandleFunc("/stockOut", apis.HandleStockOut).Methods("POST")
 	// apiRouter.HandleFunc("/createItem", apis.HandleCreateItem).Methods("POST")

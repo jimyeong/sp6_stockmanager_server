@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/jimyeongjung/owlverload_api/firebase"
 	"github.com/jimyeongjung/owlverload_api/models"
 	"github.com/jimyeongjung/owlverload_api/utils"
@@ -88,6 +89,18 @@ type LookupItemRequest struct {
 	Value      string `json:"value"`
 }
 
+func HandleGetItemById(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("--- HandleGetItemById started --- ")
+	itemId := mux.Vars(r)["itemId"]
+	item, err := models.GetItemById(itemId)
+	if err != nil {
+		models.WriteServiceError(w, "Item not found", false, true, http.StatusNotFound)
+		return
+	}
+	models.WriteServiceResponse(w, "Item found", item, true, true, http.StatusOK)
+	fmt.Println("--- HandleGetItemById ended --- ")
+}
+
 // HandleGetItemByBarcode handles GET requests to get an item by barcode
 func HandleGetItemByBarcode(w http.ResponseWriter, r *http.Request) {
 
@@ -106,12 +119,7 @@ func HandleGetItemByBarcode(w http.ResponseWriter, r *http.Request) {
 	// First try to find by barcode
 	if barcode != "" {
 		item, err = models.GetItemByBarcode(barcode)
-		fmt.Println("--- item, err --- ", item, err)
-		fmt.Println("--- err --- ", err)
 		if err != nil {
-			// induce themto send createItem request
-			// models.WriteServiceError(w, "Item not found", false, true)
-			// w.WriteHeader(http.StatusNotFound)
 			w.WriteHeader(204)
 			json.NewEncoder(w).Encode(models.ServiceResponse{
 				Message: "Item not found",
@@ -1074,21 +1082,21 @@ func HandleGetItemsPaginated(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// For each item, populate stock and tag information
-	// var itemsWithStockAndTags []map[string]interface{}
-	// for _, item := range items {
-	// 	// Extract tag names for simplicity in the response
-	// 	var tagNames []string
-	// 	for _, tag := range item.Tag {
-	// 		tagNames = append(tagNames, tag.TagName)
-	// 	}
+	var itemsWithStockAndTags []map[string]interface{}
+	for _, item := range items {
+		// Extract tag names for simplicity in the response
+		var tagNames []string
+		for _, tag := range item.Tag {
+			tagNames = append(tagNames, tag.TagName)
+		}
 
-	// 	itemData := map[string]interface{}{
-	// 		"item":     item,
-	// 		"tagNames": tagNames,
-	// 	}
+		itemData := map[string]interface{}{
+			"item":     item,
+			"tagNames": tagNames,
+		}
 
-	// 	itemsWithStockAndTags = append(itemsWithStockAndTags, itemData)
-	// }
+		itemsWithStockAndTags = append(itemsWithStockAndTags, itemData)
+	}
 
 	// Calculate pagination metadata
 	totalPages := (totalCount + limit - 1) / limit
