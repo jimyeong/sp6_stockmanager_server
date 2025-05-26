@@ -539,8 +539,6 @@ func GetItemsPaginated(offset, limit int) ([]Item, int, error) {
 	// 	result = append(result, *item)
 	// }
 
-	fmt.Println("@@@@@@@@@@@@@@@@@@---items---", items)
-
 	return items, totalCount, nil
 }
 

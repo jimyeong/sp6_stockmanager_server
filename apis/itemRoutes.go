@@ -1091,8 +1091,8 @@ func HandleGetItemsPaginated(w http.ResponseWriter, r *http.Request) {
 		}
 
 		itemData := map[string]interface{}{
-			"item":     item,
-			"tagNames": tagNames,
+			"products": item,
+			"tags":     tagNames,
 		}
 
 		itemsWithStockAndTags = append(itemsWithStockAndTags, itemData)
