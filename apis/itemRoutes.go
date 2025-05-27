@@ -1051,7 +1051,11 @@ func HandleGetItemsPaginated(w http.ResponseWriter, r *http.Request) {
 	// Get pagination parameters from query string
 	pageStr := r.URL.Query().Get("page")
 	limitStr := r.URL.Query().Get("limit")
+	tagParams := r.URL.Query()["tag"]
 
+	if len(tagParams) == 0 {
+		tagParams = []string{"sp6"}
+	}
 	// Set default values
 	page := 1
 	limit := 10
@@ -1074,7 +1078,7 @@ func HandleGetItemsPaginated(w http.ResponseWriter, r *http.Request) {
 	offset := (page - 1) * limit
 
 	// Fetch paginated items from database
-	items, totalCount, err := models.GetItemsPaginated(offset, limit)
+	items, totalCount, err := models.GetItemsPaginated(offset, limit, tagParams)
 	if err != nil {
 		log.Printf("Error retrieving paginated items: %v", err)
 		models.WriteServiceError(w, "Failed to retrieve items", false, true, http.StatusInternalServerError)
@@ -1082,21 +1086,23 @@ func HandleGetItemsPaginated(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// For each item, populate stock and tag information
-	var itemsWithStockAndTags []map[string]interface{}
-	for _, item := range items {
-		// Extract tag names for simplicity in the response
-		var tagNames []string
-		for _, tag := range item.Tag {
-			tagNames = append(tagNames, tag.TagName)
-		}
+	// var itemsWithStockAndTags []map[string]interface{}
+	// for _, item := range items {
 
-		itemData := map[string]interface{}{
-			"products": item,
-			"tags":     tagNames,
-		}
+	// Extract tag names for simplicity in the response
+	// var tagNames []string
+	// items[i].Tag = tagNames
+	// for _, tag := range item.Tag {
+	// 	tagNames = append(tagNames, tag.TagName)
+	// }
 
-		itemsWithStockAndTags = append(itemsWithStockAndTags, itemData)
-	}
+	// itemData := map[string]interface{}{
+	// 	"products": item,
+	// 	"tags":     tagNames,
+	// }
+
+	// itemsWithStockAndTags = append(itemsWithStockAndTags, itemData)
+	// }
 
 	// Calculate pagination metadata
 	totalPages := (totalCount + limit - 1) / limit

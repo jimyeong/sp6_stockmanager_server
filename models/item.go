@@ -399,13 +399,27 @@ func GetAllItems() ([]Item, error) {
 	return result, nil
 }
 
+/**
+
+WEIRD PROBLEM.
+I JUST NEED TO GET SOME ITMES HAVING SPECIFIC TAGS
+BUT TO GET THE ITEMS HAVING THOSE TAGS, I HAVE TO JOIN THE TABLES WITH THE FOREIGN KEYS.
+BUT AND THEN, I DON"T KNOW IF IT's LANGAUGES's LIMIT,
+I HAVE TO FETCH ALL THE TAGS WITH THE KEY.
+THAT MEANS I HAVE TO DO A SAME JOB TWICE.
+
+FIX LATER
+
+*/
 // GetItemsPaginated retrieves items from the database with pagination
-func GetItemsPaginated(offset, limit int) ([]Item, int, error) {
-	fmt.Println("---GETITEMSPAGINATED---", offset, limit)
+func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, error) {
+	args := []interface{}{}
+	args = append(args, offset)
+	args = append(args, limit)
+	fmt.Println("---GETITEMSPAGINATED---", offset, limit, tagParams)
 	db := GetDBInstance(GetDBConfig())
 	var items []Item
 	// var itemMap = make(map[string]*Item) // Map to store items by ID for easy access
-
 	// First, get the total count
 	var totalCount int
 	countQuery := "SELECT COUNT(*) FROM items"
@@ -413,11 +427,52 @@ func GetItemsPaginated(offset, limit int) ([]Item, int, error) {
 	if err != nil {
 		return nil, 0, err
 	}
-
+	orderClause := `
+		ORDER BY created_at DESC 
+		LIMIT ? OFFSET ?
+		`
+	whereClause := " WHERE 1=1"
+	if len(tagParams) > 0 {
+		whereClause += ` AND tags.name IN (%s)`
+		whereClause += ` AND items.item_id = item_tags.item_id`
+		whereClause += ` AND tags.id = item_tags.tag_id`
+	} else {
+		whereClause += ` AND tags.name IN ('sp6')`
+	}
+	fmt.Println("---whereClause---", whereClause)
 	// Query to get paginated items
-	query := "SELECT item_id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items ORDER BY created_at DESC LIMIT ? OFFSET ?"
-	rows, err := db.Query(query, limit, offset)
+	query := `
+		SELECT items.item_id,
+		IFNULL(items.code, ''),
+		IFNULL(items.barcode, ''),
+		IFNULL(items.name, ''),
+		IFNULL(items.type, ''),
+		IFNULL(items.available_for_order, 0),
+		IFNULL(items.image_path, ''),
+		items.created_at,
+		tags.name
+		FROM items
+	`
+	query += ` JOIN item_tags ON items.item_id = item_tags.item_id`
+	query += ` JOIN tags ON item_tags.tag_id = tags.id`
+	query += whereClause
+	query += orderClause
+
+	// execute query
+
+	joinCondition := ""
+	for _, tag := range tagParams {
+		joinCondition += "'" + tag + "'"
+		if tag != tagParams[len(tagParams)-1] {
+			joinCondition += ", "
+		}
+	}
+
+	query = fmt.Sprintf(query, joinCondition)
+	fmt.Println("---query---", query)
+	rows, err := db.Query(query, args...)
 	if err != nil {
+		fmt.Println("---err---", err)
 		return nil, 0, err
 	}
 	defer rows.Close()
@@ -431,13 +486,20 @@ func GetItemsPaginated(offset, limit int) ([]Item, int, error) {
 			&item.Name,
 			&item.Type,
 			&item.AvailableForOrder,
-
 			&item.ImagePath,
 			&item.CreatedAt,
 		)
 		if err != nil {
 			return nil, 0, err
 		}
+		fmt.Println("---item---", item)
+
+		// get tags for this item
+		tags, err := GetTagsByItemId(item.ID)
+		if err != nil {
+			return nil, 0, err
+		}
+		item.Tag = tags
 
 		// Store a reference to the item in the map
 		// itemMap[item.ID] = &item
@@ -455,84 +517,14 @@ func GetItemsPaginated(offset, limit int) ([]Item, int, error) {
 			fmt.Println("---stocks index---", i, "---stocks---", stocks)
 
 		}
-
 		if err = rows.Err(); err != nil {
 			return nil, 0, err
 		}
-
-		// Now fetch tags for all items in a single query if we have items
-		if len(items) > 0 {
-			// Build a list of item IDs for the IN clause
-			// var itemIDs []string
-			// for _, item := range items {
-			// 	itemIDs = append(itemIDs, item.ID)
-			// }
-
-			// // Create placeholders for SQL query
-			// placeholders := ""
-			// args := make([]interface{}, len(itemIDs))
-
-			// for i, itemID := range itemIDs {
-			// 	if i > 0 {
-			// 		placeholders += ", "
-			// 	}
-			// 	placeholders += "?"
-			// 	args[i] = itemID
-			// }
-
-			// tagQuery := `
-			// SELECT it.item_id, t.id, t.name, IFNULL(t.category, ''), t.created_at
-			// FROM item_tags it
-			// JOIN tags t ON it.tag_id = t.id
-			// WHERE it.item_id IN (` + placeholders + `)`
-
-			// tagRows, err := db.Query(tagQuery, args...)
-			// if err != nil {
-			// 	// Continue even if there's an error fetching tags
-			// 	fmt.Printf("Error fetching tags: %v\n", err)
-			// } else {
-			// 	defer tagRows.Close()
-
-			// 	for tagRows.Next() {
-			// 		var itemID string
-			// 		var tag Tag
-
-			// 		err := tagRows.Scan(
-			// 			&itemID,
-			// 			&tag.ID,
-			// 			&tag.TagName,
-			// 			// &tag.Category,
-			// 			// &tag.CreatedAt,
-			// 		)
-			// 		if err != nil {
-			// 			fmt.Printf("Error scanning tag: %v\n", err)
-			// 			continue
-			// 		}
-
-			// 		// Add tag to the appropriate item
-			// 		if item, exists := itemMap[itemID]; exists {
-			// 			item.Tag = append(item.Tag, tag)
-			// 		}
-			// 	}
-
-			// 	if err = tagRows.Err(); err != nil {
-			// 		fmt.Printf("Error in tag rows: %v\n", err)
-			// 	}
-			// }
-
-			// Fetch stock information for each item
-			// for i, item := range items {
-			// 	stocks, err := GetStocksByItemId(item.ID)
-			// 	if err != nil {
-			// 		// Continue with empty stock if there's an error
-			// 		items[i].Stock = []Stock{}
-			// 	} else {
-			// 		items[i].Stock = stocks
-			// 	}
-			// }
-		}
 	}
 
+	if err != nil {
+		return nil, 0, err
+	}
 	// Convert the map values back to a slice with updated references
 	// var result []Item
 	// for _, item := range itemMap {
@@ -842,4 +834,32 @@ func SearchItemsByField(searchType string, value string) ([]Item, error) {
 	}
 
 	return result, nil
+}
+
+// GetTagsByItemId retrieves all tags for a given item ID
+func GetTagsByItemId(itemId string) ([]Tag, error) {
+	db := GetDBInstance(GetDBConfig())
+	var tags []Tag
+
+	query := `
+		SELECT t.id, t.name 
+		FROM tags t
+		JOIN item_tags it ON t.id = it.tag_id
+		WHERE it.item_id = ?
+	`
+	rows, err := db.Query(query, itemId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var tag Tag
+		if err := rows.Scan(&tag.ID, &tag.TagName); err != nil {
+			return nil, err
+		}
+		tags = append(tags, tag)
+	}
+
+	return tags, rows.Err()
 }
