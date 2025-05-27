@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/jimyeongjung/owlverload_api/utils"
@@ -411,72 +412,92 @@ THAT MEANS I HAVE TO DO A SAME JOB TWICE.
 FIX LATER
 
 */
-// GetItemsPaginated retrieves items from the database with pagination
+// GetItemsPaginated retrieves items from the database with pagination and tag filtering
 func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, error) {
-	args := []interface{}{}
-	args = append(args, offset)
-	args = append(args, limit)
-	fmt.Println("---GETITEMSPAGINATED---", offset, limit, tagParams)
+	defer utils.Trace()()
+	utils.Info("Getting paginated items with offset: %d, limit: %d, tags: %v", offset, limit, tagParams)
+
 	db := GetDBInstance(GetDBConfig())
-	var items []Item
-	// var itemMap = make(map[string]*Item) // Map to store items by ID for easy access
-	// First, get the total count
+	if db == nil {
+		utils.Error("Failed to get database instance")
+		return nil, 0, fmt.Errorf("database connection error")
+	}
+
+	// Default to a specific tag if none provided
+	if len(tagParams) == 0 {
+		tagParams = []string{"sp6"}
+		utils.Info("No tags provided, defaulting to 'sp6'")
+	}
+
+	// Create a map to store unique items by ID
+	itemMap := make(map[string]*Item)
+
+	// Create placeholders for tag names in the IN clause
+	var placeholders []string
+	for range tagParams {
+		placeholders = append(placeholders, "?")
+	}
+	placeholderStr := strings.Join(placeholders, ", ")
+
+	// Build args for the query
+	args := make([]interface{}, 0, len(tagParams)+2)
+	for _, tag := range tagParams {
+		args = append(args, tag)
+	}
+
+	// First, get the correct total count (items with matching tags)
 	var totalCount int
-	countQuery := "SELECT COUNT(*) FROM items"
-	err := db.QueryRow(countQuery).Scan(&totalCount)
+	countQuery := `
+		SELECT COUNT(DISTINCT i.item_id)
+		FROM items i
+		JOIN item_tags it ON i.item_id = it.item_id
+		JOIN tags t ON it.tag_id = t.id
+		WHERE t.name IN (` + placeholderStr + `)
+	`
+
+	utils.Debug("Executing count query: %s with args: %v", countQuery, args)
+	err := db.QueryRow(countQuery, args...).Scan(&totalCount)
 	if err != nil {
+		utils.Error("Error getting total count: %v", err)
 		return nil, 0, err
 	}
-	orderClause := `
-		ORDER BY created_at DESC 
-		LIMIT ? OFFSET ?
-		`
-	whereClause := " WHERE 1=1"
-	if len(tagParams) > 0 {
-		whereClause += ` AND tags.name IN (%s)`
-		whereClause += ` AND items.item_id = item_tags.item_id`
-		whereClause += ` AND tags.id = item_tags.tag_id`
-	} else {
-		whereClause += ` AND tags.name IN ('sp6')`
-	}
-	fmt.Println("---whereClause---", whereClause)
-	// Query to get paginated items
+	utils.Info("Total matching items: %d", totalCount)
+
+	// Now add limit and offset to args
+	args = append(args, limit, offset)
+
+	// Query to get paginated items with tag filtering
 	query := `
-		SELECT items.item_id,
-		IFNULL(items.code, ''),
-		IFNULL(items.barcode, ''),
-		IFNULL(items.name, ''),
-		IFNULL(items.type, ''),
-		IFNULL(items.available_for_order, 0),
-		IFNULL(items.image_path, ''),
-		items.created_at,
-		tags.name
-		FROM items
+		SELECT DISTINCT i.item_id, 
+		IFNULL(i.code, ''), 
+		IFNULL(i.barcode, ''), 
+		IFNULL(i.name, ''), 
+		IFNULL(i.type, ''), 
+		IFNULL(i.available_for_order, 0), 
+		IFNULL(i.image_path, ''), 
+		i.created_at,
+		IFNULL(i.name_jpn, ''), 
+		IFNULL(i.name_chn, ''), 
+		IFNULL(i.name_kor, ''), 
+		IFNULL(i.name_eng, '')
+		FROM items i
+		JOIN item_tags it ON i.item_id = it.item_id
+		JOIN tags t ON it.tag_id = t.id
+		WHERE t.name IN (` + placeholderStr + `)
+		GROUP BY i.item_id
+		ORDER BY i.created_at DESC
+		LIMIT ? OFFSET ?
 	`
-	query += ` JOIN item_tags ON items.item_id = item_tags.item_id`
-	query += ` JOIN tags ON item_tags.tag_id = tags.id`
-	query += whereClause
-	query += orderClause
 
-	// execute query
-
-	joinCondition := ""
-	for _, tag := range tagParams {
-		joinCondition += "'" + tag + "'"
-		if tag != tagParams[len(tagParams)-1] {
-			joinCondition += ", "
-		}
-	}
-
-	query = fmt.Sprintf(query, joinCondition)
-	fmt.Println("---query---", query)
+	utils.Debug("Executing query: %s with args: %v", query, args)
 	rows, err := db.Query(query, args...)
 	if err != nil {
-		fmt.Println("---err---", err)
+		utils.Error("Error executing items query: %v", err)
 		return nil, 0, err
 	}
 	defer rows.Close()
 
+	var items []Item
 	for rows.Next() {
 		var item Item
 		err := rows.Scan(
@@ -488,50 +509,99 @@ func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, erro
 			&item.AvailableForOrder,
 			&item.ImagePath,
 			&item.CreatedAt,
+			&item.NameJpn,
+			&item.NameChn,
+			&item.NameKor,
+			&item.NameEng,
 		)
 		if err != nil {
+			utils.Error("Error scanning item row: %v", err)
 			return nil, 0, err
 		}
-		fmt.Println("---item---", item)
 
-		// get tags for this item
-		tags, err := GetTagsByItemId(item.ID)
-		if err != nil {
-			return nil, 0, err
-		}
-		item.Tag = tags
-
-		// Store a reference to the item in the map
-		// itemMap[item.ID] = &item
+		utils.Debug("Found item: ID=%s, Name=%s", item.ID, item.Name)
+		itemMap[item.ID] = &item
 		items = append(items, item)
 	}
-	if len(items) > 0 {
-		for i, item := range items {
-			stocks, err := GetStocksByItemId(item.ID)
-			if err != nil {
-				// Continue with empty stock if there's an error
-				items[i].Stock = []Stock{}
-			} else {
-				items[i].Stock = stocks
-			}
-			fmt.Println("---stocks index---", i, "---stocks---", stocks)
 
-		}
-		if err = rows.Err(); err != nil {
-			return nil, 0, err
-		}
-	}
-
-	if err != nil {
+	if err = rows.Err(); err != nil {
+		utils.Error("Error in rows iteration: %v", err)
 		return nil, 0, err
 	}
-	// Convert the map values back to a slice with updated references
-	// var result []Item
-	// for _, item := range itemMap {
-	// 	result = append(result, *item)
-	// }
 
-	return items, totalCount, nil
+	// If we have items, fetch their tags and stocks
+	if len(items) > 0 {
+		// Get all item IDs for batch fetching
+		var itemIDs []string
+		for _, item := range items {
+			itemIDs = append(itemIDs, item.ID)
+		}
+
+		// Create placeholders for item IDs
+		itemPlaceholders := make([]string, len(itemIDs))
+		itemArgs := make([]interface{}, len(itemIDs))
+		for i, id := range itemIDs {
+			itemPlaceholders[i] = "?"
+			itemArgs[i] = id
+		}
+		itemPlaceholderStr := strings.Join(itemPlaceholders, ", ")
+
+		// Fetch tags for all items in one query
+		tagQuery := `
+			SELECT it.item_id, t.id, t.name
+			FROM item_tags it
+			JOIN tags t ON it.tag_id = t.id
+			WHERE it.item_id IN (` + itemPlaceholderStr + `)
+		`
+
+		utils.Debug("Executing tag query: %s with args: %v", tagQuery, itemArgs)
+		tagRows, err := db.Query(tagQuery, itemArgs...)
+		if err != nil {
+			utils.Warn("Error fetching tags: %v", err)
+			// Continue without tags if there's an error
+		} else {
+			defer tagRows.Close()
+			for tagRows.Next() {
+				var itemID string
+				var tag Tag
+				err := tagRows.Scan(&itemID, &tag.ID, &tag.TagName)
+				if err != nil {
+					utils.Warn("Error scanning tag: %v", err)
+					continue
+				}
+
+				if item, exists := itemMap[itemID]; exists {
+					item.Tag = append(item.Tag, tag)
+				}
+			}
+
+			if err = tagRows.Err(); err != nil {
+				utils.Warn("Error in tag rows iteration: %v", err)
+			}
+		}
+
+		// Fetch stock for each item
+		for i, item := range items {
+			utils.Debug("Fetching stocks for item: %s", item.ID)
+			stocks, err := GetStocksByItemId(item.ID)
+			if err != nil {
+				utils.Warn("Error fetching stocks for item %s: %v", item.ID, err)
+				items[i].Stock = []Stock{} // Empty stock array if error
+			} else {
+				items[i].Stock = stocks
+				utils.Debug("Found %d stocks for item %s", len(stocks), item.ID)
+			}
+		}
+	}
+
+	// Rebuild items list from the map to ensure all data is included
+	var result []Item
+	for _, item := range itemMap {
+		result = append(result, *item)
+	}
+
+	utils.Info("Successfully retrieved %d items", len(result))
+	return result, totalCount, nil
 }
 
 func GetItemByCode(code string) (Item, error) {
