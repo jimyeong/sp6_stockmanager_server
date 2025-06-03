@@ -137,12 +137,15 @@ func main() {
 	apiRouter.HandleFunc("/tags/create", apis.HandleCreateTag).Methods("POST")
 	apiRouter.HandleFunc("/tags/popular", apis.HandleGetPopularTags).Methods("GET")
 	apiRouter.HandleFunc("/tags/search", apis.HandleSearchTags).Methods("GET")
-	apiRouter.HandleFunc("/tags/item", apis.HandleGetTagsForItem).Methods("GET")
+	apiRouter.HandleFunc("/tags/item/{itemId}", apis.HandleGetTagsForItem).Methods("GET")
 	apiRouter.HandleFunc("/tags/associate", apis.HandleAssociateItemWithTags).Methods("POST")
 	apiRouter.HandleFunc("/recommendations", apis.HandleGetRecommendedItems).Methods("POST")
 
 	// Barcode routes
 	apiRouter.HandleFunc("/saveBarcode", apis.HandleSaveBarcode).Methods("POST")
+
+	// Vision API routes
+	apiRouter.HandleFunc("/analyzeProductImage", apis.HandleVisionAnalyze).Methods("POST")
 
 	// Start server
 	log.Println("Server starting on port 8080...")

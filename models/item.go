@@ -25,6 +25,11 @@ type Item struct {
 	NameEng           string    `json:"nameEng"`
 	Stock             []Stock   `json:"stock"`
 	Tag               []Tag     `json:"tag"`
+	Ingredients       string    `json:"ingredients"`
+	IsBeefContained   bool      `json:"isBeefContained"`
+	IsPorkContained   bool      `json:"isPorkContained"`
+	IsHalal           bool      `json:"isHalal"`
+	Reasoning         string    `json:"reasoning"`
 }
 type Stock struct {
 	StockId           string    `json:"stockId"`
@@ -413,6 +418,8 @@ FIX LATER
 
 */
 // GetItemsPaginated retrieves items from the database with pagination and tag filtering
+
+// STUDY THIS CODE
 func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, error) {
 	defer utils.Trace()()
 	utils.Info("Getting paginated items with offset: %d, limit: %d, tags: %v", offset, limit, tagParams)
@@ -528,6 +535,7 @@ func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, erro
 		utils.Error("Error in rows iteration: %v", err)
 		return nil, 0, err
 	}
+	fmt.Println("---ITEMS---", items)
 
 	// If we have items, fetch their tags and stocks
 	if len(items) > 0 {

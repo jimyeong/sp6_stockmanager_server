@@ -156,7 +156,7 @@ func GetTagsForItem(itemID string) ([]Tag, error) {
 	var tags []Tag
 
 	query := `
-	SELECT t.id, t.name, IFNULL(t.category, ''), t.created_at
+	SELECT t.id, t.name
 	FROM tags t
 	JOIN item_tags it ON t.id = it.tag_id
 	WHERE it.item_id = ?`

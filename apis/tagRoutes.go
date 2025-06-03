@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/jimyeongjung/owlverload_api/firebase"
 	"github.com/jimyeongjung/owlverload_api/models"
 )
@@ -297,7 +298,7 @@ func HandleGetTagsForItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get item ID from query params
-	itemID := r.URL.Query().Get("itemId")
+	itemID := mux.Vars(r)["itemId"]
 	if itemID == "" {
 		models.WriteServiceError(w, "Item ID is required", false, true, http.StatusBadRequest)
 		return

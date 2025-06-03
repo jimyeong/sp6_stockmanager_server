@@ -167,6 +167,48 @@ Response:
 }
 ```
 
+### Lookup Items
+
+Endpoint: POST /api/v1/lookupItems
+
+Request Format:
+  {
+    "search_type": "code" | "barcode" | "name",
+    "value": "search_string"
+  }
+
+  Response Format:
+  {
+    "success": true,
+    "message": "Items found successfully",
+    "payload": {
+      "items": [
+        {
+          "id": "item_123",
+          "code": "PROD-001",
+          "barcode": "1234567890123",
+          "barcodeForBox": "1234567890124",
+          "name": "Apple Juice 1L",
+          "name_kor": "사과주스 1L",
+          "name_eng": "Apple Juice 1L",
+          "name_chi": "苹果汁 1升",
+          "name_jap": "アップルジュース1L",
+          "type": "SINGLE",
+          "availableForOrder": true,
+          "imagePath": "https://example.com/image.jpg",
+          "ingredients": "Apple juice, natural flavoring",
+          "isBeefContained": false,
+          "isPorkContained": false,
+          "isHalal": true,
+          "reasoning": "No animal products, certified halal",
+          "createdAt": "2024-01-01T00:00:00Z",
+          "stock": []
+        }
+      ]
+    }
+  }
+```
+
 ## Running the Server
 
 ```bash

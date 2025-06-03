@@ -905,20 +905,20 @@ func HandleLookupItems(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Create a response with item and tag names
-		itemData := map[string]interface{}{
+		searchItemData := map[string]interface{}{
 			"item":     item,
 			"tagNames": tagNames,
 		}
 
-		itemsWithStockAndTags = append(itemsWithStockAndTags, itemData)
+		itemsWithStockAndTags = append(itemsWithStockAndTags, searchItemData)
 	}
 
 	// Prepare the response
 	response := map[string]interface{}{
-		"items":      itemsWithStockAndTags,
-		"total":      len(items),
-		"searchType": lookupRequest.SearchType,
-		"value":      lookupRequest.Value,
+		"searchItems": itemsWithStockAndTags,
+		"total":       len(items),
+		"searchType":  lookupRequest.SearchType,
+		"searchValue": lookupRequest.Value,
 	}
 
 	models.WriteServiceResponse(w, "Items found matching search criteria", response, true, true, http.StatusOK)
