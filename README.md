@@ -216,3 +216,20 @@ go run main.go
 ```
 
 The server will start on port 8080.
+
+
+
+
+
+		payload := map[string]interface{}{
+			"model": "gpt-4",
+			"messages": []map[string]string{
+				{"role": "user", "content": prompt},
+			},
+			"max_tokens": 300,
+		}
+
+		body, _ := json.Marshal(payload)
+		reqGPT, _ := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(body))
+		reqGPT.Header.Set("Authorization", "Bearer "+os.Getenv("OPENAI_API_KEY"))
+		reqGPT.Header.Set("Content-Type", "application/json")

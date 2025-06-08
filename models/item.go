@@ -14,6 +14,7 @@ type Item struct {
 	ID                string    `json:"id"`
 	Code              string    `json:"code"`
 	BarCode           string    `json:"barcode"`
+	BoxBarcode        string    `json:"boxBarcode"`
 	Name              string    `json:"name"`
 	Type              string    `json:"type"`
 	AvailableForOrder int       `json:"availableForOrder"`
@@ -29,6 +30,7 @@ type Item struct {
 	IsBeefContained   bool      `json:"isBeefContained"`
 	IsPorkContained   bool      `json:"isPorkContained"`
 	IsHalal           bool      `json:"isHalal"`
+	IsPlantBased      bool      `json:"isPlantBased"`
 	Reasoning         string    `json:"reasoning"`
 }
 type Stock struct {
@@ -197,8 +199,8 @@ func UpdateItem(item Item) (Item, error) {
 	// Prepare update query
 	query := `
 	UPDATE items 
-	SET name = ?, type = ?, name_jpn = ?, name_chn = ?, name_kor = ?, name_eng = ?, barcode = ?, available_for_order = ?, image_path = ?
-	WHERE id = ?`
+	SET name = ?, type = ?, name_jpn = ?, name_chn = ?, name_kor = ?, name_eng = ?, barcode = ?, box_barcode = ?,available_for_order = ?, image_path = ?
+	WHERE item_id = ?`
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
@@ -214,6 +216,7 @@ func UpdateItem(item Item) (Item, error) {
 		item.NameKor,
 		item.NameEng,
 		item.BarCode,
+		item.BoxBarcode,
 		item.AvailableForOrder,
 		item.ImagePath,
 		item.ID,
@@ -667,7 +670,7 @@ func GetItemById(id string) (Item, error) {
 		"IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, " +
 		"IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') " +
 		"FROM items WHERE item_id = ?"
-
+	fmt.Println("---QUERY---", query)
 	utils.Debug("Executing query: %s with item ID: %s", query, id)
 
 	err := db.QueryRow(query, id).Scan(

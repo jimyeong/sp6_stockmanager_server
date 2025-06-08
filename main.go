@@ -144,8 +144,8 @@ func main() {
 	// Barcode routes
 	apiRouter.HandleFunc("/saveBarcode", apis.HandleSaveBarcode).Methods("POST")
 
-	// Vision API routes
-	apiRouter.HandleFunc("/analyzeProductImage", apis.HandleVisionAnalyze).Methods("POST")
+	// AI Helper routes
+	apiRouter.HandleFunc("/analyze_barcode", apis.HandleBarcodeAnalyze).Methods("POST")
 
 	// Start server
 	log.Println("Server starting on port 8080...")
