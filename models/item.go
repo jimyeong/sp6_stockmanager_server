@@ -14,7 +14,7 @@ type Item struct {
 	ID                string    `json:"id"`
 	Code              string    `json:"code"`
 	BarCode           string    `json:"barcode"`
-	BoxBarcode        string    `json:"boxBarcode"`
+	BoxBarcode        string    `json:"box_barcode"`
 	Name              string    `json:"name"`
 	Type              string    `json:"type"`
 	AvailableForOrder int       `json:"availableForOrder"`
@@ -62,11 +62,12 @@ func GetItemByBarcode(barcode string) (Item, error) {
 	db := GetDBInstance(GetDBConfig())
 	var item Item
 
-	query := "SELECT item_id, code, barcode, name, type, available_for_order, image_path, created_at FROM items WHERE barcode = ?"
+	query := "SELECT item_id, code, barcode, box_barcode, name, type, available_for_order, image_path, created_at FROM items WHERE barcode = ?"
 	err := db.QueryRow(query, barcode).Scan(
 		&item.ID,
 		&item.Code,
 		&item.BarCode,
+		&item.BoxBarcode,
 		&item.Name,
 		&item.Type,
 		&item.AvailableForOrder,
@@ -186,6 +187,9 @@ func UpdateItem(item Item) (Item, error) {
 
 	if item.ImagePath == "" {
 		item.ImagePath = existingItem.ImagePath
+	}
+	if item.BoxBarcode == "" {
+		item.BoxBarcode = existingItem.BoxBarcode
 	}
 
 	// Use the existing ID to ensure we're updating the right item
@@ -316,7 +320,7 @@ func GetAllItems() ([]Item, error) {
 	var itemMap = make(map[string]*Item) // Map to store items by ID for easy access
 
 	// First query to get all items
-	query := "SELECT item_id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items"
+	query := "SELECT item_id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items"
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -329,6 +333,7 @@ func GetAllItems() ([]Item, error) {
 			&item.ID,
 			&item.Code,
 			&item.BarCode,
+			&item.BoxBarcode,
 			&item.Name,
 			&item.Type,
 			&item.AvailableForOrder,
@@ -480,7 +485,8 @@ func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, erro
 	query := `
 		SELECT DISTINCT i.item_id, 
 		IFNULL(i.code, ''), 
-		IFNULL(i.barcode, ''), 
+		IFNULL(i.barcode, ''),
+		IFNULL(i.box_barcode, ''),
 		IFNULL(i.name, ''), 
 		IFNULL(i.type, ''), 
 		IFNULL(i.available_for_order, 0), 
@@ -514,6 +520,7 @@ func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, erro
 			&item.ID,
 			&item.Code,
 			&item.BarCode,
+			&item.BoxBarcode,
 			&item.Name,
 			&item.Type,
 			&item.AvailableForOrder,
@@ -620,7 +627,7 @@ func GetItemByCode(code string) (Item, error) {
 	db := GetDBInstance(GetDBConfig())
 	var item Item
 	query := "SELECT * FROM items WHERE code = ?"
-	err := db.QueryRow(query, code).Scan(&item.ID, &item.Code, &item.BarCode, &item.Name,
+	err := db.QueryRow(query, code).Scan(&item.ID, &item.Code, &item.BarCode, &item.BoxBarcode, &item.Name,
 		&item.Type, &item.AvailableForOrder, &item.ImagePath, &item.CreatedAt)
 	if err != nil {
 		return Item{}, err
@@ -666,7 +673,7 @@ func GetItemById(id string) (Item, error) {
 	}
 
 	var item Item
-	query := "SELECT item_id, code, IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), " +
+	query := "SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(name, ''), IFNULL(type, ''), " +
 		"IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, " +
 		"IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') " +
 		"FROM items WHERE item_id = ?"
@@ -677,6 +684,7 @@ func GetItemById(id string) (Item, error) {
 		&item.ID,
 		&item.Code,
 		&item.BarCode,
+		&item.BoxBarcode,
 		&item.Name,
 		&item.Type,
 		&item.AvailableForOrder,
@@ -817,6 +825,7 @@ func SearchItemsByField(searchType string, value string) ([]Item, error) {
 			&item.ID,
 			&item.Code,
 			&item.BarCode,
+			&item.BoxBarcode,
 			&item.Name,
 			&item.Type,
 			&item.AvailableForOrder,
