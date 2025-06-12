@@ -1124,3 +1124,85 @@ func HandleGetItemsPaginated(w http.ResponseWriter, r *http.Request) {
 
 	models.WriteServiceResponse(w, "Items retrieved successfully", response, true, true, http.StatusOK)
 }
+
+// HandleGetItemsExpiringWithinDays handles GET requests to get items expiring within specific days
+func HandleGetItemsExpiringWithinDays(w http.ResponseWriter, r *http.Request) {
+	// Get authentication user ID from context
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	fmt.Println("@@@USER NAME", userEmail)
+	if userEmail == "" {
+		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
+		return
+	}
+
+	// Get 'within' parameter from query string
+	withinStr := r.URL.Query().Get("within")
+	if withinStr == "" {
+		models.WriteServiceError(w, "Parameter 'within' is required (number of days)", false, true, http.StatusBadRequest)
+		return
+	}
+
+	// Parse the within parameter
+	withinDays, err := strconv.Atoi(withinStr)
+	if err != nil || withinDays < 0 {
+		models.WriteServiceError(w, "Parameter 'within' must be a positive integer representing days", false, true, http.StatusBadRequest)
+		return
+	}
+
+	// Validate within days range (optional - set reasonable limits)
+	if withinDays > 365 {
+		models.WriteServiceError(w, "Parameter 'within' cannot exceed 365 days", false, true, http.StatusBadRequest)
+		return
+	}
+
+	// Get items expiring within the specified days
+	expiringItems, err := models.GetItemsExpiringWithinDays(withinDays)
+	if err != nil {
+		log.Printf("Error retrieving expiring items: %v", err)
+		models.WriteServiceError(w, fmt.Sprintf("Failed to retrieve expiring items: %v", err), false, true, http.StatusInternalServerError)
+		return
+	}
+
+	// If no items found, return empty array but with success status
+	if len(expiringItems) == 0 {
+		response := map[string]interface{}{
+			"expiringItems": []models.ItemWithDaysToExpiry{},
+			"total":         0,
+			"withinDays":    withinDays,
+			"message":       fmt.Sprintf("No items found expiring within %d days", withinDays),
+		}
+		models.WriteServiceResponse(w, fmt.Sprintf("No items expiring within %d days", withinDays), response, true, true, http.StatusOK)
+		return
+	}
+
+	// Process the results to add tag names for convenience
+	var enrichedResults []map[string]interface{}
+	for _, expiringItem := range expiringItems {
+		// Extract tag names for simplicity in the response
+		var tagNames []string
+		for _, tag := range expiringItem.Item.Tag {
+			tagNames = append(tagNames, tag.TagName)
+		}
+
+		// Create enriched result with additional metadata
+		enrichedResult := map[string]interface{}{
+			"item":         expiringItem.Item,
+			"daysToExpiry": expiringItem.DaysToExpiry,
+			"stockId":      expiringItem.StockId,
+			"tagNames":     tagNames,
+		}
+
+		enrichedResults = append(enrichedResults, enrichedResult)
+	}
+
+	// Prepare the response with metadata
+	response := map[string]interface{}{
+		"expiringItems": enrichedResults,
+		"total":         len(expiringItems),
+		"withinDays":    withinDays,
+		"message":       fmt.Sprintf("Found %d items expiring within %d days", len(expiringItems), withinDays),
+	}
+
+	models.WriteServiceResponse(w, fmt.Sprintf("Found %d items expiring within %d days", len(expiringItems), withinDays), response, true, true, http.StatusOK)
+}

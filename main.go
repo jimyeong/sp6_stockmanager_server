@@ -131,6 +131,7 @@ func main() {
 	apiRouter.HandleFunc("/searchItems", apis.HandleSearchItems).Methods("POST")
 	apiRouter.HandleFunc("/getItemsWithMissingInfo", apis.HandleGetItemsWithMissingInfo).Methods("GET")
 	apiRouter.HandleFunc("/lookupItems", apis.HandleLookupItems).Methods("POST")
+	apiRouter.HandleFunc("/getItemsExpiringWithinDays", apis.HandleGetItemsExpiringWithinDays).Methods("GET")
 
 	// Tag routes
 	apiRouter.HandleFunc("/tags", apis.HandleGetAllTags).Methods("GET")

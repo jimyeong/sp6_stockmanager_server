@@ -955,3 +955,132 @@ func GetTagsByItemId(itemId string) ([]Tag, error) {
 
 	return tags, rows.Err()
 }
+
+// ItemWithDaysToExpiry represents an item with days until expiry calculation
+type ItemWithDaysToExpiry struct {
+	Item         Item   `json:"item"`
+	DaysToExpiry int    `json:"daysToExpiry"`
+	StockId      string `json:"stockId"`
+}
+
+// GetItemsExpiringWithinDays retrieves items that are expiring within the specified number of days
+func GetItemsExpiringWithinDays(withinDays int) ([]ItemWithDaysToExpiry, error) {
+	defer utils.Trace()()
+	utils.Info("Getting items expiring within %d days", withinDays)
+
+	db := GetDBInstance(GetDBConfig())
+	if db == nil {
+		utils.Error("Failed to get database instance")
+		return nil, fmt.Errorf("database connection error")
+	}
+
+	// Query to get items with their stock expiry dates and calculate days to expiry
+	query := `
+		SELECT 
+			i.item_id, 
+			IFNULL(i.code, ''), 
+			IFNULL(i.barcode, ''),
+			IFNULL(i.box_barcode, ''),
+			IFNULL(i.name, ''), 
+			IFNULL(i.type, ''), 
+			IFNULL(i.available_for_order, 0), 
+			IFNULL(i.image_path, ''), 
+			i.created_at,
+			IFNULL(i.name_jpn, ''), 
+			IFNULL(i.name_chn, ''), 
+			IFNULL(i.name_kor, ''), 
+			IFNULL(i.name_eng, ''),
+			s.stock_id,
+			s.expiry_date,
+			DATEDIFF(s.expiry_date, CURDATE()) as days_to_expiry
+		FROM items i
+		JOIN stocks s ON i.item_id = s.fkproduct_id
+		WHERE DATEDIFF(s.expiry_date, CURDATE()) <= ? 
+		AND DATEDIFF(s.expiry_date, CURDATE()) >= 0
+		ORDER BY days_to_expiry ASC
+	`
+
+	utils.Debug("Executing query: %s with withinDays: %d", query, withinDays)
+	rows, err := db.Query(query, withinDays)
+	if err != nil {
+		utils.Error("Error executing expiry query: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []ItemWithDaysToExpiry
+	itemMap := make(map[string]*Item) // To avoid duplicate items
+
+	for rows.Next() {
+		var item Item
+		var stockId string
+		var expiryDate time.Time
+		var daysToExpiry int
+
+		err := rows.Scan(
+			&item.ID,
+			&item.Code,
+			&item.BarCode,
+			&item.BoxBarcode,
+			&item.Name,
+			&item.Type,
+			&item.AvailableForOrder,
+			&item.ImagePath,
+			&item.CreatedAt,
+			&item.NameJpn,
+			&item.NameChn,
+			&item.NameKor,
+			&item.NameEng,
+			&stockId,
+			&expiryDate,
+			&daysToExpiry,
+		)
+		if err != nil {
+			utils.Error("Error scanning expiry row: %v", err)
+			return nil, err
+		}
+
+		// Create the result item
+		result := ItemWithDaysToExpiry{
+			Item:         item,
+			DaysToExpiry: daysToExpiry,
+			StockId:      stockId,
+		}
+
+		// If we haven't seen this item before, get its tags and stocks
+		if _, exists := itemMap[item.ID]; !exists {
+			// Get tags for this item
+			tags, err := GetTagsByItemId(item.ID)
+			if err != nil {
+				utils.Warn("Error fetching tags for item %s: %v", item.ID, err)
+			} else {
+				result.Item.Tag = tags
+			}
+
+			// Get all stocks for this item
+			stocks, err := GetStocksByItemId(item.ID)
+			if err != nil {
+				utils.Warn("Error fetching stocks for item %s: %v", item.ID, err)
+			} else {
+				result.Item.Stock = stocks
+			}
+
+			itemMap[item.ID] = &result.Item
+		} else {
+			// Use cached item data
+			result.Item = *itemMap[item.ID]
+		}
+
+		results = append(results, result)
+		utils.Debug("Found expiring item: ID=%s, Name=%s, DaysToExpiry=%d",
+			item.ID, item.Name, daysToExpiry)
+	}
+
+	if err = rows.Err(); err != nil {
+		utils.Error("Error in rows iteration: %v", err)
+		return nil, err
+	}
+
+	utils.Info("Successfully retrieved %d expiring items", len(results))
+	return results, nil
+}
