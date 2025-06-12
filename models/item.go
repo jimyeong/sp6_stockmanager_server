@@ -62,8 +62,10 @@ func GetItemByBarcode(barcode string) (Item, error) {
 	db := GetDBInstance(GetDBConfig())
 	var item Item
 
-	query := "SELECT item_id, code, barcode, box_barcode, name, type, available_for_order, image_path, created_at FROM items WHERE barcode = ?"
-	err := db.QueryRow(query, barcode).Scan(
+	query := `SELECT item_id, code, barcode, box_barcode, name, type, available_for_order, image_path, created_at 
+				FROM items 
+				WHERE barcode = ? OR box_barcode = ?;`
+	err := db.QueryRow(query, barcode, barcode).Scan(
 		&item.ID,
 		&item.Code,
 		&item.BarCode,
