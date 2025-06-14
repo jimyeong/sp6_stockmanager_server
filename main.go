@@ -148,6 +148,10 @@ func main() {
 	// AI Helper routes
 	apiRouter.HandleFunc("/analyze_barcode", apis.HandleBarcodeAnalyze).Methods("POST")
 
+	// Image upload routes
+	apiRouter.HandleFunc("/upload/image", apis.HandleImageUpload).Methods("POST")
+	apiRouter.HandleFunc("/delete/image", apis.HandleImageDelete).Methods("DELETE")
+
 	// Start server
 	log.Println("Server starting on port 8080...")
 	log.Fatal(http.ListenAndServe(":8080", r))
