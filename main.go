@@ -119,6 +119,7 @@ func main() {
 	// Stock/Item routes
 	fmt.Println("--- coming in here --- ")
 	// apiRouter.HandleFunc("/getItem", apis.HandleGetItemByBarcode).Methods("GET")
+	apiRouter.HandleFunc("/createNewItem", apis.HandleCreateItem).Methods("POST")
 	apiRouter.HandleFunc("/editItem/{itemId}", apis.HandleGetItemById).Methods("GET")
 	apiRouter.HandleFunc("/getItemByBarcode", apis.HandleGetItemByBarcode).Methods("GET")
 	apiRouter.HandleFunc("/stockIn", apis.HandleStockIn).Methods("POST")

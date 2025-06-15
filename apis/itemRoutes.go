@@ -489,6 +489,7 @@ func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := io.ReadAll(r.Body)
+	fmt.Println("@@@BODY", string(body))
 	if err != nil {
 		models.WriteServiceError(w, "Failed to read request body", false, true, http.StatusBadRequest)
 		return
@@ -501,11 +502,11 @@ func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate the item
-	if item.BarCode == "" {
-		models.WriteServiceError(w, "Barcode is required", false, true, http.StatusBadRequest)
-		return
-	}
+	// // Validate the item
+	// if item.BarCode == "" {
+	// 	models.WriteServiceError(w, "Barcode is required", false, true, http.StatusBadRequest)
+	// 	return
+	// }
 
 	if item.Name == "" {
 		models.WriteServiceError(w, "Name is required", false, true, http.StatusBadRequest)
@@ -517,12 +518,12 @@ func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if item with the same barcode or code already exists
-	existingByBarcode, err := models.GetItemByBarcode(item.BarCode)
-	if err == nil && existingByBarcode.ID != "" {
-		models.WriteServiceError(w, "An item with this barcode already exists", false, true, http.StatusBadRequest)
-		return
-	}
+	// // Check if item with the same barcode or code already exists
+	// existingByBarcode, err := models.GetItemByBarcode(item.BarCode)
+	// if err == nil && existingByBarcode.ID != "" {
+	// 	models.WriteServiceError(w, "An item with this barcode already exists", false, true, http.StatusBadRequest)
+	// 	return
+	// }
 
 	existingByCode, err := models.GetItemByCode(item.Code)
 	if err == nil && existingByCode.ID != "" {
@@ -535,8 +536,16 @@ func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
 		item.ID = fmt.Sprintf("item_%d", time.Now().UnixNano())
 	}
 
-	// Set creation timestamp
-	item.CreatedAt = time.Now()
+	// fix file name
+	filename, err := extractFilenameFromPath(item.ImagePath)
+	filename = "/" + filename
+	item.ImagePath = filename
+
+	if err != nil {
+		models.WriteServiceError(w, "Invalid image path format", false, true, http.StatusBadRequest)
+		return
+	}
+	item.ImagePath = filename
 
 	// Create the item
 	createdItem, err := models.CreateItem(item)

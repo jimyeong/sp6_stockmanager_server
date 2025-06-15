@@ -20,10 +20,10 @@ type Item struct {
 	AvailableForOrder int       `json:"availableForOrder"`
 	ImagePath         string    `json:"imagePath"`
 	CreatedAt         time.Time `json:"createdAt,omitempty"`
-	NameJpn           string    `json:"nameJpn"`
-	NameChn           string    `json:"nameChn"`
-	NameKor           string    `json:"nameKor"`
-	NameEng           string    `json:"nameEng"`
+	NameJpn           string    `json:"name_jpn"`
+	NameChn           string    `json:"name_chn"`
+	NameKor           string    `json:"name_kor"`
+	NameEng           string    `json:"name_eng"`
 	Stock             []Stock   `json:"stock"`
 	Tag               []Tag     `json:"tag"`
 	Ingredients       string    `json:"ingredients"`
@@ -127,7 +127,7 @@ func CreateItem(item Item) (Item, error) {
 		item.CreatedAt = now
 	}
 
-	query := "INSERT INTO items (id, code, bar_code, name, type, available_for_order, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+	query := "INSERT INTO items ( code, barcode, box_barcode, name,name_jpn,name_chn,name_kor,name_eng, type, available_for_order, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 	stmt, err := db.Prepare(query)
 	if err != nil {
 		return Item{}, err
@@ -135,10 +135,14 @@ func CreateItem(item Item) (Item, error) {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(
-		item.ID,
 		item.Code,
 		item.BarCode,
+		item.BoxBarcode,
 		item.Name,
+		item.NameJpn,
+		item.NameChn,
+		item.NameKor,
+		item.NameEng,
 		item.Type,
 		item.AvailableForOrder,
 		item.ImagePath,

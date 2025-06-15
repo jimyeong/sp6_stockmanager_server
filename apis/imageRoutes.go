@@ -117,6 +117,7 @@ func HandleImageUpload(w http.ResponseWriter, r *http.Request) {
 
 	// Create filename with UUID
 	filename := fmt.Sprintf("%s.jpg", imageID)
+	fmt.Println("filename@@@@@@@@@@@@@@@@@@@@@", filename)
 
 	// Upload to R2 Cloudflare
 	imageURL, err := uploadToR2(processedData, filename)
@@ -204,7 +205,7 @@ func uploadToR2(imageData []byte, filename string) (string, error) {
 	// Create the put object input
 	putObjectInput := &s3.PutObjectInput{
 		Bucket:        aws.String(r2BucketName),
-		Key:           aws.String("images/" + filename),
+		Key:           aws.String(filename),
 		Body:          bytes.NewReader(imageData),
 		ContentType:   aws.String("image/jpeg"),
 		ContentLength: aws.Int64(int64(len(imageData))),
