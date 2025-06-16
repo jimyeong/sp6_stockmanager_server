@@ -547,7 +547,7 @@ func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
 	}
 	item.ImagePath = filename
 
-	// Create the item
+	// Create the item (this will also handle tag associations)
 	createdItem, err := models.CreateItem(item)
 	if err != nil {
 		log.Printf("Error creating item: %v", err)
@@ -555,7 +555,45 @@ func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	models.WriteServiceResponse(w, "Item created successfully", createdItem, true, true, http.StatusOK)
+	// Fetch the complete item with all associated data for the response
+	completeItem, err := models.GetItemById(createdItem.ID)
+	if err != nil {
+		log.Printf("Error fetching complete item data: %v", err)
+		// Continue with the basic item data if we can't fetch complete data
+		completeItem = createdItem
+	}
+
+	// Get associated tags for the response
+	tags, err := models.GetTagsForItem(completeItem.ID)
+	if err != nil {
+		log.Printf("Error fetching tags for item: %v", err)
+		// Continue with empty tags if error
+		tags = []models.Tag{}
+	}
+	completeItem.Tag = tags
+
+	// Get stocks for the item (should be empty for new items)
+	stocks, err := models.GetStocksByItemId(completeItem.ID)
+	if err != nil {
+		log.Printf("Error fetching stocks for item: %v", err)
+		stocks = []models.Stock{} // Empty array if error
+	}
+	completeItem.Stock = stocks
+
+	// Extract tag names for the response
+	var tagNames []string
+	for _, tag := range completeItem.Tag {
+		tagNames = append(tagNames, tag.TagName)
+	}
+
+	// Prepare response with item and tag information
+	response := map[string]interface{}{
+		"item":     completeItem,
+		"tagNames": tagNames,
+		"message":  "Item created successfully",
+	}
+
+	models.WriteServiceResponse(w, "Item created successfully", response, true, true, http.StatusOK)
 }
 
 // HandleRegisterItem is an alias for HandleCreateItem for API consistency

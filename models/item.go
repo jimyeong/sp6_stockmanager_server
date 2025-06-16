@@ -109,14 +109,14 @@ func GetItemByBarcode(barcode string) (Item, error) {
 	return item, nil
 }
 
-// CreateItem creates a new item in the database
+// CreateItem creates a new item in the database with tags
 func CreateItem(item Item) (Item, error) {
 	fmt.Println("---CREATEITEM---", item)
 	db := GetDBInstance(GetDBConfig())
 
 	// Generate a unique ID if not provided
 	if item.ID == "" {
-		item.ID = fmt.Sprintf("item_%id", time.Now().UnixNano())
+		item.ID = fmt.Sprintf("item_%d", time.Now().UnixNano())
 	}
 
 	now := time.Now()
@@ -127,14 +127,22 @@ func CreateItem(item Item) (Item, error) {
 		item.CreatedAt = now
 	}
 
-	query := "INSERT INTO items ( code, barcode, box_barcode, name,name_jpn,name_chn,name_kor,name_eng, type, available_for_order, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-	stmt, err := db.Prepare(query)
+	// Start a transaction to ensure atomicity
+	tx, err := db.Begin()
 	if err != nil {
-		return Item{}, err
+		return Item{}, fmt.Errorf("failed to start transaction: %v", err)
 	}
-	defer stmt.Close()
 
-	_, err = stmt.Exec(
+	// Defer rollback in case of error
+	defer func() {
+		if tx != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// Insert the item
+	query := "INSERT INTO items ( code, barcode, box_barcode, name, name_jpn, name_chn, name_kor, name_eng, type, available_for_order, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	_, err = tx.Exec(query,
 		item.Code,
 		item.BarCode,
 		item.BoxBarcode,
@@ -150,9 +158,37 @@ func CreateItem(item Item) (Item, error) {
 	)
 
 	if err != nil {
-		return Item{}, err
+		return Item{}, fmt.Errorf("failed to insert item: %v", err)
 	}
 
+	// If tags are provided, associate them with the item
+	if len(item.Tag) > 0 {
+		// Prepare the statement for tag association
+		tagStmt, err := tx.Prepare("INSERT IGNORE INTO item_tags (item_id, tag_id, created_at) VALUES (?, ?, ?)")
+		if err != nil {
+			return Item{}, fmt.Errorf("failed to prepare tag statement: %v", err)
+		}
+		defer tagStmt.Close()
+
+		// Associate each tag with the item
+		for _, tag := range item.Tag {
+			_, err := tagStmt.Exec(item.ID, tag.ID, now)
+			if err != nil {
+				return Item{}, fmt.Errorf("failed to associate tag %s: %v", tag.ID, err)
+			}
+		}
+	}
+
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		return Item{}, fmt.Errorf("failed to commit transaction: %v", err)
+	}
+
+	// Set tx to nil to prevent rollback in defer
+	tx = nil
+
+	fmt.Printf("Successfully created item %s with %d tags\n", item.ID, len(item.Tag))
 	return item, nil
 }
 
