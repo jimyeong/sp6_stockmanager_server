@@ -142,7 +142,7 @@ func CreateItem(item Item) (Item, error) {
 
 	// Insert the item
 	query := "INSERT INTO items ( code, barcode, box_barcode, name, name_jpn, name_chn, name_kor, name_eng, type, available_for_order, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-	_, err = tx.Exec(query,
+	result, err := tx.Exec(query,
 		item.Code,
 		item.BarCode,
 		item.BoxBarcode,
@@ -160,19 +160,26 @@ func CreateItem(item Item) (Item, error) {
 	if err != nil {
 		return Item{}, fmt.Errorf("failed to insert item: %v", err)
 	}
+	fmt.Println("@@@item.Tag", item.Tag)
+	lastInsertId, err := result.LastInsertId()
+	if err != nil {
+		return Item{}, fmt.Errorf("failed to get last insert id: %v", err)
+	}
+	item.ID = fmt.Sprintf("item_%d", lastInsertId)
 
 	// If tags are provided, associate them with the item
 	if len(item.Tag) > 0 {
 		// Prepare the statement for tag association
-		tagStmt, err := tx.Prepare("INSERT IGNORE INTO item_tags (item_id, tag_id, created_at) VALUES (?, ?, ?)")
+		tagStmt, err := tx.Prepare("INSERT IGNORE INTO item_tags (item_id, tag_id) VALUES (?, ?)")
 		if err != nil {
+			fmt.Println("@@@err@@@@@@@", err)
 			return Item{}, fmt.Errorf("failed to prepare tag statement: %v", err)
 		}
 		defer tagStmt.Close()
 
 		// Associate each tag with the item
 		for _, tag := range item.Tag {
-			_, err := tagStmt.Exec(item.ID, tag.ID, now)
+			_, err := tagStmt.Exec(lastInsertId, tag.ID)
 			if err != nil {
 				return Item{}, fmt.Errorf("failed to associate tag %s: %v", tag.ID, err)
 			}

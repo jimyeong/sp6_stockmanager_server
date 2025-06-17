@@ -498,6 +498,7 @@ func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
 	var item models.Item
 	err = json.Unmarshal(body, &item)
 	if err != nil {
+		fmt.Println("@@@err", err)
 		models.WriteServiceError(w, "Invalid request format", false, true, http.StatusBadRequest)
 		return
 	}
