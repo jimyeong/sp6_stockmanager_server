@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/jimyeongjung/owlverload_api/firebase"
 	"github.com/jimyeongjung/owlverload_api/models"
 	"github.com/jimyeongjung/owlverload_api/utils"
@@ -91,14 +90,45 @@ type LookupItemRequest struct {
 
 func HandleGetItemById(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("--- HandleGetItemById started --- ")
-	itemId := mux.Vars(r)["itemId"]
+	// /api/v1/getItemById?itemId=${id}
+	itemId := r.URL.Query().Get("itemId")
+	fmt.Println("@@@itemId@@@@@@@@@@@@@@@@@@@@@", itemId)
+
+	item, err := models.GetItemById(itemId)
+	if err != nil {
+		models.WriteServiceError(w, "Item not found", false, true, http.StatusNotFound)
+		return
+	}
+	stocks, err := models.GetStocksByItemId(itemId)
+	if err != nil {
+		models.WriteServiceError(w, "Stocks not found", false, true, http.StatusNotFound)
+		return
+	}
+	item.Stock = stocks
+	models.WriteServiceResponse(w, "Item found", item, true, true, http.StatusOK)
+	fmt.Println("--- HandleGetItemById ended --- ")
+}
+
+func HandleUpdateItemById(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("--- HandleUpdateItemById started --- ")
+	itemId := r.URL.Query().Get("itemId")
 	item, err := models.GetItemById(itemId)
 	if err != nil {
 		models.WriteServiceError(w, "Item not found", false, true, http.StatusNotFound)
 		return
 	}
 	models.WriteServiceResponse(w, "Item found", item, true, true, http.StatusOK)
-	fmt.Println("--- HandleGetItemById ended --- ")
+	fmt.Println("--- HandleUpdateItemById ended --- ")
+}
+
+func HandleGetItemByCode(w http.ResponseWriter, r *http.Request) {
+	code := r.URL.Query().Get("code")
+	item, err := models.GetItemByCode(code)
+	if err != nil {
+		models.WriteServiceError(w, "Item not found", false, true, http.StatusNotFound)
+		return
+	}
+	models.WriteServiceResponse(w, "Item found", item, true, true, http.StatusOK)
 }
 
 // HandleGetItemByBarcode handles GET requests to get an item by barcode
