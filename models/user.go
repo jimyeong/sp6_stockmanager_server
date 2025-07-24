@@ -16,6 +16,8 @@ type User struct {
 	PhotoURL      string    `json:"photoURL"`
 	ProviderId    string    `json:"providerId"`
 	Uid           string    `json:"uid"`
+	Designation   string    `json:"designation"`
+	Branch        string    `json:"branch"`
 	CreatedAt     time.Time `json:"createdAt"`
 	LoginAt       time.Time `json:"loginAt"`
 }
@@ -41,11 +43,13 @@ func (u *User) Save() (User, error) {
 }
 func (u *User) Update(uid string) (User, error) {
 	fmt.Println("---USER UPDATE---")
+	// TODO FIX IT LATER
 	db := GetDBInstance(GetDBConfig())
 	stmt, err := db.Prepare("UPDATE users SET login_at = ? WHERE firebase_uid = ?")
 	if err != nil {
 		return User{}, err
 	}
+
 	defer stmt.Close()
 	fmt.Println("updated time:", u.LoginAt)
 	_, err = stmt.Exec(u.LoginAt, uid)
