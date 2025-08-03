@@ -21,12 +21,12 @@ type GetRecommendationsRequest struct {
 }
 
 type CreateTagRequest struct {
-	TagName string `json:"tagName"`
+	TagName string `json:"tag_name"`
 }
 
 type AssociateTagsRequest struct {
 	ItemID string   `json:"itemId"`
-	TagIDs []string `json:"tagIds"`
+	TagIDs []string `json:"tag_ids"`
 }
 
 // HandleGetRecommendedItems handles requests for item recommendations based on tags with pagination

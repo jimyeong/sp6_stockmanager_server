@@ -28,17 +28,6 @@ type ItemStock struct {
 	registeringPerson string
 	notes             string
 }
-type Item struct {
-	id                string      `json:"id"`
-	code              string      `json:"code"`
-	barcode           string      `json:"barcode"`
-	name              string      `json:"name"`
-	itemType          string      `json:"itemType"`
-	availableForOrder bool        `json:"availableForOrder"`
-	imagePath         string      `json:"imagePath"`
-	createdAt         time.Time   `json:"createdAt"`
-	stock             []ItemStock `json:"stock"`
-}
 
 // Request structures
 type GetItemRequest struct {
@@ -66,9 +55,9 @@ type StockInRequest struct {
 
 type StockOutRequest struct {
 	Stock     models.Stock `json:"stock"`
-	StockType string       `json:"stockType"` // BOX, BUNDLE, SINGLE
+	StockType string       `json:"stock_type"` // BOX, BUNDLE, SINGLE
 	Quantity  int          `json:"quantity"`
-	UserEmail string       `json:"userEmail"`
+	UserEmail string       `json:"user_email"`
 	Date      time.Time    `json:"date"`
 	Notes     string       `json:"notes"`
 }
@@ -92,7 +81,6 @@ func HandleGetItemById(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("--- HandleGetItemById started --- ")
 	// /api/v1/getItemById?itemId=${id}
 	itemId := r.URL.Query().Get("itemId")
-	fmt.Println("@@@itemId@@@@@@@@@@@@@@@@@@@@@", itemId)
 
 	item, err := models.GetItemById(itemId)
 	if err != nil {
@@ -619,9 +607,9 @@ func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
 
 	// Prepare response with item and tag information
 	response := map[string]interface{}{
-		"item":     completeItem,
-		"tagNames": tagNames,
-		"message":  "Item created successfully",
+		"item":      completeItem,
+		"tag_names": tagNames,
+		"message":   "Item created successfully",
 	}
 
 	models.WriteServiceResponse(w, "Item created successfully", response, true, true, http.StatusOK)
@@ -635,6 +623,7 @@ func HandleRegisterItem(w http.ResponseWriter, r *http.Request) {
 
 // HandleUpdateItem handles PUT requests to update an existing item
 func HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("---HANDLEUPDATEITEM---")
 
 	// Get authenticated user ID from context
 	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
@@ -651,6 +640,7 @@ func HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
 		models.WriteServiceError(w, "Failed to read request body", false, true, http.StatusBadRequest)
 		return
 	}
+	fmt.Println("@@@item@@@@@@@@@@@@@@@@@@@@@ passed receved", string(body))
 
 	var item models.Item
 	err = json.Unmarshal(body, &item)
@@ -658,6 +648,7 @@ func HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
 		models.WriteServiceError(w, "Invalid request format", false, true, http.StatusBadRequest)
 		return
 	}
+	fmt.Println("@@@item@@@@@@@@@@@@@@@@@@@@@ passed unmarshal", item)
 
 	// Validate the item has the required fields for update (barcode or code)
 	if item.BarCode == "" && item.Code == "" && item.ID == "" {
@@ -697,9 +688,9 @@ func HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
 
 	// Prepare response
 	response := map[string]interface{}{
-		"item":     updatedItem,
-		"tagNames": tagNames,
-		"message":  "Item updated successfully",
+		"item":      updatedItem,
+		"tag_names": tagNames,
+		"message":   "Item updated successfully",
 	}
 
 	models.WriteServiceResponse(w, "Item updated successfully", response, true, true, http.StatusOK)
@@ -781,8 +772,8 @@ func HandleGetItems(w http.ResponseWriter, r *http.Request) {
 		}
 
 		itemData := map[string]interface{}{
-			"item":     item,
-			"tagNames": tagNames,
+			"item":      item,
+			"tag_names": tagNames,
 		}
 
 		itemsWithStockAndTags = append(itemsWithStockAndTags, itemData)
@@ -893,8 +884,8 @@ func HandleSearchItems(w http.ResponseWriter, r *http.Request) {
 
 		// Create a composite response with item, its stock, and tags
 		itemData := map[string]interface{}{
-			"item":     item,
-			"tagNames": tagNames,
+			"item":      item,
+			"tag_names": tagNames,
 		}
 
 		itemsWithStockAndTags = append(itemsWithStockAndTags, itemData)
@@ -984,8 +975,8 @@ func HandleLookupItems(w http.ResponseWriter, r *http.Request) {
 
 		// Create a response with item and tag names
 		searchItemData := map[string]interface{}{
-			"item":     item,
-			"tagNames": tagNames,
+			"item":      item,
+			"tag_names": tagNames,
 		}
 
 		itemsWithStockAndTags = append(itemsWithStockAndTags, searchItemData)
@@ -1191,12 +1182,12 @@ func HandleGetItemsPaginated(w http.ResponseWriter, r *http.Request) {
 	response := map[string]interface{}{
 		"items": items,
 		"pagination": map[string]interface{}{
-			"page":       page,
-			"limit":      limit,
-			"totalItems": totalCount,
-			"totalPages": totalPages,
-			"hasNext":    hasNext,
-			"hasPrev":    hasPrev,
+			"page":        page,
+			"limit":       limit,
+			"total_items": totalCount,
+			"total_pages": totalPages,
+			"has_next":    hasNext,
+			"has_prev":    hasPrev,
 		},
 	}
 
@@ -1265,10 +1256,10 @@ func HandleGetItemsExpiringWithinDays(w http.ResponseWriter, r *http.Request) {
 
 		// Create enriched result with additional metadata
 		enrichedResult := map[string]interface{}{
-			"item":         expiringItem.Item,
-			"daysToExpiry": expiringItem.DaysToExpiry,
-			"stockId":      expiringItem.StockId,
-			"tagNames":     tagNames,
+			"item":           expiringItem.Item,
+			"days_to_expiry": expiringItem.DaysToExpiry,
+			"stock_id":       expiringItem.StockId,
+			"tag_names":      tagNames,
 		}
 
 		enrichedResults = append(enrichedResults, enrichedResult)
@@ -1276,10 +1267,10 @@ func HandleGetItemsExpiringWithinDays(w http.ResponseWriter, r *http.Request) {
 
 	// Prepare the response with metadata
 	response := map[string]interface{}{
-		"expiringItems": enrichedResults,
-		"total":         len(expiringItems),
-		"withinDays":    withinDays,
-		"message":       fmt.Sprintf("Found %d items expiring within %d days", len(expiringItems), withinDays),
+		"expiring_items": enrichedResults,
+		"total":          len(expiringItems),
+		"within_days":    withinDays,
+		"message":        fmt.Sprintf("Found %d items expiring within %d days", len(expiringItems), withinDays),
 	}
 
 	models.WriteServiceResponse(w, fmt.Sprintf("Found %d items expiring within %d days", len(expiringItems), withinDays), response, true, true, http.StatusOK)

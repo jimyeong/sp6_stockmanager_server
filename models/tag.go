@@ -8,7 +8,7 @@ import (
 // Tag represents a product tag used for categorization and recommendations
 type Tag struct {
 	ID      string `json:"id"`
-	TagName string `json:"tagName"`
+	TagName string `json:"tag_name"`
 	// tagNa  string    `json:"category"` // For grouping related tags
 	// CreatedAt time.Time `json:"createdAt"`
 }
