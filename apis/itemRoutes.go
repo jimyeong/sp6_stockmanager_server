@@ -15,20 +15,6 @@ import (
 	"github.com/jimyeongjung/owlverload_api/utils"
 )
 
-type ItemStock struct {
-	stockId           string
-	itemId            string
-	boxNumber         string
-	bundleNumber      string
-	singleNumber      string
-	expiryDate        time.Time
-	registeredDate    time.Time
-	createdAt         time.Time
-	location          string
-	registeringPerson string
-	notes             string
-}
-
 // Request structures
 type GetItemRequest struct {
 	Barcode string `json:"barcode"`
@@ -645,6 +631,7 @@ func HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
 	var item models.Item
 	err = json.Unmarshal(body, &item)
 	if err != nil {
+		fmt.Println("@@@err@@@@@@@@@@@@@@@@@@@@@ passed unmarshal", err)
 		models.WriteServiceError(w, "Invalid request format", false, true, http.StatusBadRequest)
 		return
 	}

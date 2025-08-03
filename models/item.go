@@ -410,7 +410,7 @@ func GetAllItems() ([]Item, error) {
 	var itemMap = make(map[string]*Item) // Map to store items by ID for easy access
 
 	// First query to get all items
-	query := "SELECT item_id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0),IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items"
+	query := "SELECT item_id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0),IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items"
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -579,6 +579,7 @@ func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, erro
 		IFNULL(i.barcode, ''),
 		IFNULL(i.box_barcode, ''),
 		IFNULL(i.price, 0),
+		IFNULL(i.box_price, 0),
 		IFNULL(i.name, ''), 
 		IFNULL(i.type, ''), 
 		IFNULL(i.available_for_order, 0), 
@@ -614,6 +615,7 @@ func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, erro
 			&item.BarCode,
 			&item.BoxBarcode,
 			&item.Price,
+			&item.BoxPrice,
 			&item.Name,
 			&item.Type,
 			&item.AvailableForOrder,
@@ -766,7 +768,7 @@ func GetItemById(id string) (Item, error) {
 	}
 
 	var item Item
-	query := "SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(name, ''), IFNULL(type, ''), " +
+	query := "SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), " +
 		"IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, " +
 		"IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') " +
 		"FROM items WHERE item_id = ?"
@@ -779,6 +781,7 @@ func GetItemById(id string) (Item, error) {
 		&item.BarCode,
 		&item.BoxBarcode,
 		&item.Price,
+		&item.BoxPrice,
 		&item.Name,
 		&item.Type,
 		&item.AvailableForOrder,
