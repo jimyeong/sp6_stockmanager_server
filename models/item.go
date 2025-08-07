@@ -791,7 +791,7 @@ func GetStocksByItemId(itemId string) ([]Stock, error) {
 	}
 
 	var stocks []Stock
-	query := "SELECT stock_id, fkproduct_id, box_number, single_number, bundle_number, expiry_date, location, registering_person, notes, discount_rate, created_at FROM stocks WHERE fkproduct_id = ?"
+	query := "SELECT stock_id, fkproduct_id, box_number, single_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ?"
 	utils.Debug("Executing query: %s with item ID: %s", query, itemId)
 
 	rows, err := db.Query(query, itemId)
