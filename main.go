@@ -127,6 +127,7 @@ func main() {
 	apiRouter.HandleFunc("/updateItemById", apis.HandleUpdateItemById).Methods("PUT")
 	apiRouter.HandleFunc("/stockIn", apis.HandleStockIn).Methods("POST")
 	apiRouter.HandleFunc("/stockOut", apis.HandleStockOut).Methods("POST")
+	apiRouter.HandleFunc("/stockUpdate", apis.HandleStockUpdate).Methods("PUT")
 	// apiRouter.HandleFunc("/createItem", apis.HandleCreateItem).Methods("POST")
 	apiRouter.HandleFunc("/registerItem", apis.HandleRegisterItem).Methods("POST")
 	apiRouter.HandleFunc("/updateItem", apis.HandleUpdateItem).Methods("PUT")

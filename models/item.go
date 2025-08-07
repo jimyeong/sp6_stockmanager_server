@@ -15,6 +15,8 @@ type Item struct {
 	Code              string    `json:"code"`
 	BarCode           string    `json:"barcode"`
 	BoxBarcode        string    `json:"box_barcode"`
+	Price             float64   `json:"price"`
+	BoxPrice          float64   `json:"box_price"`
 	Name              string    `json:"name"`
 	Type              string    `json:"type"`
 	AvailableForOrder int       `json:"availableForOrder"`
@@ -63,7 +65,7 @@ func GetItemByBarcode(barcode string) (Item, error) {
 	db := GetDBInstance(GetDBConfig())
 	var item Item
 
-	query := `SELECT item_id, code, barcode, box_barcode, name, type, available_for_order, image_path, created_at 
+	query := `SELECT item_id, code, barcode, box_barcode, price, box_price, name, type, available_for_order, image_path, created_at 
 				FROM items 
 				WHERE barcode = ? OR box_barcode = ?;`
 	err := db.QueryRow(query, barcode, barcode).Scan(
@@ -71,6 +73,8 @@ func GetItemByBarcode(barcode string) (Item, error) {
 		&item.Code,
 		&item.BarCode,
 		&item.BoxBarcode,
+		&item.Price,
+		&item.BoxPrice,
 		&item.Name,
 		&item.Type,
 		&item.AvailableForOrder,
@@ -253,7 +257,7 @@ func UpdateItem(item Item) (Item, error) {
 	// Prepare update query
 	query := `
 	UPDATE items 
-	SET name = ?, type = ?, name_jpn = ?, name_chn = ?, name_kor = ?, name_eng = ?, barcode = ?, box_barcode = ?,available_for_order = ?, image_path = ?
+	SET name = ?, type = ?, name_jpn = ?, name_chn = ?, name_kor = ?, name_eng = ?, barcode = ?, box_barcode = ?, price = ?, box_price = ?, available_for_order = ?, image_path = ?
 	WHERE item_id = ?`
 
 	stmt, err := db.Prepare(query)
@@ -271,6 +275,8 @@ func UpdateItem(item Item) (Item, error) {
 		item.NameEng,
 		item.BarCode,
 		item.BoxBarcode,
+		item.Price,
+		item.BoxPrice,
 		item.AvailableForOrder,
 		item.ImagePath,
 		item.ID,
@@ -370,7 +376,7 @@ func GetAllItems() ([]Item, error) {
 	var itemMap = make(map[string]*Item) // Map to store items by ID for easy access
 
 	// First query to get all items
-	query := "SELECT item_id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items"
+	query := "SELECT item_id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items"
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -384,6 +390,8 @@ func GetAllItems() ([]Item, error) {
 			&item.Code,
 			&item.BarCode,
 			&item.BoxBarcode,
+			&item.Price,
+			&item.BoxPrice,
 			&item.Name,
 			&item.Type,
 			&item.AvailableForOrder,
@@ -537,6 +545,8 @@ func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, erro
 		IFNULL(i.code, ''), 
 		IFNULL(i.barcode, ''),
 		IFNULL(i.box_barcode, ''),
+		IFNULL(i.price, 0),
+		IFNULL(i.box_price, 0),
 		IFNULL(i.name, ''), 
 		IFNULL(i.type, ''), 
 		IFNULL(i.available_for_order, 0), 
@@ -571,6 +581,8 @@ func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, erro
 			&item.Code,
 			&item.BarCode,
 			&item.BoxBarcode,
+			&item.Price,
+			&item.BoxPrice,
 			&item.Name,
 			&item.Type,
 			&item.AvailableForOrder,
@@ -677,7 +689,7 @@ func GetItemByCode(code string) (Item, error) {
 	db := GetDBInstance(GetDBConfig())
 	var item Item
 	query := "SELECT * FROM items WHERE code = ?"
-	err := db.QueryRow(query, code).Scan(&item.ID, &item.Code, &item.BarCode, &item.BoxBarcode, &item.Name,
+	err := db.QueryRow(query, code).Scan(&item.ID, &item.Code, &item.BarCode, &item.BoxBarcode, &item.Price, &item.BoxPrice, &item.Name,
 		&item.Type, &item.AvailableForOrder, &item.ImagePath, &item.CreatedAt)
 	if err != nil {
 		return Item{}, err
@@ -723,7 +735,7 @@ func GetItemById(id string) (Item, error) {
 	}
 
 	var item Item
-	query := "SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(name, ''), IFNULL(type, ''), " +
+	query := "SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), " +
 		"IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, " +
 		"IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') " +
 		"FROM items WHERE item_id = ?"
@@ -735,6 +747,8 @@ func GetItemById(id string) (Item, error) {
 		&item.Code,
 		&item.BarCode,
 		&item.BoxBarcode,
+		&item.Price,
+		&item.BoxPrice,
 		&item.Name,
 		&item.Type,
 		&item.AvailableForOrder,
@@ -761,6 +775,7 @@ func GetItemById(id string) (Item, error) {
 }
 
 func GetStocksByItemId(itemId string) ([]Stock, error) {
+	fmt.Println("---GETSTOCKSBYITEMID---", itemId)
 	defer utils.Trace()()
 	utils.Info("Getting stocks for item ID: %s", itemId)
 
@@ -776,7 +791,7 @@ func GetStocksByItemId(itemId string) ([]Stock, error) {
 	}
 
 	var stocks []Stock
-	query := "SELECT stock_id, fkproduct_id, box_number, single_number, bundle_number, expiry_date, location, registering_person, notes, created_at FROM stocks WHERE fkproduct_id = ?"
+	query := "SELECT stock_id, fkproduct_id, box_number, single_number, bundle_number, expiry_date, location, registering_person, notes, discount_rate, created_at FROM stocks WHERE fkproduct_id = ?"
 	utils.Debug("Executing query: %s with item ID: %s", query, itemId)
 
 	rows, err := db.Query(query, itemId)
@@ -799,6 +814,7 @@ func GetStocksByItemId(itemId string) ([]Stock, error) {
 			&stock.Location,
 			&stock.RegisteringPerson,
 			&stock.Notes,
+			&stock.DiscountRate,
 			&stock.CreatedAt,
 		)
 		if err != nil {
@@ -820,6 +836,7 @@ func GetStocksByItemId(itemId string) ([]Stock, error) {
 	return stocks, nil
 }
 func UpdateStock(stockId string, stockType string, quantity int) error {
+	fmt.Println("---UPDATESTOCK---", stockId, stockType, quantity)
 	db := GetDBInstance(GetDBConfig())
 	query := "UPDATE stocks SET box_number = box_number - ? WHERE stock_id = ?"
 	_, err := db.Exec(query, quantity, stockId)
@@ -830,6 +847,7 @@ func UpdateStock(stockId string, stockType string, quantity int) error {
 }
 
 func RemoveStock(stockId string) error {
+	fmt.Println("---REMOVESTOCK---", stockId)
 	db := GetDBInstance(GetDBConfig())
 	// delete row from stocks table
 	query := "DELETE FROM stocks WHERE stock_id = ?"
@@ -854,11 +872,11 @@ func SearchItemsByField(searchType string, value string) ([]Item, error) {
 	// Determine which field to search
 	switch searchType {
 	case "code":
-		query = "SELECT item_id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items WHERE code LIKE ?"
+		query = "SELECT item_id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items WHERE code LIKE ?"
 	case "barcode":
-		query = "SELECT item_id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items WHERE barcode LIKE ?"
+		query = "SELECT item_id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items WHERE barcode LIKE ?"
 	case "name":
-		query = "SELECT item_id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items WHERE name LIKE ?"
+		query = "SELECT item_id, IFNULL(code, ''), IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at FROM items WHERE name LIKE ?"
 	default:
 		return nil, fmt.Errorf("invalid search type: %s", searchType)
 	}
@@ -876,6 +894,8 @@ func SearchItemsByField(searchType string, value string) ([]Item, error) {
 			&item.Code,
 			&item.BarCode,
 			&item.BoxBarcode,
+			&item.Price,
+			&item.BoxPrice,
 			&item.Name,
 			&item.Type,
 			&item.AvailableForOrder,
@@ -978,6 +998,7 @@ func SearchItemsByField(searchType string, value string) ([]Item, error) {
 
 // GetTagsByItemId retrieves all tags for a given item ID
 func GetTagsByItemId(itemId string) ([]Tag, error) {
+	fmt.Println("---GETTAGSBYITEMID---", itemId)
 	db := GetDBInstance(GetDBConfig())
 	var tags []Tag
 
@@ -1013,6 +1034,7 @@ type ItemWithDaysToExpiry struct {
 
 // GetItemsExpiringWithinDays retrieves items that are expiring within the specified number of days
 func GetItemsExpiringWithinDays(withinDays int) ([]ItemWithDaysToExpiry, error) {
+	fmt.Println("---GETITEMSEXPIRINGWITHINDAYS---", withinDays)
 	defer utils.Trace()()
 	utils.Info("Getting items expiring within %d days", withinDays)
 
@@ -1029,6 +1051,8 @@ func GetItemsExpiringWithinDays(withinDays int) ([]ItemWithDaysToExpiry, error) 
 			IFNULL(i.code, ''), 
 			IFNULL(i.barcode, ''),
 			IFNULL(i.box_barcode, ''),
+			IFNULL(i.price, 0),
+			IFNULL(i.box_price, 0),
 			IFNULL(i.name, ''), 
 			IFNULL(i.type, ''), 
 			IFNULL(i.available_for_order, 0), 
@@ -1070,6 +1094,8 @@ func GetItemsExpiringWithinDays(withinDays int) ([]ItemWithDaysToExpiry, error) 
 			&item.Code,
 			&item.BarCode,
 			&item.BoxBarcode,
+			&item.Price,
+			&item.BoxPrice,
 			&item.Name,
 			&item.Type,
 			&item.AvailableForOrder,

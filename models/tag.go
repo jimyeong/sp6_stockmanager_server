@@ -110,7 +110,7 @@ func GetItemsByTags(tagIDs []string) ([]Item, error) {
 
 	// Query to get items that have any of the given tags
 	query := `
-	SELECT DISTINCT i.item_id, IFNULL(i.code, ''), IFNULL(i.barcode, ''), IFNULL(i.name, ''), 
+	SELECT DISTINCT i.item_id, IFNULL(i.code, ''), IFNULL(i.barcode, ''), IFNULL(i.box_barcode, ''), IFNULL(i.price, 0), IFNULL(i.box_price, 0), IFNULL(i.name, ''), 
 	IFNULL(i.type, ''), IFNULL(i.available_for_order, 0), IFNULL(i.image_path, ''), i.created_at
 	FROM items i
 	JOIN item_tags it ON i.item_id = it.item_id
@@ -396,7 +396,7 @@ func GetRecommendedItems(tagIDs []string, limit int, page int) ([]Item, int, err
 	// This query counts how many of the requested tags each item has
 	// Then sorts by the tag match count (most matching tags first)
 	query := `
-	SELECT i.item_id, IFNULL(i.code, ''), IFNULL(i.barcode, ''), IFNULL(i.name, ''), 
+	SELECT i.item_id, IFNULL(i.code, ''), IFNULL(i.barcode, ''), IFNULL(i.box_barcode, ''), IFNULL(i.price, 0), IFNULL(i.box_price, 0), IFNULL(i.name, ''), 
 	IFNULL(i.type, ''), IFNULL(i.available_for_order, 0), IFNULL(i.image_path, ''), i.created_at,
 	COUNT(it.tag_id) as tag_match_count
 	FROM items i
