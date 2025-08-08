@@ -563,6 +563,14 @@ func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
 	}
 	item.ImagePath = filename
 
+	if item.Price == 0 {
+		item.Price = 0
+	}
+
+	if item.BoxPrice == 0 {
+		item.BoxPrice = 0
+	}
+
 	// Create the item (this will also handle tag associations)
 	createdItem, err := models.CreateItem(item)
 	if err != nil {

@@ -20,7 +20,7 @@ type Item struct {
 	Name              string    `json:"name"`
 	Type              string    `json:"type"`
 	AvailableForOrder int       `json:"availableForOrder"`
-	ImagePath         string    `json:"imagePath"`
+	ImagePath         string    `json:"image_path"`
 	CreatedAt         time.Time `json:"createdAt,omitempty"`
 	NameJpn           string    `json:"name_jpn"`
 	NameChn           string    `json:"name_chn"`
@@ -29,10 +29,10 @@ type Item struct {
 	Stock             []Stock   `json:"stock"`
 	Tag               []Tag     `json:"tag"`
 	Ingredients       string    `json:"ingredients"`
-	IsBeefContained   bool      `json:"isBeefContained"`
-	IsPorkContained   bool      `json:"isPorkContained"`
-	IsHalal           bool      `json:"isHalal"`
-	IsPlantBased      bool      `json:"isPlantBased"`
+	IsBeefContained   bool      `json:"is_beef_contained"`
+	IsPorkContained   bool      `json:"is_pork_contained"`
+	IsHalal           bool      `json:"is_halal"`
+	IsPlantBased      bool      `json:"is_plant_based"`
 	Reasoning         string    `json:"reasoning"`
 }
 type Stock struct {
@@ -146,11 +146,13 @@ func CreateItem(item Item) (Item, error) {
 	}()
 
 	// Insert the item
-	query := "INSERT INTO items ( code, barcode, box_barcode, name, name_jpn, name_chn, name_kor, name_eng, type, available_for_order, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	query := "INSERT INTO items ( code, barcode, box_barcode, price, box_price, name, name_jpn, name_chn, name_kor, name_eng, type, available_for_order, image_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 	result, err := tx.Exec(query,
 		item.Code,
 		item.BarCode,
 		item.BoxBarcode,
+		item.Price,
+		item.BoxPrice,
 		item.Name,
 		item.NameJpn,
 		item.NameChn,

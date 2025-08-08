@@ -27,23 +27,23 @@ import (
 )
 
 type ImageUploadResponse struct {
-	ImageURL  string `json:"imageUrl"`
-	ImageID   string `json:"imageId"`
-	FileSize  int64  `json:"fileSize"`
+	ImagePath string `json:"image_path"`
+	ImageID   string `json:"image_id"`
+	FileSize  int64  `json:"file_size"`
 	Message   string `json:"message"`
 	Success   bool   `json:"success"`
 	Timestamp string `json:"timestamp"`
 }
 
 type ImageDeleteRequest struct {
-	ImagePath string `json:"imagePath"`
+	ImagePath string `json:"image_path"`
 }
 
 type ImageDeleteResponse struct {
 	Message   string `json:"message"`
 	Success   bool   `json:"success"`
 	Timestamp string `json:"timestamp"`
-	ImagePath string `json:"imagePath"`
+	ImagePath string `json:"image_path"`
 }
 
 type ImageProcessingConfig struct {
@@ -120,7 +120,7 @@ func HandleImageUpload(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("filename@@@@@@@@@@@@@@@@@@@@@", filename)
 
 	// Upload to R2 Cloudflare
-	imageURL, err := uploadToR2(processedData, filename)
+	imagePath, err := uploadToR2(processedData, filename)
 	if err != nil {
 		log.Printf("Error uploading to R2: %v", err)
 		models.WriteServiceError(w, "Failed to upload image to storage", false, true, http.StatusInternalServerError)
@@ -130,7 +130,7 @@ func HandleImageUpload(w http.ResponseWriter, r *http.Request) {
 
 	// Prepare response
 	response := ImageUploadResponse{
-		ImageURL:  imageURL,
+		ImagePath: imagePath,
 		ImageID:   imageID,
 		FileSize:  int64(len(processedData)),
 		Message:   "Image uploaded successfully",
@@ -294,6 +294,8 @@ func extractFilenameFromPath(imagePath string) (string, error) {
 	// If it's a full URL, parse it
 	if strings.HasPrefix(imagePath, "http://") || strings.HasPrefix(imagePath, "https://") {
 		parsedURL, err := url.Parse(imagePath)
+		fmt.Println("parsedURL@@@@@@@@@@@@@@@@@@@@@", parsedURL)
+		fmt.Println("imagePath@@@@@@@@@@@@@@@@@@@@@", imagePath)
 		if err != nil {
 			return "", fmt.Errorf("invalid URL format: %v", err)
 		}
