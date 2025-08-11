@@ -60,7 +60,7 @@ type SearchItemsRequest struct {
 
 // LookupItemRequest defines parameters for looking up items by field
 type LookupItemRequest struct {
-	SearchType string `json:"search_type"` // code, barcode, or name
+	SearchType string `json:"search_type"` // item_code | barcode | name
 	Value      string `json:"value"`
 }
 
@@ -922,6 +922,7 @@ func HandleLookupItems(w http.ResponseWriter, r *http.Request) {
 	// Parse the request body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
+
 		models.WriteServiceError(w, "Failed to read request body", false, true, http.StatusBadRequest)
 		return
 	}
@@ -929,17 +930,20 @@ func HandleLookupItems(w http.ResponseWriter, r *http.Request) {
 	var lookupRequest LookupItemRequest
 	err = json.Unmarshal(body, &lookupRequest)
 	if err != nil {
+		fmt.Println("@@@err1", err)
 		models.WriteServiceError(w, "Invalid request format", false, true, http.StatusBadRequest)
 		return
 	}
 
 	// Validate request
 	if lookupRequest.SearchType == "" {
+		fmt.Println("@@@err2", err)
 		models.WriteServiceError(w, "Search type is required (code, barcode, or name)", false, true, http.StatusBadRequest)
 		return
 	}
 
 	if lookupRequest.Value == "" {
+		fmt.Println("@@@err3", err)
 		models.WriteServiceError(w, "Search value is required", false, true, http.StatusBadRequest)
 		return
 	}
@@ -958,6 +962,7 @@ func HandleLookupItems(w http.ResponseWriter, r *http.Request) {
 
 	// Perform the search with LIKE query
 	items, err := models.SearchItemsByField(lookupRequest.SearchType, lookupRequest.Value)
+	// fmt.Println("@@items", items)
 	if err != nil {
 		log.Printf("Error searching for items: %v", err)
 		models.WriteServiceError(w, fmt.Sprintf("Failed to search for items: %v", err), false, true, http.StatusInternalServerError)
