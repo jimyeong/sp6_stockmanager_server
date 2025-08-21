@@ -33,6 +33,7 @@ type ImageUploadResponse struct {
 	Message   string `json:"message"`
 	Success   bool   `json:"success"`
 	Timestamp string `json:"timestamp"`
+	FileName  string `json:"file_name"`
 }
 
 type ImageDeleteRequest struct {
@@ -136,6 +137,7 @@ func HandleImageUpload(w http.ResponseWriter, r *http.Request) {
 		Message:   "Image uploaded successfully",
 		Success:   true,
 		Timestamp: time.Now().Format(time.RFC3339),
+		FileName:  filename,
 	}
 
 	models.WriteServiceResponse(w, "Image uploaded successfully", response, true, true, http.StatusOK)
@@ -220,9 +222,9 @@ func uploadToR2(imageData []byte, filename string) (string, error) {
 	// Construct public URL
 	var imageURL string
 	if r2PublicDomain != "" {
-		imageURL = fmt.Sprintf("https://%s/images/%s", r2PublicDomain, filename)
+		imageURL = fmt.Sprintf("https://%s/%s", r2PublicDomain, filename)
 	} else {
-		imageURL = fmt.Sprintf("%s/%s/images/%s", r2Endpoint, r2BucketName, filename)
+		imageURL = fmt.Sprintf("%s/%s/%s", r2Endpoint, r2BucketName, filename)
 	}
 
 	return imageURL, nil
