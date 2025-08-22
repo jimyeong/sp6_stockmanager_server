@@ -130,6 +130,7 @@ func HandleImageUpload(w http.ResponseWriter, r *http.Request) {
 	// fmt.Println("imageURL@@@@@@@@@@@@@@@@@@@@@", imageURL)
 
 	// Prepare response
+	filename = "/" + filename
 	response := ImageUploadResponse{
 		ImagePath: imagePath,
 		ImageID:   imageID,
