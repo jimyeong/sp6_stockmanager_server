@@ -31,7 +31,7 @@ type StockInRequest struct {
 	Barcode      string    `json:"barcode"`
 	Code         string    `json:"code"`
 	ItemID       string    `json:"item_id"`
-	StockType    string    `json:"stock_type"`
+	StockType    StockType `json:"stock_type"`
 	Quantity     int       `json:"quantity"`
 	ExpiryDate   time.Time `json:"expiry_date"`
 	Location     string    `json:"location"`
@@ -42,12 +42,19 @@ type StockInRequest struct {
 
 type StockOutRequest struct {
 	Stock     models.Stock `json:"stock"`
-	StockType string       `json:"stock_type"` // BOX, BUNDLE, SINGLE
+	StockType StockType    `json:"stock_type"` // BOX, BUNDLE, SINGLE
 	Quantity  int          `json:"quantity"`
 	UserEmail string       `json:"user_email"`
 	Date      time.Time    `json:"date"`
 	Notes     string       `json:"notes"`
 }
+type StockType string
+
+const (
+	StockTypeBox    StockType = "BOX"
+	StockTypeBundle StockType = "BUNDLE"
+	StockTypePCS    StockType = "PCS"
+)
 
 // SearchItemsRequest defines parameters for searching items
 type SearchItemsRequest struct {
@@ -154,31 +161,25 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 	userName := tokenClaims.DisplayName
 	userEmail := tokenClaims.Email
 	fmt.Println("@@@USER NAME", userName)
-
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		fmt.Println("@@@ERR1", err)
 		models.WriteServiceError(w, "Failed to read request body", false, true, http.StatusBadRequest)
-
 		return
 	}
-
 	var request StockInRequest
 	err = json.Unmarshal(body, &request)
 	if err != nil {
 		fmt.Println("@@@ERR2", err)
 		models.WriteServiceError(w, "Invalid request format", false, true, http.StatusBadRequest)
-
 		return
 	}
-
 	// Validate request
 	if request.ItemID == "" && request.Barcode == "" && request.Code == "" {
 		fmt.Println("@@@ERR3", request)
 		models.WriteServiceError(w, "Item ID, Barcode, or Code is required", false, true, http.StatusBadRequest)
 		return
 	}
-
 	if request.Quantity <= 0 {
 		fmt.Println("@@@ERR4", request)
 		models.WriteServiceError(w, "Quantity must be greater than 0", false, true, http.StatusBadRequest)
@@ -225,14 +226,14 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 
 	// Set the appropriate stock quantity based on type
 	switch request.StockType {
-	case "BOX":
+	case StockTypeBox:
 		stock.BoxNumber = request.Quantity
-	case "BUNDLE":
+	case StockTypeBundle:
 		stock.BundleNumber = request.Quantity
-	case "SINGLE":
-		stock.SingleNumber = request.Quantity
+	case StockTypePCS:
+		stock.PCSNumber = request.Quantity
 	default:
-		models.WriteServiceError(w, "Invalid stock type. Must be BOX, BUNDLE, or SINGLE", false, true, http.StatusBadRequest)
+		models.WriteServiceError(w, "Invalid stock type. Must be BOX, BUNDLE, or PCS", false, true, http.StatusBadRequest)
 		return
 	}
 
@@ -254,8 +255,8 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	// Insert stock within transaction
-	stockQuery := "INSERT INTO stocks (fkproduct_id, box_number, single_number, bundle_number, expiry_date, location, registering_person, notes, discount_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-	_, err = tx.Exec(stockQuery, stock.ItemId, stock.BoxNumber, stock.SingleNumber, stock.BundleNumber, stock.ExpiryDate, stock.Location, stock.RegisteringPerson, stock.Notes, stock.DiscountRate)
+	stockQuery := "INSERT INTO stocks (fkproduct_id, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, notes, discount_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	_, err = tx.Exec(stockQuery, stock.ItemId, stock.BoxNumber, stock.PCSNumber, stock.BundleNumber, stock.ExpiryDate, stock.Location, stock.RegisteringPerson, stock.Notes, stock.DiscountRate)
 
 	if err != nil {
 		log.Printf("Error adding stock in transaction: %v", err)

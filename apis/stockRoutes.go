@@ -45,7 +45,7 @@ func HandleStockUpdate(w http.ResponseWriter, r *http.Request) {
 		&updatedStock.StockId,
 		&updatedStock.ItemId,
 		&updatedStock.BoxNumber,
-		&updatedStock.SingleNumber,
+		&updatedStock.PCSNumber,
 		&updatedStock.BundleNumber,
 		&updatedStock.ExpiryDate,
 		&updatedStock.Location,
