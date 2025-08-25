@@ -42,6 +42,9 @@ func main() {
 	if os.Getenv("ENV") == "development" {
 		err = godotenv.Load(".env.development")
 		utils.Info("Loaded development environment")
+	} else if os.Getenv("ENV") == "staging" {
+		err = godotenv.Load(".env.staging")
+		utils.Info("Loaded staging environment")
 	} else {
 		err = godotenv.Load(".env.production")
 		utils.Info("Loaded production environment")

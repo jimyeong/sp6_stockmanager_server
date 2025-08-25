@@ -1,0 +1,372 @@
+2025/08/25 17:18:36 [2025-08-25 17:18:36.549] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:18:36 [2025-08-25 17:18:36.550] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:18:36 [2025-08-25 17:18:36.552] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:18:36 [2025-08-25 17:18:36.552] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:10 [2025-08-25 17:29:10.402] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:10 [2025-08-25 17:29:10.403] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:10 [2025-08-25 17:29:10.404] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:10 [2025-08-25 17:29:10.404] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:20 [2025-08-25 17:29:20.719] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:20 [2025-08-25 17:29:20.719] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:20 [2025-08-25 17:29:20.719] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:20 [2025-08-25 17:29:20.720] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:20 [2025-08-25 17:29:20.721] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:20 [2025-08-25 17:29:20.721] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:20 [2025-08-25 17:29:20.721] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:20 [2025-08-25 17:29:20.721] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:20 [2025-08-25 17:29:20.723] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:20 [2025-08-25 17:29:20.724] [TRACE] [item.go:502] Entering item.go:502
+2025/08/25 17:29:20 [2025-08-25 17:29:20.724] [INFO] [item.go:503] Getting paginated items with offset: 0, limit: 10, tags: [sp6]
+2025/08/25 17:29:20 [2025-08-25 17:29:20.724] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:20 [2025-08-25 17:29:20.724] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:20 [2025-08-25 17:29:20.724] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:20 [2025-08-25 17:29:20.724] [DEBUG] [item.go:543] Executing count query: 
+		SELECT COUNT(DISTINCT i.item_id)
+		FROM items i
+		JOIN item_tags it ON i.item_id = it.item_id
+		JOIN tags t ON it.tag_id = t.id
+		WHERE t.name IN (?)
+	 with args: [sp6]
+2025/08/25 17:29:20 [2025-08-25 17:29:20.773] [INFO] [item.go:549] Total matching items: 17545
+2025/08/25 17:29:20 [2025-08-25 17:29:20.773] [DEBUG] [item.go:580] Executing query: 
+		SELECT DISTINCT i.item_id, 
+		IFNULL(i.code, ''), 
+		IFNULL(i.barcode, ''),
+		IFNULL(i.box_barcode, ''),
+		IFNULL(i.price, 0),
+		IFNULL(i.box_price, 0),
+		IFNULL(i.name, ''), 
+		IFNULL(i.type, ''), 
+		IFNULL(i.available_for_order, 0), 
+		IFNULL(i.image_path, ''), 
+		i.created_at,
+		IFNULL(i.name_jpn, ''), 
+		IFNULL(i.name_chn, ''), 
+		IFNULL(i.name_kor, ''), 
+		IFNULL(i.name_eng, '')
+		FROM items i
+		JOIN item_tags it ON i.item_id = it.item_id
+		JOIN tags t ON it.tag_id = t.id
+		WHERE t.name IN (?)
+		GROUP BY i.item_id
+		ORDER BY i.created_at DESC
+		LIMIT ? OFFSET ?
+	 with args: [sp6 10 0]
+2025/08/25 17:29:20 [2025-08-25 17:29:20.823] [DEBUG] [item.go:613] Found item: ID=149, Name=Samyang Ramen Hot Multi 120g
+2025/08/25 17:29:20 [2025-08-25 17:29:20.823] [DEBUG] [item.go:613] Found item: ID=145, Name=Bowl Noodle Soup Hot & Spicy 86g
+2025/08/25 17:29:20 [2025-08-25 17:29:20.823] [DEBUG] [item.go:613] Found item: ID=150, Name=Onion Ring Snack 50g
+2025/08/25 17:29:20 [2025-08-25 17:29:20.824] [DEBUG] [item.go:613] Found item: ID=142, Name=For Accounts Retail Adjustment
+2025/08/25 17:29:20 [2025-08-25 17:29:20.824] [DEBUG] [item.go:613] Found item: ID=143, Name=For Accounts Purchase Adjustment
+2025/08/25 17:29:20 [2025-08-25 17:29:20.824] [DEBUG] [item.go:613] Found item: ID=146, Name=Big Bowl Noodle (Shin) 114g
+2025/08/25 17:29:20 [2025-08-25 17:29:20.824] [DEBUG] [item.go:613] Found item: ID=147, Name=Hot Yukgaejang 120g
+2025/08/25 17:29:20 [2025-08-25 17:29:20.824] [DEBUG] [item.go:613] Found item: ID=17557, Name=Production Waste (Meat)
+2025/08/25 17:29:20 [2025-08-25 17:29:20.824] [DEBUG] [item.go:613] Found item: ID=151, Name=Almond Pepero 37g
+2025/08/25 17:29:20 [2025-08-25 17:29:20.824] [DEBUG] [item.go:613] Found item: ID=148, Name=Samyang Kimchi Ramen 120g
+2025/08/25 17:29:20 [2025-08-25 17:29:20.825] [DEBUG] [item.go:649] Executing tag query: 
+			SELECT it.item_id, t.id, t.name
+			FROM item_tags it
+			JOIN tags t ON it.tag_id = t.id
+			WHERE it.item_id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 with args: [149 145 150 142 143 146 147 17557 151 148]
+2025/08/25 17:29:20 [2025-08-25 17:29:20.826] [DEBUG] [item.go:677] Fetching stocks for item: 149
+2025/08/25 17:29:20 [2025-08-25 17:29:20.826] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 17:29:20 [2025-08-25 17:29:20.826] [INFO] [item.go:792] Getting stocks for item ID: 149
+2025/08/25 17:29:20 [2025-08-25 17:29:20.826] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:20 [2025-08-25 17:29:20.826] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:20 [2025-08-25 17:29:20.826] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 149
+2025/08/25 17:29:20 [2025-08-25 17:29:20.826] [INFO] [item.go:848] Retrieved 0 stocks for item 149
+2025/08/25 17:29:20 [2025-08-25 17:29:20.826] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [DEBUG] [item.go:684] Found 0 stocks for item 149
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [DEBUG] [item.go:677] Fetching stocks for item: 145
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [INFO] [item.go:792] Getting stocks for item ID: 145
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 145
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [INFO] [item.go:848] Retrieved 0 stocks for item 145
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [DEBUG] [item.go:684] Found 0 stocks for item 145
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [DEBUG] [item.go:677] Fetching stocks for item: 150
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [INFO] [item.go:792] Getting stocks for item ID: 150
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 150
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [INFO] [item.go:848] Retrieved 0 stocks for item 150
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [DEBUG] [item.go:684] Found 0 stocks for item 150
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [DEBUG] [item.go:677] Fetching stocks for item: 142
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [INFO] [item.go:792] Getting stocks for item ID: 142
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:20 [2025-08-25 17:29:20.827] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 142
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [DEBUG] [item.go:837] Found stock: ID=102, BoxNumber=1, Location=
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [INFO] [item.go:848] Retrieved 1 stocks for item 142
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [DEBUG] [item.go:684] Found 1 stocks for item 142
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [DEBUG] [item.go:677] Fetching stocks for item: 143
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [INFO] [item.go:792] Getting stocks for item ID: 143
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 143
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [INFO] [item.go:848] Retrieved 0 stocks for item 143
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [DEBUG] [item.go:684] Found 0 stocks for item 143
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [DEBUG] [item.go:677] Fetching stocks for item: 146
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [INFO] [item.go:792] Getting stocks for item ID: 146
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 146
+2025/08/25 17:29:20 [2025-08-25 17:29:20.828] [INFO] [item.go:848] Retrieved 0 stocks for item 146
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [DEBUG] [item.go:684] Found 0 stocks for item 146
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [DEBUG] [item.go:677] Fetching stocks for item: 147
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [INFO] [item.go:792] Getting stocks for item ID: 147
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 147
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [INFO] [item.go:848] Retrieved 0 stocks for item 147
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [DEBUG] [item.go:684] Found 0 stocks for item 147
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [DEBUG] [item.go:677] Fetching stocks for item: 17557
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [INFO] [item.go:792] Getting stocks for item ID: 17557
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 17557
+2025/08/25 17:29:20 [2025-08-25 17:29:20.829] [INFO] [item.go:848] Retrieved 0 stocks for item 17557
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [DEBUG] [item.go:684] Found 0 stocks for item 17557
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [DEBUG] [item.go:677] Fetching stocks for item: 151
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [INFO] [item.go:792] Getting stocks for item ID: 151
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 151
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [INFO] [item.go:848] Retrieved 0 stocks for item 151
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [DEBUG] [item.go:684] Found 0 stocks for item 151
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [DEBUG] [item.go:677] Fetching stocks for item: 148
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [INFO] [item.go:792] Getting stocks for item ID: 148
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 148
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [INFO] [item.go:848] Retrieved 0 stocks for item 148
+2025/08/25 17:29:20 [2025-08-25 17:29:20.830] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 17:29:20 [2025-08-25 17:29:20.831] [DEBUG] [item.go:684] Found 0 stocks for item 148
+2025/08/25 17:29:20 [2025-08-25 17:29:20.831] [INFO] [item.go:695] Successfully retrieved 10 items
+2025/08/25 17:29:20 [2025-08-25 17:29:20.831] [TRACE] [item.go:696] Exiting item.go:696
+2025/08/25 17:29:25 [2025-08-25 17:29:25.313] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:25 [2025-08-25 17:29:25.314] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:25 [2025-08-25 17:29:25.314] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:25 [2025-08-25 17:29:25.314] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:25 [2025-08-25 17:29:25.315] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:25 [2025-08-25 17:29:25.316] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:25 [2025-08-25 17:29:25.316] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:25 [2025-08-25 17:29:25.316] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:25 [2025-08-25 17:29:25.318] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:25 [2025-08-25 17:29:25.318] [TRACE] [item.go:735] Entering item.go:735
+2025/08/25 17:29:25 [2025-08-25 17:29:25.318] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/25 17:29:25 [2025-08-25 17:29:25.318] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:25 [2025-08-25 17:29:25.318] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:25 [2025-08-25 17:29:25.318] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:25 [2025-08-25 17:29:25.318] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/25 17:29:25 [2025-08-25 17:29:25.320] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/25 17:29:25 [2025-08-25 17:29:25.320] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/25 17:29:25 [2025-08-25 17:29:25.320] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 17:29:25 [2025-08-25 17:29:25.320] [INFO] [item.go:792] Getting stocks for item ID: 142
+2025/08/25 17:29:25 [2025-08-25 17:29:25.320] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:25 [2025-08-25 17:29:25.320] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:25 [2025-08-25 17:29:25.320] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 142
+2025/08/25 17:29:25 [2025-08-25 17:29:25.321] [DEBUG] [item.go:837] Found stock: ID=102, BoxNumber=1, Location=
+2025/08/25 17:29:25 [2025-08-25 17:29:25.321] [INFO] [item.go:848] Retrieved 1 stocks for item 142
+2025/08/25 17:29:25 [2025-08-25 17:29:25.321] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 17:29:25 [2025-08-25 17:29:25.375] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:25 [2025-08-25 17:29:25.376] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:25 [2025-08-25 17:29:25.377] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:25 [2025-08-25 17:29:25.377] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 17:29:25 [2025-08-25 17:29:25.379] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 17:29:25 [2025-08-25 17:29:25.379] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:21 [2025-08-25 18:08:21.657] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:21 [2025-08-25 18:08:21.657] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:21 [2025-08-25 18:08:21.659] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:21 [2025-08-25 18:08:21.659] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:22 [2025-08-25 18:08:22.996] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:22 [2025-08-25 18:08:22.996] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:22 [2025-08-25 18:08:22.997] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:22 [2025-08-25 18:08:22.997] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:22 [2025-08-25 18:08:22.999] [TRACE] [item.go:502] Entering item.go:502
+2025/08/25 18:08:22 [2025-08-25 18:08:22.999] [INFO] [item.go:503] Getting paginated items with offset: 0, limit: 10, tags: [sp6]
+2025/08/25 18:08:22 [2025-08-25 18:08:22.999] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:22 [2025-08-25 18:08:22.999] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:22 [2025-08-25 18:08:22.999] [DEBUG] [item.go:543] Executing count query: 
+		SELECT COUNT(DISTINCT i.item_id)
+		FROM items i
+		JOIN item_tags it ON i.item_id = it.item_id
+		JOIN tags t ON it.tag_id = t.id
+		WHERE t.name IN (?)
+	 with args: [sp6]
+2025/08/25 18:08:23 [2025-08-25 18:08:23.004] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:23 [2025-08-25 18:08:23.004] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:23 [2025-08-25 18:08:23.005] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:23 [2025-08-25 18:08:23.006] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:23 [2025-08-25 18:08:23.006] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:23 [2025-08-25 18:08:23.007] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:23 [2025-08-25 18:08:23.048] [INFO] [item.go:549] Total matching items: 17545
+2025/08/25 18:08:23 [2025-08-25 18:08:23.048] [DEBUG] [item.go:580] Executing query: 
+		SELECT DISTINCT i.item_id, 
+		IFNULL(i.code, ''), 
+		IFNULL(i.barcode, ''),
+		IFNULL(i.box_barcode, ''),
+		IFNULL(i.price, 0),
+		IFNULL(i.box_price, 0),
+		IFNULL(i.name, ''), 
+		IFNULL(i.type, ''), 
+		IFNULL(i.available_for_order, 0), 
+		IFNULL(i.image_path, ''), 
+		i.created_at,
+		IFNULL(i.name_jpn, ''), 
+		IFNULL(i.name_chn, ''), 
+		IFNULL(i.name_kor, ''), 
+		IFNULL(i.name_eng, '')
+		FROM items i
+		JOIN item_tags it ON i.item_id = it.item_id
+		JOIN tags t ON it.tag_id = t.id
+		WHERE t.name IN (?)
+		GROUP BY i.item_id
+		ORDER BY i.created_at DESC
+		LIMIT ? OFFSET ?
+	 with args: [sp6 10 0]
+2025/08/25 18:08:23 [2025-08-25 18:08:23.104] [DEBUG] [item.go:613] Found item: ID=149, Name=Samyang Ramen Hot Multi 120g
+2025/08/25 18:08:23 [2025-08-25 18:08:23.104] [DEBUG] [item.go:613] Found item: ID=145, Name=Bowl Noodle Soup Hot & Spicy 86g
+2025/08/25 18:08:23 [2025-08-25 18:08:23.104] [DEBUG] [item.go:613] Found item: ID=150, Name=Onion Ring Snack 50g
+2025/08/25 18:08:23 [2025-08-25 18:08:23.104] [DEBUG] [item.go:613] Found item: ID=142, Name=For Accounts Retail Adjustment
+2025/08/25 18:08:23 [2025-08-25 18:08:23.104] [DEBUG] [item.go:613] Found item: ID=143, Name=For Accounts Purchase Adjustment
+2025/08/25 18:08:23 [2025-08-25 18:08:23.104] [DEBUG] [item.go:613] Found item: ID=146, Name=Big Bowl Noodle (Shin) 114g
+2025/08/25 18:08:23 [2025-08-25 18:08:23.104] [DEBUG] [item.go:613] Found item: ID=147, Name=Hot Yukgaejang 120g
+2025/08/25 18:08:23 [2025-08-25 18:08:23.104] [DEBUG] [item.go:613] Found item: ID=17557, Name=Production Waste (Meat)
+2025/08/25 18:08:23 [2025-08-25 18:08:23.104] [DEBUG] [item.go:613] Found item: ID=151, Name=Almond Pepero 37g
+2025/08/25 18:08:23 [2025-08-25 18:08:23.104] [DEBUG] [item.go:613] Found item: ID=148, Name=Samyang Kimchi Ramen 120g
+2025/08/25 18:08:23 [2025-08-25 18:08:23.105] [DEBUG] [item.go:649] Executing tag query: 
+			SELECT it.item_id, t.id, t.name
+			FROM item_tags it
+			JOIN tags t ON it.tag_id = t.id
+			WHERE it.item_id IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		 with args: [149 145 150 142 143 146 147 17557 151 148]
+2025/08/25 18:08:23 [2025-08-25 18:08:23.106] [DEBUG] [item.go:677] Fetching stocks for item: 149
+2025/08/25 18:08:23 [2025-08-25 18:08:23.106] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 18:08:23 [2025-08-25 18:08:23.106] [INFO] [item.go:792] Getting stocks for item ID: 149
+2025/08/25 18:08:23 [2025-08-25 18:08:23.107] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:23 [2025-08-25 18:08:23.107] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:23 [2025-08-25 18:08:23.107] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 149
+2025/08/25 18:08:23 [2025-08-25 18:08:23.107] [INFO] [item.go:848] Retrieved 0 stocks for item 149
+2025/08/25 18:08:23 [2025-08-25 18:08:23.108] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 18:08:23 [2025-08-25 18:08:23.108] [DEBUG] [item.go:684] Found 0 stocks for item 149
+2025/08/25 18:08:23 [2025-08-25 18:08:23.108] [DEBUG] [item.go:677] Fetching stocks for item: 145
+2025/08/25 18:08:23 [2025-08-25 18:08:23.108] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 18:08:23 [2025-08-25 18:08:23.108] [INFO] [item.go:792] Getting stocks for item ID: 145
+2025/08/25 18:08:23 [2025-08-25 18:08:23.108] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:23 [2025-08-25 18:08:23.108] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:23 [2025-08-25 18:08:23.108] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 145
+2025/08/25 18:08:23 [2025-08-25 18:08:23.108] [INFO] [item.go:848] Retrieved 0 stocks for item 145
+2025/08/25 18:08:23 [2025-08-25 18:08:23.108] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 18:08:23 [2025-08-25 18:08:23.108] [DEBUG] [item.go:684] Found 0 stocks for item 145
+2025/08/25 18:08:23 [2025-08-25 18:08:23.108] [DEBUG] [item.go:677] Fetching stocks for item: 150
+2025/08/25 18:08:23 [2025-08-25 18:08:23.108] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 18:08:23 [2025-08-25 18:08:23.109] [INFO] [item.go:792] Getting stocks for item ID: 150
+2025/08/25 18:08:23 [2025-08-25 18:08:23.109] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:23 [2025-08-25 18:08:23.109] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:23 [2025-08-25 18:08:23.109] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 150
+2025/08/25 18:08:23 [2025-08-25 18:08:23.109] [INFO] [item.go:848] Retrieved 0 stocks for item 150
+2025/08/25 18:08:23 [2025-08-25 18:08:23.109] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 18:08:23 [2025-08-25 18:08:23.109] [DEBUG] [item.go:684] Found 0 stocks for item 150
+2025/08/25 18:08:23 [2025-08-25 18:08:23.109] [DEBUG] [item.go:677] Fetching stocks for item: 142
+2025/08/25 18:08:23 [2025-08-25 18:08:23.109] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 18:08:23 [2025-08-25 18:08:23.109] [INFO] [item.go:792] Getting stocks for item ID: 142
+2025/08/25 18:08:23 [2025-08-25 18:08:23.109] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:23 [2025-08-25 18:08:23.109] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:23 [2025-08-25 18:08:23.109] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 142
+2025/08/25 18:08:23 [2025-08-25 18:08:23.109] [DEBUG] [item.go:837] Found stock: ID=102, BoxNumber=1, Location=
+2025/08/25 18:08:23 [2025-08-25 18:08:23.110] [INFO] [item.go:848] Retrieved 1 stocks for item 142
+2025/08/25 18:08:23 [2025-08-25 18:08:23.110] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 18:08:23 [2025-08-25 18:08:23.110] [DEBUG] [item.go:684] Found 1 stocks for item 142
+2025/08/25 18:08:23 [2025-08-25 18:08:23.110] [DEBUG] [item.go:677] Fetching stocks for item: 143
+2025/08/25 18:08:23 [2025-08-25 18:08:23.110] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 18:08:23 [2025-08-25 18:08:23.110] [INFO] [item.go:792] Getting stocks for item ID: 143
+2025/08/25 18:08:23 [2025-08-25 18:08:23.110] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:23 [2025-08-25 18:08:23.110] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:23 [2025-08-25 18:08:23.110] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 143
+2025/08/25 18:08:23 [2025-08-25 18:08:23.111] [INFO] [item.go:848] Retrieved 0 stocks for item 143
+2025/08/25 18:08:23 [2025-08-25 18:08:23.112] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 18:08:23 [2025-08-25 18:08:23.112] [DEBUG] [item.go:684] Found 0 stocks for item 143
+2025/08/25 18:08:23 [2025-08-25 18:08:23.112] [DEBUG] [item.go:677] Fetching stocks for item: 146
+2025/08/25 18:08:23 [2025-08-25 18:08:23.112] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 18:08:23 [2025-08-25 18:08:23.112] [INFO] [item.go:792] Getting stocks for item ID: 146
+2025/08/25 18:08:23 [2025-08-25 18:08:23.112] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:23 [2025-08-25 18:08:23.112] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:23 [2025-08-25 18:08:23.112] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 146
+2025/08/25 18:08:23 [2025-08-25 18:08:23.112] [INFO] [item.go:848] Retrieved 0 stocks for item 146
+2025/08/25 18:08:23 [2025-08-25 18:08:23.112] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 18:08:23 [2025-08-25 18:08:23.112] [DEBUG] [item.go:684] Found 0 stocks for item 146
+2025/08/25 18:08:23 [2025-08-25 18:08:23.112] [DEBUG] [item.go:677] Fetching stocks for item: 147
+2025/08/25 18:08:23 [2025-08-25 18:08:23.112] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 18:08:23 [2025-08-25 18:08:23.112] [INFO] [item.go:792] Getting stocks for item ID: 147
+2025/08/25 18:08:23 [2025-08-25 18:08:23.112] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:23 [2025-08-25 18:08:23.112] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:23 [2025-08-25 18:08:23.112] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 147
+2025/08/25 18:08:23 [2025-08-25 18:08:23.113] [INFO] [item.go:848] Retrieved 0 stocks for item 147
+2025/08/25 18:08:23 [2025-08-25 18:08:23.113] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 18:08:23 [2025-08-25 18:08:23.113] [DEBUG] [item.go:684] Found 0 stocks for item 147
+2025/08/25 18:08:23 [2025-08-25 18:08:23.113] [DEBUG] [item.go:677] Fetching stocks for item: 17557
+2025/08/25 18:08:23 [2025-08-25 18:08:23.113] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 18:08:23 [2025-08-25 18:08:23.113] [INFO] [item.go:792] Getting stocks for item ID: 17557
+2025/08/25 18:08:23 [2025-08-25 18:08:23.113] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:23 [2025-08-25 18:08:23.113] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:23 [2025-08-25 18:08:23.113] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 17557
+2025/08/25 18:08:23 [2025-08-25 18:08:23.113] [INFO] [item.go:848] Retrieved 0 stocks for item 17557
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [DEBUG] [item.go:684] Found 0 stocks for item 17557
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [DEBUG] [item.go:677] Fetching stocks for item: 151
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [INFO] [item.go:792] Getting stocks for item ID: 151
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 151
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [INFO] [item.go:848] Retrieved 0 stocks for item 151
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [DEBUG] [item.go:684] Found 0 stocks for item 151
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [DEBUG] [item.go:677] Fetching stocks for item: 148
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [INFO] [item.go:792] Getting stocks for item ID: 148
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 148
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [INFO] [item.go:848] Retrieved 0 stocks for item 148
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [DEBUG] [item.go:684] Found 0 stocks for item 148
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [INFO] [item.go:695] Successfully retrieved 10 items
+2025/08/25 18:08:23 [2025-08-25 18:08:23.114] [TRACE] [item.go:696] Exiting item.go:696
+2025/08/25 18:08:27 [2025-08-25 18:08:27.936] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:27 [2025-08-25 18:08:27.936] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:27 [2025-08-25 18:08:27.937] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:27 [2025-08-25 18:08:27.937] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:27 [2025-08-25 18:08:27.938] [TRACE] [item.go:735] Entering item.go:735
+2025/08/25 18:08:27 [2025-08-25 18:08:27.938] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/25 18:08:27 [2025-08-25 18:08:27.938] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:27 [2025-08-25 18:08:27.938] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:27 [2025-08-25 18:08:27.938] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/25 18:08:27 [2025-08-25 18:08:27.939] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/25 18:08:27 [2025-08-25 18:08:27.939] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/25 18:08:27 [2025-08-25 18:08:27.939] [TRACE] [item.go:791] Entering item.go:791
+2025/08/25 18:08:27 [2025-08-25 18:08:27.939] [INFO] [item.go:792] Getting stocks for item ID: 142
+2025/08/25 18:08:27 [2025-08-25 18:08:27.939] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/25 18:08:27 [2025-08-25 18:08:27.939] [DEBUG] [db.go:140] Getting database instance
+2025/08/25 18:08:27 [2025-08-25 18:08:27.939] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 142
+2025/08/25 18:08:27 [2025-08-25 18:08:27.939] [DEBUG] [item.go:837] Found stock: ID=102, BoxNumber=1, Location=
+2025/08/25 18:08:27 [2025-08-25 18:08:27.939] [INFO] [item.go:848] Retrieved 1 stocks for item 142
+2025/08/25 18:08:27 [2025-08-25 18:08:27.939] [TRACE] [item.go:849] Exiting item.go:849
