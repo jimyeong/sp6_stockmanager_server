@@ -35,9 +35,19 @@ type Item struct {
 	IsPlantBased      bool      `json:"is_plant_based"`
 	Reasoning         string    `json:"reasoning"`
 }
+
+type StockType string
+
+const (
+	StockTypeBox    StockType = "BOX"
+	StockTypeBundle StockType = "BUNDLE"
+	StockTypePCS    StockType = "PCS"
+)
+
 type Stock struct {
 	StockId           string    `json:"stock_id"`
 	ItemId            string    `json:"item_id"`
+	StockType         StockType `json:"stock_type"`
 	BoxNumber         int       `json:"box_number"`
 	PCSNumber         int       `json:"pcs_number"`
 	BundleNumber      int       `json:"bundle_number"`
@@ -89,7 +99,7 @@ func GetItemByBarcode(barcode string) (Item, error) {
 		return item, err
 	}
 	stocks := []Stock{}
-	query = "SELECT box_number, pcs_number, bundle_number, stock_id, fkproduct_id,expiry_date, location, registering_person, notes, created_at FROM stocks WHERE fkproduct_id = ?"
+	query = "SELECT stock_type, box_number, pcs_number, bundle_number, stock_id, fkproduct_id,expiry_date, location, registering_person, notes, discount_rate, created_at FROM stocks WHERE fkproduct_id = ?"
 	rows, err := db.Query(query, item.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -100,7 +110,7 @@ func GetItemByBarcode(barcode string) (Item, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var stock Stock
-		err = rows.Scan(&stock.BoxNumber, &stock.PCSNumber, &stock.BundleNumber, &stock.StockId, &stock.ItemId, &stock.ExpiryDate, &stock.Location, &stock.RegisteringPerson, &stock.Notes, &stock.CreatedAt)
+		err = rows.Scan(&stock.StockType, &stock.BoxNumber, &stock.PCSNumber, &stock.BundleNumber, &stock.StockId, &stock.ItemId, &stock.ExpiryDate, &stock.Location, &stock.RegisteringPerson, &stock.Notes, &stock.DiscountRate, &stock.CreatedAt)
 		if err != nil {
 			return item, err
 		}
@@ -702,8 +712,8 @@ func GetItemByCode(code string) (Item, error) {
 func AddStock(stock Stock) error {
 	fmt.Println("---ADDSTOCK---", stock)
 	db := GetDBInstance(GetDBConfig())
-	query := "INSERT INTO stocks ( fkproduct_id, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, notes, discount_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? )"
-	_, err := db.Exec(query, stock.ItemId, stock.BoxNumber, stock.PCSNumber, stock.BundleNumber, stock.ExpiryDate, stock.Location, stock.RegisteringPerson, stock.Notes, stock.DiscountRate)
+	query := "INSERT INTO stocks ( fkproduct_id,  stock_type,box_number, pcs_number, bundle_number, expiry_date, location, registering_person, notes, discount_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? )"
+	_, err := db.Exec(query, stock.ItemId, stock.StockType, stock.BoxNumber, stock.PCSNumber, stock.BundleNumber, stock.ExpiryDate, stock.Location, stock.RegisteringPerson, stock.Notes, stock.DiscountRate)
 	if err != nil {
 		return err
 	}
@@ -793,7 +803,7 @@ func GetStocksByItemId(itemId string) ([]Stock, error) {
 	}
 
 	var stocks []Stock
-	query := "SELECT stock_id, fkproduct_id, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ?"
+	query := "SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ?"
 	utils.Debug("Executing query: %s with item ID: %s", query, itemId)
 
 	rows, err := db.Query(query, itemId)
@@ -809,6 +819,7 @@ func GetStocksByItemId(itemId string) ([]Stock, error) {
 		err := rows.Scan(
 			&stock.StockId,
 			&stock.ItemId,
+			&stock.StockType,
 			&stock.BoxNumber,
 			&stock.PCSNumber,
 			&stock.BundleNumber,

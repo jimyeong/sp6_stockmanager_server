@@ -255,8 +255,8 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	// Insert stock within transaction
-	stockQuery := "INSERT INTO stocks (fkproduct_id, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, notes, discount_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-	_, err = tx.Exec(stockQuery, stock.ItemId, stock.BoxNumber, stock.PCSNumber, stock.BundleNumber, stock.ExpiryDate, stock.Location, stock.RegisteringPerson, stock.Notes, stock.DiscountRate)
+	stockQuery := "INSERT INTO stocks (fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, notes, discount_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)"
+	_, err = tx.Exec(stockQuery, stock.ItemId, stock.StockType, stock.BoxNumber, stock.PCSNumber, stock.BundleNumber, stock.ExpiryDate, stock.Location, stock.RegisteringPerson, stock.Notes, stock.DiscountRate)
 
 	if err != nil {
 		log.Printf("Error adding stock in transaction: %v", err)
@@ -375,8 +375,16 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Calculate the amount of stock available
-	deductedQuantity := request.Stock.BoxNumber - request.Quantity
-	utils.Debug("Current stock: %d, Requested quantity: %d, Remaining: %d",
+	// deductedQuantity := request.Stock.BoxNumber - request.Quantity
+	deductedQuantity := 0
+	if request.Stock.StockType == models.StockTypeBox {
+		deductedQuantity = request.Stock.BoxNumber - request.Quantity
+	} else if request.Stock.StockType == models.StockTypeBundle {
+		deductedQuantity = request.Stock.BundleNumber - request.Quantity
+	} else if request.Stock.StockType == models.StockTypePCS {
+		deductedQuantity = request.Stock.PCSNumber - request.Quantity
+	}
+	utils.Debug("Current stock: %d, Req	uested quantity: %d, Remaining: %d",
 		request.Stock.BoxNumber, request.Quantity, deductedQuantity)
 
 	if deductedQuantity < 0 {

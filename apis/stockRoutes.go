@@ -40,10 +40,11 @@ func HandleStockUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var updatedStock models.Stock
-	querySelect := "SELECT stock_id, fkproduct_id, box_number, single_number, bundle_number, expiry_date, location, registering_person, notes, discount_rate, created_at FROM stocks WHERE stock_id = ?"
+	querySelect := "SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, notes, discount_rate, created_at FROM stocks WHERE stock_id = ?"
 	err = db.QueryRow(querySelect, stock.StockId).Scan(
 		&updatedStock.StockId,
 		&updatedStock.ItemId,
+		&updatedStock.StockType,
 		&updatedStock.BoxNumber,
 		&updatedStock.PCSNumber,
 		&updatedStock.BundleNumber,
