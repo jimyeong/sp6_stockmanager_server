@@ -679,13 +679,28 @@ func HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get stock and tag information for the updated item
-	stocks, err := models.GetStocksByItemId(updatedItem.ID)
-	if err == nil {
-		updatedItem.Stock = stocks
-	} else {
-		updatedItem.Stock = []models.Stock{} // Empty array if error
+	selectedTags := []string{}
+	fmt.Println("item.Tag@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", item.Tag)
+	fmt.Println("item.Tag.length", len(item.Tag))
+	for _, tag := range item.Tag {
+		selectedTags = append(selectedTags, tag.TagName)
+		fmt.Println("tag.TagName", tag.TagName)
 	}
+	fmt.Println("selectedTags", selectedTags)
+	err = models.UpdateTagsForItem(updatedItem.ID, selectedTags)
+	if err != nil {
+		log.Printf("Error updating tags for item: %v", err)
+		models.WriteServiceError(w, fmt.Sprintf("Failed to update tags: %v", err), false, true, http.StatusInternalServerError)
+		return
+	}
+
+	// // Get stock and tag information for the updated item
+	// stocks, err := models.GetStocksByItemId(updatedItem.ID)
+	// if err == nil {
+	// 	updatedItem.Stock = stocks
+	// } else {
+	// 	updatedItem.Stock = []models.Stock{} // Empty array if error
+	// }
 
 	// Fetch tags for the item
 	tags, err := models.GetTagsForItem(updatedItem.ID)

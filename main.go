@@ -105,8 +105,6 @@ func main() {
 		return middleware.ValidateFirebaseToken(next, firebaseClient)
 	})
 
-	fmt.Println("@main@2", "Registering routes")
-
 	// Public routes (no authentication required)
 	r.HandleFunc("/public/api/v1/auth/signin", apis.HandleSignIn).Methods("POST")
 	r.HandleFunc("/public/health", func(w http.ResponseWriter, r *http.Request) {

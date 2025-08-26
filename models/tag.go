@@ -222,6 +222,119 @@ func AssociateItemWithTags(itemID string, tagIDs []string) error {
 	return tx.Commit()
 }
 
+func UpdateTagsForItem(itemID string, tagIDs []string) error {
+	fmt.Println("---UPDATEITEMTAGS---", itemID, tagIDs)
+	if itemID == "" {
+		return fmt.Errorf("itemID is required")
+	}
+	db := GetDBInstance(GetDBConfig())
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+
+	query := ""
+	curRow, err := db.Query("Select tag_id from item_tags where item_id = ?", itemID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	defer curRow.Close()
+
+	currentTags := make(map[string]bool)
+	for curRow.Next() {
+		var tagID string
+
+		if err := curRow.Scan(&tagID); err != nil {
+			tx.Rollback()
+			return err
+		}
+		currentTags[tagID] = true
+		if err := curRow.Err(); err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	desiredTags := make(map[string]bool)
+	for _, tagID := range tagIDs {
+		desiredTags[tagID] = true
+	}
+
+	toAdd := []string{}
+	toRemove := []string{}
+
+	for key, _ := range desiredTags {
+		if !currentTags[key] {
+			toAdd = append(toAdd, key)
+		}
+	}
+
+	for key, _ := range currentTags {
+		if !desiredTags[key] {
+			toRemove = append(toRemove, key)
+		}
+	}
+	fmt.Println("toAdd", toAdd)
+	fmt.Println("toRemove", toRemove)
+	fmt.Println("currentTags", currentTags)
+	fmt.Println("desiredTags", desiredTags)
+	fmt.Println("tagIDs", tagIDs)
+
+	if len(toAdd) == 0 && len(toRemove) == 0 {
+		if err := tx.Commit(); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	args := make([]interface{}, 0, len(toRemove)+1)
+	if len(toRemove) > 0 {
+		placeholders := ""
+		for i := range toRemove {
+			if i > 0 {
+				placeholders += ", "
+			}
+			placeholders += "?"
+			args = append(args, toRemove[i])
+		}
+
+		query = "DELETE FROM item_tags WHERE item_id = ? AND tag_id IN (" + placeholders + ")"
+
+		if _, err := tx.Exec(query, args...); err != nil {
+			fmt.Printf("Error deleting tags: %v\n", err)
+			tx.Rollback()
+			return err
+		}
+	}
+	if len(toAdd) > 0 {
+		stmt, err := tx.Prepare("INSERT INTO item_tags (item_id, tag_id, created_at) VALUES (?, ?, ?)")
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+		defer stmt.Close()
+		now := time.Now()
+		for _, tagId := range toAdd {
+			if _, err := stmt.Exec(itemID, tagId, now); err != nil {
+				fmt.Printf("Error adding tags: %v\n", err)
+				tx.Rollback()
+				return err
+			}
+		}
+		if err := stmt.Close(); err != nil {
+			fmt.Printf("Error closing statement: %v\n", err)
+			tx.Rollback()
+			return err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		fmt.Printf("Error committing transaction: %v\n", err)
+		return err
+	}
+	return nil
+}
+
 // CreateTag creates a new tag in the database
 func CreateTag(tag Tag) (Tag, error) {
 	fmt.Println("---CREATETAG---", tag)
