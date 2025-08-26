@@ -1777,3 +1777,422 @@
 2025/08/26 09:26:04 [2025-08-26 09:26:04.870] [TRACE] [item.go:786] Exiting item.go:786
 2025/08/26 09:26:04 [2025-08-26 09:26:04.870] [DEBUG] [db.go:111] Getting database configuration from environment variables
 2025/08/26 09:26:04 [2025-08-26 09:26:04.870] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:31:22 [2025-08-26 09:31:22.850] [INFO] [main.go:39] Starting Owlverload API server
+2025/08/26 09:31:22 [2025-08-26 09:31:22.851] [INFO] [main.go:44] Loaded development environment
+2025/08/26 09:31:22 [2025-08-26 09:31:22.851] [TRACE] [db.go:33] Entering db.go:33
+2025/08/26 09:31:22 [2025-08-26 09:31:22.851] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/08/26 09:31:22 [2025-08-26 09:31:22.851] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/08/26 09:31:22 [2025-08-26 09:31:22.852] [INFO] [db.go:62] Database connected successfully
+2025/08/26 09:31:22 [2025-08-26 09:31:22.852] [TRACE] [db.go:63] Exiting db.go:63
+2025/08/26 09:31:28 [2025-08-26 09:31:28.930] [INFO] [main.go:39] Starting Owlverload API server
+2025/08/26 09:31:28 [2025-08-26 09:31:28.930] [INFO] [main.go:44] Loaded development environment
+2025/08/26 09:31:28 [2025-08-26 09:31:28.930] [TRACE] [db.go:33] Entering db.go:33
+2025/08/26 09:31:28 [2025-08-26 09:31:28.930] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/08/26 09:31:28 [2025-08-26 09:31:28.930] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/08/26 09:31:28 [2025-08-26 09:31:28.931] [INFO] [db.go:62] Database connected successfully
+2025/08/26 09:31:28 [2025-08-26 09:31:28.931] [TRACE] [db.go:63] Exiting db.go:63
+2025/08/26 09:31:42 [2025-08-26 09:31:42.559] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:31:42 [2025-08-26 09:31:42.559] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:31:42 [2025-08-26 09:31:42.559] [INFO] [db.go:143] Initializing database instance (first call)
+2025/08/26 09:31:42 [2025-08-26 09:31:42.560] [TRACE] [db.go:33] Entering db.go:33
+2025/08/26 09:31:42 [2025-08-26 09:31:42.560] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/08/26 09:31:42 [2025-08-26 09:31:42.560] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/08/26 09:31:42 [2025-08-26 09:31:42.561] [INFO] [db.go:62] Database connected successfully
+2025/08/26 09:31:42 [2025-08-26 09:31:42.562] [TRACE] [db.go:63] Exiting db.go:63
+2025/08/26 09:31:42 [2025-08-26 09:31:42.563] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:31:42 [2025-08-26 09:31:42.563] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:31:42 [2025-08-26 09:31:42.564] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:31:42 [2025-08-26 09:31:42.564] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:31:42 [2025-08-26 09:31:42.564] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:31:42 [2025-08-26 09:31:42.564] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:31:42 [2025-08-26 09:31:42.564] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:31:42 [2025-08-26 09:31:42.564] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:31:42 [2025-08-26 09:31:42.564] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:31:42 [2025-08-26 09:31:42.565] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:31:42 [2025-08-26 09:31:42.565] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:31:42 [2025-08-26 09:31:42.565] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:31:42 [2025-08-26 09:31:42.565] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:31:42 [2025-08-26 09:31:42.565] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:31:42 [2025-08-26 09:31:42.565] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:31:42 [2025-08-26 09:31:42.565] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:31:42 [2025-08-26 09:31:42.566] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:31:42 [2025-08-26 09:31:42.566] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:31:42 [2025-08-26 09:31:42.566] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:31:42 [2025-08-26 09:31:42.566] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:34:52 [2025-08-26 09:34:52.834] [INFO] [main.go:39] Starting Owlverload API server
+2025/08/26 09:34:52 [2025-08-26 09:34:52.835] [INFO] [main.go:44] Loaded development environment
+2025/08/26 09:34:52 [2025-08-26 09:34:52.835] [TRACE] [db.go:33] Entering db.go:33
+2025/08/26 09:34:52 [2025-08-26 09:34:52.835] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/08/26 09:34:52 [2025-08-26 09:34:52.835] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/08/26 09:34:52 [2025-08-26 09:34:52.837] [INFO] [db.go:62] Database connected successfully
+2025/08/26 09:34:52 [2025-08-26 09:34:52.837] [TRACE] [db.go:63] Exiting db.go:63
+2025/08/26 09:34:59 [2025-08-26 09:34:59.139] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:34:59 [2025-08-26 09:34:59.139] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:34:59 [2025-08-26 09:34:59.139] [INFO] [db.go:143] Initializing database instance (first call)
+2025/08/26 09:34:59 [2025-08-26 09:34:59.139] [TRACE] [db.go:33] Entering db.go:33
+2025/08/26 09:34:59 [2025-08-26 09:34:59.139] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/08/26 09:34:59 [2025-08-26 09:34:59.139] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/08/26 09:34:59 [2025-08-26 09:34:59.140] [INFO] [db.go:62] Database connected successfully
+2025/08/26 09:34:59 [2025-08-26 09:34:59.140] [TRACE] [db.go:63] Exiting db.go:63
+2025/08/26 09:34:59 [2025-08-26 09:34:59.141] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:34:59 [2025-08-26 09:34:59.141] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:34:59 [2025-08-26 09:34:59.141] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:34:59 [2025-08-26 09:34:59.141] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:34:59 [2025-08-26 09:34:59.141] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:34:59 [2025-08-26 09:34:59.141] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:34:59 [2025-08-26 09:34:59.141] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:34:59 [2025-08-26 09:34:59.141] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:34:59 [2025-08-26 09:34:59.142] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:34:59 [2025-08-26 09:34:59.142] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:34:59 [2025-08-26 09:34:59.142] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:34:59 [2025-08-26 09:34:59.143] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:34:59 [2025-08-26 09:34:59.143] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:34:59 [2025-08-26 09:34:59.143] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:34:59 [2025-08-26 09:34:59.143] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:34:59 [2025-08-26 09:34:59.143] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:34:59 [2025-08-26 09:34:59.143] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:34:59 [2025-08-26 09:34:59.143] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:34:59 [2025-08-26 09:34:59.143] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:34:59 [2025-08-26 09:34:59.143] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:37:50 [2025-08-26 09:37:50.305] [INFO] [main.go:39] Starting Owlverload API server
+2025/08/26 09:37:50 [2025-08-26 09:37:50.305] [INFO] [main.go:44] Loaded development environment
+2025/08/26 09:37:50 [2025-08-26 09:37:50.305] [TRACE] [db.go:33] Entering db.go:33
+2025/08/26 09:37:50 [2025-08-26 09:37:50.305] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/08/26 09:37:50 [2025-08-26 09:37:50.305] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/08/26 09:37:50 [2025-08-26 09:37:50.307] [INFO] [db.go:62] Database connected successfully
+2025/08/26 09:37:50 [2025-08-26 09:37:50.307] [TRACE] [db.go:63] Exiting db.go:63
+2025/08/26 09:38:00 [2025-08-26 09:38:00.603] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:38:00 [2025-08-26 09:38:00.603] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:38:00 [2025-08-26 09:38:00.604] [INFO] [db.go:143] Initializing database instance (first call)
+2025/08/26 09:38:00 [2025-08-26 09:38:00.604] [TRACE] [db.go:33] Entering db.go:33
+2025/08/26 09:38:00 [2025-08-26 09:38:00.604] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/08/26 09:38:00 [2025-08-26 09:38:00.604] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/08/26 09:38:00 [2025-08-26 09:38:00.605] [INFO] [db.go:62] Database connected successfully
+2025/08/26 09:38:00 [2025-08-26 09:38:00.606] [TRACE] [db.go:63] Exiting db.go:63
+2025/08/26 09:38:00 [2025-08-26 09:38:00.606] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:38:00 [2025-08-26 09:38:00.606] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:38:00 [2025-08-26 09:38:00.607] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:38:00 [2025-08-26 09:38:00.607] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:38:00 [2025-08-26 09:38:00.607] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:38:00 [2025-08-26 09:38:00.607] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:38:00 [2025-08-26 09:38:00.607] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:38:00 [2025-08-26 09:38:00.607] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:38:00 [2025-08-26 09:38:00.607] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:38:00 [2025-08-26 09:38:00.608] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:38:00 [2025-08-26 09:38:00.608] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:38:00 [2025-08-26 09:38:00.609] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:38:00 [2025-08-26 09:38:00.609] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:38:00 [2025-08-26 09:38:00.609] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:38:00 [2025-08-26 09:38:00.609] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:38:00 [2025-08-26 09:38:00.609] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:38:00 [2025-08-26 09:38:00.609] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:38:00 [2025-08-26 09:38:00.609] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:38:00 [2025-08-26 09:38:00.609] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:38:00 [2025-08-26 09:38:00.609] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:14 [2025-08-26 09:39:14.723] [INFO] [main.go:39] Starting Owlverload API server
+2025/08/26 09:39:14 [2025-08-26 09:39:14.723] [INFO] [main.go:44] Loaded development environment
+2025/08/26 09:39:14 [2025-08-26 09:39:14.723] [TRACE] [db.go:33] Entering db.go:33
+2025/08/26 09:39:14 [2025-08-26 09:39:14.723] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/08/26 09:39:14 [2025-08-26 09:39:14.723] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/08/26 09:39:14 [2025-08-26 09:39:14.725] [INFO] [db.go:62] Database connected successfully
+2025/08/26 09:39:14 [2025-08-26 09:39:14.725] [TRACE] [db.go:63] Exiting db.go:63
+2025/08/26 09:39:18 [2025-08-26 09:39:18.251] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:18 [2025-08-26 09:39:18.251] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:18 [2025-08-26 09:39:18.251] [INFO] [db.go:143] Initializing database instance (first call)
+2025/08/26 09:39:18 [2025-08-26 09:39:18.251] [TRACE] [db.go:33] Entering db.go:33
+2025/08/26 09:39:18 [2025-08-26 09:39:18.251] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/08/26 09:39:18 [2025-08-26 09:39:18.251] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/08/26 09:39:18 [2025-08-26 09:39:18.252] [INFO] [db.go:62] Database connected successfully
+2025/08/26 09:39:18 [2025-08-26 09:39:18.252] [TRACE] [db.go:63] Exiting db.go:63
+2025/08/26 09:39:18 [2025-08-26 09:39:18.253] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:18 [2025-08-26 09:39:18.253] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:18 [2025-08-26 09:39:18.254] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:18 [2025-08-26 09:39:18.254] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:18 [2025-08-26 09:39:18.254] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:39:18 [2025-08-26 09:39:18.254] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:39:18 [2025-08-26 09:39:18.254] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:18 [2025-08-26 09:39:18.254] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:18 [2025-08-26 09:39:18.254] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:39:18 [2025-08-26 09:39:18.254] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:39:18 [2025-08-26 09:39:18.254] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:39:18 [2025-08-26 09:39:18.255] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:39:18 [2025-08-26 09:39:18.255] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:39:18 [2025-08-26 09:39:18.255] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:18 [2025-08-26 09:39:18.255] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:18 [2025-08-26 09:39:18.255] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:39:18 [2025-08-26 09:39:18.255] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:39:18 [2025-08-26 09:39:18.255] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:39:18 [2025-08-26 09:39:18.255] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:18 [2025-08-26 09:39:18.255] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:18 [2025-08-26 09:39:18.259] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:18 [2025-08-26 09:39:18.259] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:33 [2025-08-26 09:39:33.075] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:33 [2025-08-26 09:39:33.076] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:33 [2025-08-26 09:39:33.078] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:33 [2025-08-26 09:39:33.078] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:33 [2025-08-26 09:39:33.079] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:39:33 [2025-08-26 09:39:33.079] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:39:33 [2025-08-26 09:39:33.079] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:33 [2025-08-26 09:39:33.079] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:33 [2025-08-26 09:39:33.079] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:39:33 [2025-08-26 09:39:33.081] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:39:33 [2025-08-26 09:39:33.081] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:39:33 [2025-08-26 09:39:33.081] [TRACE] [item.go:791] Entering item.go:791
+2025/08/26 09:39:33 [2025-08-26 09:39:33.081] [INFO] [item.go:792] Getting stocks for item ID: 142
+2025/08/26 09:39:33 [2025-08-26 09:39:33.081] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:33 [2025-08-26 09:39:33.081] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:33 [2025-08-26 09:39:33.081] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 142
+2025/08/26 09:39:33 [2025-08-26 09:39:33.082] [DEBUG] [item.go:837] Found stock: ID=102, BoxNumber=1, Location=
+2025/08/26 09:39:33 [2025-08-26 09:39:33.083] [DEBUG] [item.go:837] Found stock: ID=103, BoxNumber=1, Location=
+2025/08/26 09:39:33 [2025-08-26 09:39:33.083] [INFO] [item.go:848] Retrieved 2 stocks for item 142
+2025/08/26 09:39:33 [2025-08-26 09:39:33.083] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/26 09:39:33 [2025-08-26 09:39:33.097] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:33 [2025-08-26 09:39:33.097] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:33 [2025-08-26 09:39:33.098] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:33 [2025-08-26 09:39:33.098] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:33 [2025-08-26 09:39:33.099] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:33 [2025-08-26 09:39:33.099] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:33 [2025-08-26 09:39:33.172] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:33 [2025-08-26 09:39:33.172] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:33 [2025-08-26 09:39:33.174] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:33 [2025-08-26 09:39:33.174] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:33 [2025-08-26 09:39:33.174] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:33 [2025-08-26 09:39:33.174] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:46 [2025-08-26 09:39:46.710] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:46 [2025-08-26 09:39:46.710] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:46 [2025-08-26 09:39:46.711] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:46 [2025-08-26 09:39:46.711] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:46 [2025-08-26 09:39:46.713] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:46 [2025-08-26 09:39:46.713] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:46 [2025-08-26 09:39:46.713] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:39:46 [2025-08-26 09:39:46.713] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:39:46 [2025-08-26 09:39:46.713] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:46 [2025-08-26 09:39:46.713] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:46 [2025-08-26 09:39:46.713] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:39:46 [2025-08-26 09:39:46.716] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:39:46 [2025-08-26 09:39:46.716] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:39:46 [2025-08-26 09:39:46.717] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:39:46 [2025-08-26 09:39:46.717] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:39:46 [2025-08-26 09:39:46.717] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:46 [2025-08-26 09:39:46.717] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:39:46 [2025-08-26 09:39:46.717] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:39:46 [2025-08-26 09:39:46.724] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:39:46 [2025-08-26 09:39:46.725] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:39:46 [2025-08-26 09:39:46.725] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:39:46 [2025-08-26 09:39:46.725] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:41:48 [2025-08-26 09:41:48.597] [INFO] [main.go:39] Starting Owlverload API server
+2025/08/26 09:41:48 [2025-08-26 09:41:48.597] [INFO] [main.go:44] Loaded development environment
+2025/08/26 09:41:48 [2025-08-26 09:41:48.597] [TRACE] [db.go:33] Entering db.go:33
+2025/08/26 09:41:48 [2025-08-26 09:41:48.597] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/08/26 09:41:48 [2025-08-26 09:41:48.597] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/08/26 09:41:48 [2025-08-26 09:41:48.598] [INFO] [db.go:62] Database connected successfully
+2025/08/26 09:41:48 [2025-08-26 09:41:48.599] [TRACE] [db.go:63] Exiting db.go:63
+2025/08/26 09:41:54 [2025-08-26 09:41:54.848] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:41:54 [2025-08-26 09:41:54.848] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:41:54 [2025-08-26 09:41:54.848] [INFO] [db.go:143] Initializing database instance (first call)
+2025/08/26 09:41:54 [2025-08-26 09:41:54.848] [TRACE] [db.go:33] Entering db.go:33
+2025/08/26 09:41:54 [2025-08-26 09:41:54.848] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/08/26 09:41:54 [2025-08-26 09:41:54.848] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/08/26 09:41:54 [2025-08-26 09:41:54.850] [INFO] [db.go:62] Database connected successfully
+2025/08/26 09:41:54 [2025-08-26 09:41:54.850] [TRACE] [db.go:63] Exiting db.go:63
+2025/08/26 09:41:54 [2025-08-26 09:41:54.851] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:41:54 [2025-08-26 09:41:54.851] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:41:54 [2025-08-26 09:41:54.852] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:41:54 [2025-08-26 09:41:54.852] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:41:54 [2025-08-26 09:41:54.852] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:41:54 [2025-08-26 09:41:54.852] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:41:54 [2025-08-26 09:41:54.852] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:41:54 [2025-08-26 09:41:54.852] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:41:54 [2025-08-26 09:41:54.852] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:41:54 [2025-08-26 09:41:54.853] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:41:54 [2025-08-26 09:41:54.853] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:41:54 [2025-08-26 09:41:54.853] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:41:54 [2025-08-26 09:41:54.853] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:41:54 [2025-08-26 09:41:54.853] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:41:54 [2025-08-26 09:41:54.853] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:41:54 [2025-08-26 09:41:54.853] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:41:54 [2025-08-26 09:41:54.854] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:41:54 [2025-08-26 09:41:54.854] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:41:54 [2025-08-26 09:41:54.854] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:41:54 [2025-08-26 09:41:54.854] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:41:54 [2025-08-26 09:41:54.856] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:41:54 [2025-08-26 09:41:54.856] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:42:00 [2025-08-26 09:42:00.953] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:42:00 [2025-08-26 09:42:00.953] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:42:00 [2025-08-26 09:42:00.954] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:42:00 [2025-08-26 09:42:00.954] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:42:00 [2025-08-26 09:42:00.956] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:42:00 [2025-08-26 09:42:00.956] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:42:00 [2025-08-26 09:42:00.956] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:42:00 [2025-08-26 09:42:00.956] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:42:00 [2025-08-26 09:42:00.956] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:42:00 [2025-08-26 09:42:00.958] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:42:00 [2025-08-26 09:42:00.958] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:42:00 [2025-08-26 09:42:00.958] [TRACE] [item.go:791] Entering item.go:791
+2025/08/26 09:42:00 [2025-08-26 09:42:00.958] [INFO] [item.go:792] Getting stocks for item ID: 142
+2025/08/26 09:42:00 [2025-08-26 09:42:00.958] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:42:00 [2025-08-26 09:42:00.958] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:42:00 [2025-08-26 09:42:00.959] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 142
+2025/08/26 09:42:00 [2025-08-26 09:42:00.960] [DEBUG] [item.go:837] Found stock: ID=102, BoxNumber=1, Location=
+2025/08/26 09:42:00 [2025-08-26 09:42:00.960] [DEBUG] [item.go:837] Found stock: ID=103, BoxNumber=1, Location=
+2025/08/26 09:42:00 [2025-08-26 09:42:00.961] [INFO] [item.go:848] Retrieved 2 stocks for item 142
+2025/08/26 09:42:00 [2025-08-26 09:42:00.961] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/26 09:42:00 [2025-08-26 09:42:00.971] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:42:00 [2025-08-26 09:42:00.972] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:42:00 [2025-08-26 09:42:00.973] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:42:00 [2025-08-26 09:42:00.973] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:42:00 [2025-08-26 09:42:00.974] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:42:00 [2025-08-26 09:42:00.974] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:42:01 [2025-08-26 09:42:01.017] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:42:01 [2025-08-26 09:42:01.018] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:42:01 [2025-08-26 09:42:01.018] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:42:01 [2025-08-26 09:42:01.018] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:42:01 [2025-08-26 09:42:01.019] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:42:01 [2025-08-26 09:42:01.019] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:42:09 [2025-08-26 09:42:09.532] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:42:09 [2025-08-26 09:42:09.532] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:42:09 [2025-08-26 09:42:09.534] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:42:09 [2025-08-26 09:42:09.534] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:42:09 [2025-08-26 09:42:09.535] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:42:09 [2025-08-26 09:42:09.535] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:42:09 [2025-08-26 09:42:09.535] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:42:09 [2025-08-26 09:42:09.535] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:42:09 [2025-08-26 09:42:09.535] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:42:09 [2025-08-26 09:42:09.536] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:42:09 [2025-08-26 09:42:09.536] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:42:09 [2025-08-26 09:42:09.537] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:42:09 [2025-08-26 09:42:09.537] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:42:09 [2025-08-26 09:42:09.539] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:42:09 [2025-08-26 09:42:09.539] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:42:09 [2025-08-26 09:42:09.539] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:42:09 [2025-08-26 09:42:09.539] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:42:09 [2025-08-26 09:42:09.539] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:42:09 [2025-08-26 09:42:09.541] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:42:09 [2025-08-26 09:42:09.541] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:42:09 [2025-08-26 09:42:09.541] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:42:09 [2025-08-26 09:42:09.541] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:26 [2025-08-26 09:43:26.177] [INFO] [main.go:39] Starting Owlverload API server
+2025/08/26 09:43:26 [2025-08-26 09:43:26.177] [INFO] [main.go:44] Loaded development environment
+2025/08/26 09:43:26 [2025-08-26 09:43:26.177] [TRACE] [db.go:33] Entering db.go:33
+2025/08/26 09:43:26 [2025-08-26 09:43:26.177] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/08/26 09:43:26 [2025-08-26 09:43:26.177] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/08/26 09:43:26 [2025-08-26 09:43:26.179] [INFO] [db.go:62] Database connected successfully
+2025/08/26 09:43:26 [2025-08-26 09:43:26.179] [TRACE] [db.go:63] Exiting db.go:63
+2025/08/26 09:43:30 [2025-08-26 09:43:30.157] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:30 [2025-08-26 09:43:30.157] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:30 [2025-08-26 09:43:30.157] [INFO] [db.go:143] Initializing database instance (first call)
+2025/08/26 09:43:30 [2025-08-26 09:43:30.157] [TRACE] [db.go:33] Entering db.go:33
+2025/08/26 09:43:30 [2025-08-26 09:43:30.157] [INFO] [db.go:35] Connecting to database: 127.0.0.1:3306/item_registration
+2025/08/26 09:43:30 [2025-08-26 09:43:30.157] [DEBUG] [db.go:40] Connection string: sp6_order_board1:***@tcp(127.0.0.1:3306)/item_registration?parseTime=true
+2025/08/26 09:43:30 [2025-08-26 09:43:30.159] [INFO] [db.go:62] Database connected successfully
+2025/08/26 09:43:30 [2025-08-26 09:43:30.159] [TRACE] [db.go:63] Exiting db.go:63
+2025/08/26 09:43:30 [2025-08-26 09:43:30.159] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:30 [2025-08-26 09:43:30.160] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:30 [2025-08-26 09:43:30.160] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:30 [2025-08-26 09:43:30.160] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:30 [2025-08-26 09:43:30.160] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:43:30 [2025-08-26 09:43:30.160] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:43:30 [2025-08-26 09:43:30.160] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:30 [2025-08-26 09:43:30.160] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:30 [2025-08-26 09:43:30.161] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:43:30 [2025-08-26 09:43:30.161] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:43:30 [2025-08-26 09:43:30.161] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:43:30 [2025-08-26 09:43:30.162] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:43:30 [2025-08-26 09:43:30.162] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:43:30 [2025-08-26 09:43:30.162] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:30 [2025-08-26 09:43:30.162] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:30 [2025-08-26 09:43:30.162] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:43:30 [2025-08-26 09:43:30.163] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:43:30 [2025-08-26 09:43:30.163] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:43:30 [2025-08-26 09:43:30.163] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:30 [2025-08-26 09:43:30.163] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:30 [2025-08-26 09:43:30.165] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:30 [2025-08-26 09:43:30.165] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:35 [2025-08-26 09:43:35.506] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:35 [2025-08-26 09:43:35.506] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:35 [2025-08-26 09:43:35.508] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:35 [2025-08-26 09:43:35.508] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:35 [2025-08-26 09:43:35.509] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:43:35 [2025-08-26 09:43:35.509] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:43:35 [2025-08-26 09:43:35.509] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:35 [2025-08-26 09:43:35.510] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:35 [2025-08-26 09:43:35.510] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:43:35 [2025-08-26 09:43:35.511] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:43:35 [2025-08-26 09:43:35.511] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:43:35 [2025-08-26 09:43:35.511] [TRACE] [item.go:791] Entering item.go:791
+2025/08/26 09:43:35 [2025-08-26 09:43:35.511] [INFO] [item.go:792] Getting stocks for item ID: 142
+2025/08/26 09:43:35 [2025-08-26 09:43:35.511] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:35 [2025-08-26 09:43:35.511] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:35 [2025-08-26 09:43:35.511] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 142
+2025/08/26 09:43:35 [2025-08-26 09:43:35.512] [DEBUG] [item.go:837] Found stock: ID=102, BoxNumber=1, Location=
+2025/08/26 09:43:35 [2025-08-26 09:43:35.513] [DEBUG] [item.go:837] Found stock: ID=103, BoxNumber=1, Location=
+2025/08/26 09:43:35 [2025-08-26 09:43:35.513] [INFO] [item.go:848] Retrieved 2 stocks for item 142
+2025/08/26 09:43:35 [2025-08-26 09:43:35.513] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/26 09:43:35 [2025-08-26 09:43:35.522] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:35 [2025-08-26 09:43:35.522] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:35 [2025-08-26 09:43:35.523] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:35 [2025-08-26 09:43:35.523] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:35 [2025-08-26 09:43:35.524] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:35 [2025-08-26 09:43:35.524] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:35 [2025-08-26 09:43:35.562] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:35 [2025-08-26 09:43:35.562] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:35 [2025-08-26 09:43:35.563] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:35 [2025-08-26 09:43:35.563] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:35 [2025-08-26 09:43:35.564] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:35 [2025-08-26 09:43:35.564] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:39 [2025-08-26 09:43:39.175] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:39 [2025-08-26 09:43:39.175] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:39 [2025-08-26 09:43:39.176] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:39 [2025-08-26 09:43:39.176] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:39 [2025-08-26 09:43:39.176] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:39 [2025-08-26 09:43:39.176] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:39 [2025-08-26 09:43:39.176] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:43:39 [2025-08-26 09:43:39.176] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:43:39 [2025-08-26 09:43:39.176] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:39 [2025-08-26 09:43:39.176] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:39 [2025-08-26 09:43:39.176] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:43:39 [2025-08-26 09:43:39.177] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:43:39 [2025-08-26 09:43:39.177] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:43:39 [2025-08-26 09:43:39.177] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:43:39 [2025-08-26 09:43:39.177] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:43:39 [2025-08-26 09:43:39.177] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:39 [2025-08-26 09:43:39.177] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:39 [2025-08-26 09:43:39.177] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:43:39 [2025-08-26 09:43:39.177] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:43:39 [2025-08-26 09:43:39.177] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:43:39 [2025-08-26 09:43:39.177] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:39 [2025-08-26 09:43:39.177] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:39 [2025-08-26 09:43:39.178] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:39 [2025-08-26 09:43:39.178] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:44 [2025-08-26 09:43:44.283] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:44 [2025-08-26 09:43:44.283] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:44 [2025-08-26 09:43:44.283] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:44 [2025-08-26 09:43:44.283] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:44 [2025-08-26 09:43:44.284] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:44 [2025-08-26 09:43:44.284] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:44 [2025-08-26 09:43:44.284] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:44 [2025-08-26 09:43:44.284] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:44 [2025-08-26 09:43:44.285] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:44 [2025-08-26 09:43:44.285] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:44 [2025-08-26 09:43:44.285] [TRACE] [item.go:735] Entering item.go:735
+2025/08/26 09:43:44 [2025-08-26 09:43:44.285] [INFO] [item.go:736] Getting item by ID: 142
+2025/08/26 09:43:44 [2025-08-26 09:43:44.285] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:44 [2025-08-26 09:43:44.285] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:44 [2025-08-26 09:43:44.285] [DEBUG] [item.go:755] Executing query: SELECT item_id, code, IFNULL(barcode, ''), IFNULL(box_barcode, ''), IFNULL(price, 0), IFNULL(box_price, 0), IFNULL(name, ''), IFNULL(type, ''), IFNULL(available_for_order, 0), IFNULL(image_path, ''), created_at, IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') FROM items WHERE item_id = ? with item ID: 142
+2025/08/26 09:43:44 [2025-08-26 09:43:44.286] [INFO] [item.go:784] Successfully retrieved item: ID=142, Name='For Accounts Retail Adjustment', Code=1000002
+2025/08/26 09:43:44 [2025-08-26 09:43:44.286] [TRACE] [item.go:786] Exiting item.go:786
+2025/08/26 09:43:44 [2025-08-26 09:43:44.286] [TRACE] [item.go:791] Entering item.go:791
+2025/08/26 09:43:44 [2025-08-26 09:43:44.286] [INFO] [item.go:792] Getting stocks for item ID: 142
+2025/08/26 09:43:44 [2025-08-26 09:43:44.286] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:44 [2025-08-26 09:43:44.286] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:44 [2025-08-26 09:43:44.286] [DEBUG] [item.go:807] Executing query: SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ? with item ID: 142
+2025/08/26 09:43:44 [2025-08-26 09:43:44.287] [DEBUG] [item.go:837] Found stock: ID=102, BoxNumber=1, Location=
+2025/08/26 09:43:44 [2025-08-26 09:43:44.287] [DEBUG] [item.go:837] Found stock: ID=103, BoxNumber=1, Location=
+2025/08/26 09:43:44 [2025-08-26 09:43:44.287] [INFO] [item.go:848] Retrieved 2 stocks for item 142
+2025/08/26 09:43:44 [2025-08-26 09:43:44.287] [TRACE] [item.go:849] Exiting item.go:849
+2025/08/26 09:43:44 [2025-08-26 09:43:44.333] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:44 [2025-08-26 09:43:44.333] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:44 [2025-08-26 09:43:44.334] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:44 [2025-08-26 09:43:44.334] [DEBUG] [db.go:140] Getting database instance
+2025/08/26 09:43:44 [2025-08-26 09:43:44.334] [DEBUG] [db.go:111] Getting database configuration from environment variables
+2025/08/26 09:43:44 [2025-08-26 09:43:44.334] [DEBUG] [db.go:140] Getting database instance

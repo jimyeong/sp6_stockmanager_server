@@ -656,13 +656,28 @@ func HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println("@@@item@@@@@@@@@@@@@@@@@@@@@ passed receved", string(body))
 
-	var item models.Item
-	err = json.Unmarshal(body, &item)
+	// Accept both `tag` and `tags` from the payload
+	type updateItemPayload struct {
+		models.Item
+		Tags []models.Tag `json:"tags"`
+	}
+
+	var payload updateItemPayload
+	err = json.Unmarshal(body, &payload)
 	if err != nil {
 		fmt.Println("@@@err@@@@@@@@@@@@@@@@@@@@@ passed unmarshal", err)
 		models.WriteServiceError(w, "Invalid request format", false, true, http.StatusBadRequest)
 		return
 	}
+
+	// Pull the embedded item out
+	item := payload.Item
+
+	// If `tags` were provided (plural), prefer them when `item.Tag` is empty
+	if len(payload.Tags) > 0 && len(item.Tag) == 0 {
+		item.Tag = payload.Tags
+	}
+
 	fmt.Println("@@@item@@@@@@@@@@@@@@@@@@@@@ passed unmarshal", item)
 
 	// Validate the item has the required fields for update (barcode or code)
@@ -680,13 +695,9 @@ func HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	selectedTags := []string{}
-	fmt.Println("item.Tag@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", item.Tag)
-	fmt.Println("item.Tag.length", len(item.Tag))
 	for _, tag := range item.Tag {
-		selectedTags = append(selectedTags, tag.TagName)
-		fmt.Println("tag.TagName", tag.TagName)
+		selectedTags = append(selectedTags, tag.ID)
 	}
-	fmt.Println("selectedTags", selectedTags)
 	err = models.UpdateTagsForItem(updatedItem.ID, selectedTags)
 	if err != nil {
 		log.Printf("Error updating tags for item: %v", err)

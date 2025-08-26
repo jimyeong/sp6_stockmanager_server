@@ -290,7 +290,9 @@ func UpdateTagsForItem(itemID string, tagIDs []string) error {
 
 	args := make([]interface{}, 0, len(toRemove)+1)
 	if len(toRemove) > 0 {
+
 		placeholders := ""
+		args = append(args, itemID)
 		for i := range toRemove {
 			if i > 0 {
 				placeholders += ", "
@@ -308,15 +310,15 @@ func UpdateTagsForItem(itemID string, tagIDs []string) error {
 		}
 	}
 	if len(toAdd) > 0 {
-		stmt, err := tx.Prepare("INSERT INTO item_tags (item_id, tag_id, created_at) VALUES (?, ?, ?)")
+		stmt, err := tx.Prepare("INSERT INTO item_tags (item_id, tag_id) VALUES (?, ?)")
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
 		defer stmt.Close()
-		now := time.Now()
+
 		for _, tagId := range toAdd {
-			if _, err := stmt.Exec(itemID, tagId, now); err != nil {
+			if _, err := stmt.Exec(itemID, tagId); err != nil {
 				fmt.Printf("Error adding tags: %v\n", err)
 				tx.Rollback()
 				return err
@@ -350,7 +352,7 @@ func CreateTag(tag Tag) (Tag, error) {
 	// 	tag.CreatedAt = time.Now()
 	// }
 
-	query := "INSERT INTO tags (id, name, category, created_at) VALUES (?, ?, ?, ?)"
+	query := "INSERT INTO tags (id, name) VALUES (?, ?)"
 	stmt, err := db.Prepare(query)
 	if err != nil {
 		return Tag{}, err
