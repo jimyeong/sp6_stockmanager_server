@@ -342,17 +342,7 @@ func CreateTag(tag Tag) (Tag, error) {
 	fmt.Println("---CREATETAG---", tag)
 	db := GetDBInstance(GetDBConfig())
 
-	// Generate a unique ID if not provided
-	if tag.ID == "" {
-		tag.ID = fmt.Sprintf("tag_%d", time.Now().UnixNano())
-	}
-
-	// Set creation timestamp if not already set
-	// if tag.CreatedAt.IsZero() {
-	// 	tag.CreatedAt = time.Now()
-	// }
-
-	query := "INSERT INTO tags (id, name) VALUES (?, ?)"
+	query := "INSERT INTO tags (name) VALUES (?)"
 	stmt, err := db.Prepare(query)
 	if err != nil {
 		return Tag{}, err
@@ -360,10 +350,7 @@ func CreateTag(tag Tag) (Tag, error) {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(
-		tag.ID,
 		tag.TagName,
-		// tag.Category,
-		// tag.CreatedAt,
 	)
 
 	if err != nil {
