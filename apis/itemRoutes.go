@@ -174,6 +174,7 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 		models.WriteServiceError(w, "Invalid request format", false, true, http.StatusBadRequest)
 		return
 	}
+
 	// Validate request
 	if request.ItemID == "" && request.Barcode == "" && request.Code == "" {
 		fmt.Println("@@@ERR3", request)
@@ -222,6 +223,7 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 		Location:          request.Location,
 		RegisteringPerson: userName,
 		DiscountRate:      request.DiscountRate,
+		StockType:         models.StockType(request.StockType),
 	}
 
 	// Set the appropriate stock quantity based on type
@@ -254,6 +256,7 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
+	fmt.Println("stock.stock.RegisteringPerson", stock.RegisteringPerson)
 	// Insert stock within transaction
 	stockQuery := "INSERT INTO stocks (fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, notes, discount_rate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)"
 	_, err = tx.Exec(stockQuery, stock.ItemId, stock.StockType, stock.BoxNumber, stock.PCSNumber, stock.BundleNumber, stock.ExpiryDate, stock.Location, stock.RegisteringPerson, stock.Notes, stock.DiscountRate)
