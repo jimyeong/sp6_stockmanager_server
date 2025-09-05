@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/jimyeongjung/owlverload_api/models"
-	"github.com/jimyeongjung/owlverload_api/utils"
 )
 
 func HandleStockUpdate(w http.ResponseWriter, r *http.Request) {
@@ -18,13 +17,13 @@ func HandleStockUpdate(w http.ResponseWriter, r *http.Request) {
 	var stock models.Stock
 	err := json.NewDecoder(r.Body).Decode(&stock)
 	if err != nil {
-		utils.Error("Error decoding stock update request: %v", err)
+		fmt.Println("---Error decoding stock update request: %v---", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	if stock.StockId == "" {
-		utils.Error("stock_id is required")
+		fmt.Println("---stock_id is required---")
 		http.Error(w, "stock_id is required", http.StatusBadRequest)
 		return
 	}
@@ -33,8 +32,7 @@ func HandleStockUpdate(w http.ResponseWriter, r *http.Request) {
 	query := "UPDATE stocks SET expiry_date = ?, location = ?, discount_rate = ? WHERE stock_id = ?"
 	_, err = db.Exec(query, stock.ExpiryDate, stock.Location, stock.DiscountRate, stock.StockId)
 	if err != nil {
-		fmt.Println("@@@err@@@@@@@@@@@@@@@@@@@@@", stock)
-		utils.Error("Error updating stock: %v", err)
+		fmt.Println("---Error updating stock: %v---", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -56,11 +54,10 @@ func HandleStockUpdate(w http.ResponseWriter, r *http.Request) {
 		&updatedStock.CreatedAt,
 	)
 	if err != nil {
-		utils.Error("Error selecting stock: %v", err)
+		fmt.Println("---Error selecting stock: %v---", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	utils.Info("Stock updated successfully")
 	models.WriteServiceResponse(w, "Stock updated successfully", updatedStock, true, true, http.StatusOK)
 }

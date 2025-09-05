@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"strings"
 	"time"
-
-	"github.com/jimyeongjung/owlverload_api/utils"
 )
 
 type Item struct {
@@ -499,19 +497,17 @@ FIX LATER
 
 // STUDY THIS CODE
 func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, error) {
-	defer utils.Trace()()
-	utils.Info("Getting paginated items with offset: %d, limit: %d, tags: %v", offset, limit, tagParams)
-
+	fmt.Println("---GETITEMSPAGINATED---", offset, limit, tagParams)
 	db := GetDBInstance(GetDBConfig())
 	if db == nil {
-		utils.Error("Failed to get database instance")
+		fmt.Println("---db---", db)
 		return nil, 0, fmt.Errorf("database connection error")
 	}
 
 	// Default to a specific tag if none provided
 	if len(tagParams) == 0 {
 		tagParams = []string{"sp6"}
-		utils.Info("No tags provided, defaulting to 'sp6'")
+		fmt.Println("---tagParams---", tagParams)
 	}
 
 	// Create a map to store unique items by ID
@@ -540,14 +536,13 @@ func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, erro
 		WHERE t.name IN (` + placeholderStr + `)
 	`
 
-	utils.Debug("Executing count query: %s with args: %v", countQuery, args)
+	fmt.Println("---countQuery---", countQuery, args)
 	err := db.QueryRow(countQuery, args...).Scan(&totalCount)
 	if err != nil {
-		utils.Error("Error getting total count: %v", err)
+		fmt.Println("---err---", err)
 		return nil, 0, err
 	}
-	utils.Info("Total matching items: %d", totalCount)
-
+	fmt.Println("---totalCount---", totalCount)
 	// Now add limit and offset to args
 	args = append(args, limit, offset)
 
@@ -576,11 +571,10 @@ func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, erro
 		ORDER BY i.created_at DESC
 		LIMIT ? OFFSET ?
 	`
-
-	utils.Debug("Executing query: %s with args: %v", query, args)
+	fmt.Println("---query---", query, args)
 	rows, err := db.Query(query, args...)
 	if err != nil {
-		utils.Error("Error executing items query: %v", err)
+		fmt.Println("---err---", err)
 		return nil, 0, err
 	}
 	defer rows.Close()
@@ -606,17 +600,17 @@ func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, erro
 			&item.NameEng,
 		)
 		if err != nil {
-			utils.Error("Error scanning item row: %v", err)
+			fmt.Println("---err---", err)
 			return nil, 0, err
 		}
 
-		utils.Debug("Found item: ID=%s, Name=%s", item.ID, item.Name)
+		fmt.Println("---Found item: ID=%s, Name=%s---", item.ID, item.Name)
 		itemMap[item.ID] = &item
 		items = append(items, item)
 	}
 
 	if err = rows.Err(); err != nil {
-		utils.Error("Error in rows iteration: %v", err)
+		fmt.Println("---err---", err)
 		return nil, 0, err
 	}
 	fmt.Println("---ITEMS---", items)
@@ -646,10 +640,10 @@ func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, erro
 			WHERE it.item_id IN (` + itemPlaceholderStr + `)
 		`
 
-		utils.Debug("Executing tag query: %s with args: %v", tagQuery, itemArgs)
+		fmt.Println("---tagQuery---", tagQuery, itemArgs)
 		tagRows, err := db.Query(tagQuery, itemArgs...)
 		if err != nil {
-			utils.Warn("Error fetching tags: %v", err)
+			fmt.Println("---err---", err)
 			// Continue without tags if there's an error
 		} else {
 			defer tagRows.Close()
@@ -658,7 +652,7 @@ func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, erro
 				var tag Tag
 				err := tagRows.Scan(&itemID, &tag.ID, &tag.TagName)
 				if err != nil {
-					utils.Warn("Error scanning tag: %v", err)
+					fmt.Println("---err---", err)
 					continue
 				}
 
@@ -668,20 +662,20 @@ func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, erro
 			}
 
 			if err = tagRows.Err(); err != nil {
-				utils.Warn("Error in tag rows iteration: %v", err)
+				fmt.Println("---err---", err)
 			}
 		}
 
 		// Fetch stock for each item
 		for i, item := range items {
-			utils.Debug("Fetching stocks for item: %s", item.ID)
+			fmt.Println("---Fetching stocks for item: %s---", item.ID)
 			stocks, err := GetStocksByItemId(item.ID)
 			if err != nil {
-				utils.Warn("Error fetching stocks for item %s: %v", item.ID, err)
+				fmt.Println("---err---", err)
 				items[i].Stock = []Stock{} // Empty stock array if error
 			} else {
 				items[i].Stock = stocks
-				utils.Debug("Found %d stocks for item %s", len(stocks), item.ID)
+				fmt.Println("---Found %d stocks for item %s---", len(stocks), item.ID)
 			}
 		}
 	}
@@ -691,8 +685,7 @@ func GetItemsPaginated(offset, limit int, tagParams []string) ([]Item, int, erro
 	for _, item := range itemMap {
 		result = append(result, *item)
 	}
-
-	utils.Info("Successfully retrieved %d items", len(result))
+	fmt.Println("---result---", result)
 	return result, totalCount, nil
 }
 
@@ -732,17 +725,15 @@ func SaveStockTransaction(transaction StockTransaction) error {
 }
 
 func GetItemById(id string) (Item, error) {
-	defer utils.Trace()()
-	utils.Info("Getting item by ID: %s", id)
-
+	fmt.Println("---GETITEMBYID---", id)
 	if id == "" {
-		utils.Error("Empty item ID provided to GetItemById")
+		fmt.Println("---Empty item ID provided to GetItemById---")
 		return Item{}, fmt.Errorf("empty item ID")
 	}
 
 	db := GetDBInstance(GetDBConfig())
 	if db == nil {
-		utils.Error("Failed to get database instance")
+		fmt.Println("---Failed to get database instance---")
 		return Item{}, fmt.Errorf("database connection error")
 	}
 
@@ -752,7 +743,7 @@ func GetItemById(id string) (Item, error) {
 		"IFNULL(name_jpn, ''), IFNULL(name_chn, ''), IFNULL(name_kor, ''), IFNULL(name_eng, '') " +
 		"FROM items WHERE item_id = ?"
 	fmt.Println("---QUERY---", query)
-	utils.Debug("Executing query: %s with item ID: %s", query, id)
+	fmt.Println("---Executing query: %s with item ID: %s---", query, id)
 
 	err := db.QueryRow(query, id).Scan(
 		&item.ID,
@@ -774,41 +765,36 @@ func GetItemById(id string) (Item, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			utils.Warn("No item found with ID: %s", id)
+			fmt.Println("---No item found with ID: %s---", id)
 			return Item{}, fmt.Errorf("item not found")
 		}
-		utils.Error("Error querying item with ID %s: %v", id, err)
+		fmt.Println("---Error querying item with ID %s: %v---", id, err)
 		return Item{}, err
 	}
 
-	utils.Info("Successfully retrieved item: ID=%s, Name='%s', Code=%s",
-		item.ID, item.Name, item.Code)
 	return item, nil
 }
 
 func GetStocksByItemId(itemId string) ([]Stock, error) {
 	fmt.Println("---GETSTOCKSBYITEMID---", itemId)
-	defer utils.Trace()()
-	utils.Info("Getting stocks for item ID: %s", itemId)
-
 	if itemId == "" {
-		utils.Error("Empty item ID provided to GetStocksByItemId")
+		fmt.Println("---Empty item ID provided to GetStocksByItemId---")
 		return nil, fmt.Errorf("empty item ID")
 	}
 
 	db := GetDBInstance(GetDBConfig())
 	if db == nil {
-		utils.Error("Failed to get database instance")
+		fmt.Println("---Failed to get database instance---")
 		return nil, fmt.Errorf("database connection error")
 	}
 
 	var stocks []Stock
 	query := "SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE fkproduct_id = ?"
-	utils.Debug("Executing query: %s with item ID: %s", query, itemId)
+	fmt.Println("---Executing query: %s with item ID: %s---", query, itemId)
 
 	rows, err := db.Query(query, itemId)
 	if err != nil {
-		utils.Error("Error querying stocks for item %s: %v", itemId, err)
+		fmt.Println("---Error querying stocks for item %s: %v---", itemId, err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -831,21 +817,20 @@ func GetStocksByItemId(itemId string) ([]Stock, error) {
 			&stock.CreatedAt,
 		)
 		if err != nil {
-			utils.Error("Error scanning stock row: %v", err)
+			fmt.Println("---Error scanning stock row: %v---", err)
 			return nil, err
 		}
-		utils.Debug("Found stock: ID=%s, BoxNumber=%d, Location=%s",
+		fmt.Println("---Found stock: ID=%s, BoxNumber=%d, Location=%s---",
 			stock.StockId, stock.BoxNumber, stock.Location)
 		stocks = append(stocks, stock)
 		stockCount++
 	}
 
 	if err = rows.Err(); err != nil {
-		utils.Error("Error iterating through rows: %v", err)
+		fmt.Println("---Error iterating through rows: %v---", err)
 		return nil, err
 	}
 
-	utils.Info("Retrieved %d stocks for item %s", stockCount, itemId)
 	return stocks, nil
 }
 func UpdateStock(stockId string, stockType string, quantity int) error {
@@ -1048,12 +1033,9 @@ type ItemWithDaysToExpiry struct {
 // GetItemsExpiringWithinDays retrieves items that are expiring within the specified number of days
 func GetItemsExpiringWithinDays(withinDays int) ([]ItemWithDaysToExpiry, error) {
 	fmt.Println("---GETITEMSEXPIRINGWITHINDAYS---", withinDays)
-	defer utils.Trace()()
-	utils.Info("Getting items expiring within %d days", withinDays)
-
 	db := GetDBInstance(GetDBConfig())
 	if db == nil {
-		utils.Error("Failed to get database instance")
+		fmt.Println("---Failed to get database instance---")
 		return nil, fmt.Errorf("database connection error")
 	}
 
@@ -1085,10 +1067,10 @@ func GetItemsExpiringWithinDays(withinDays int) ([]ItemWithDaysToExpiry, error) 
 		ORDER BY days_to_expiry ASC
 	`
 
-	utils.Debug("Executing query: %s with withinDays: %d", query, withinDays)
+	fmt.Println("---Executing query: %s with withinDays: %d---", query, withinDays)
 	rows, err := db.Query(query, withinDays)
 	if err != nil {
-		utils.Error("Error executing expiry query: %v", err)
+		fmt.Println("---Error executing expiry query: %v---", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -1123,7 +1105,7 @@ func GetItemsExpiringWithinDays(withinDays int) ([]ItemWithDaysToExpiry, error) 
 			&daysToExpiry,
 		)
 		if err != nil {
-			utils.Error("Error scanning expiry row: %v", err)
+			fmt.Println("---Error scanning expiry row: %v---", err)
 			return nil, err
 		}
 
@@ -1139,7 +1121,7 @@ func GetItemsExpiringWithinDays(withinDays int) ([]ItemWithDaysToExpiry, error) 
 			// Get tags for this item
 			tags, err := GetTagsByItemId(item.ID)
 			if err != nil {
-				utils.Warn("Error fetching tags for item %s: %v", item.ID, err)
+				fmt.Println("---Error fetching tags for item %s: %v---", item.ID, err)
 			} else {
 				result.Item.Tag = tags
 			}
@@ -1147,7 +1129,7 @@ func GetItemsExpiringWithinDays(withinDays int) ([]ItemWithDaysToExpiry, error) 
 			// Get all stocks for this item
 			stocks, err := GetStocksByItemId(item.ID)
 			if err != nil {
-				utils.Warn("Error fetching stocks for item %s: %v", item.ID, err)
+				fmt.Println("---Error fetching stocks for item %s: %v---", item.ID, err)
 			} else {
 				result.Item.Stock = stocks
 			}
@@ -1159,15 +1141,14 @@ func GetItemsExpiringWithinDays(withinDays int) ([]ItemWithDaysToExpiry, error) 
 		}
 
 		results = append(results, result)
-		utils.Debug("Found expiring item: ID=%s, Name=%s, DaysToExpiry=%d",
+		fmt.Printf("---Found expiring item: ID=%s, Name=%s, DaysToExpiry=%d---\n",
 			item.ID, item.Name, daysToExpiry)
 	}
 
 	if err = rows.Err(); err != nil {
-		utils.Error("Error in rows iteration: %v", err)
+		fmt.Printf("---Error in rows iteration: %v---\n", err)
 		return nil, err
 	}
 
-	utils.Info("Successfully retrieved %d expiring items", len(results))
 	return results, nil
 }

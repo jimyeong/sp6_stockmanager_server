@@ -12,7 +12,6 @@ import (
 
 	"github.com/jimyeongjung/owlverload_api/firebase"
 	"github.com/jimyeongjung/owlverload_api/models"
-	"github.com/jimyeongjung/owlverload_api/utils"
 )
 
 // Request structures
@@ -323,56 +322,51 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 // HandleStockOut handles POST requests to remove stock with transaction support
 func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	// Add function tracing for debugging
-	defer utils.Trace()()
-	utils.Info("Starting HandleStockOut operation")
+	fmt.Println("---HandleStockOut started --- ")
 
 	// Get authenticated user ID from context
 	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
 	userEmail := tokenClaims.Email
-	utils.Info("User handling stock out: %s", userEmail)
+	fmt.Println("---USER EMAIL---", userEmail)
 
 	if userEmail == "" {
-		utils.Warn("Unauthorized stock out attempt - missing user email")
+		fmt.Println("---Unauthorized stock out attempt - missing user email---")
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
 	}
 
-	utils.Debug("Reading request body")
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		utils.Error("Failed to read request body: %v", err)
+		fmt.Println("---Failed to read request body: %v---", err)
 		models.WriteServiceError(w, "Failed to read request body", false, true, http.StatusBadRequest)
 		return
 	}
 
 	var request StockOutRequest
-	utils.Debug("Unmarshaling request JSON")
 	err = json.Unmarshal(body, &request)
-	utils.Debug("Request content: %+v", request)
+	fmt.Println("---Request content: %+v---", request)
 
 	if err != nil {
-		utils.Error("Invalid request format: %v", err)
+		fmt.Println("---Invalid request format: %v---", err)
 		models.WriteServiceError(w, "Invalid request format", false, true, http.StatusBadRequest)
 		return
 	}
 
 	// Validate request
-	utils.Debug("Validating request")
 	if request.Stock.StockId == "" {
-		utils.Warn("Missing stock ID in request")
+		fmt.Println("---Missing stock ID in request---")
 		models.WriteServiceError(w, "Stock ID is required", false, true, http.StatusBadRequest)
 		return
 	}
 
 	if request.Quantity <= 0 {
-		utils.Warn("Invalid quantity in request: %d", request.Quantity)
+		fmt.Println("---Invalid quantity in request: %d---", request.Quantity)
 		models.WriteServiceError(w, "Quantity must be greater than 0", false, true, http.StatusBadRequest)
 		return
 	}
 
-	utils.Debug("Stock type: %s", request.StockType)
 	if request.StockType == "" {
-		utils.Warn("Missing stock type in request")
+		fmt.Println("---Missing stock type in request---")
 		models.WriteServiceError(w, "Stock type is required (BOX, BUNDLE, or SINGLE)", false, true, http.StatusBadRequest)
 		return
 	}
@@ -387,11 +381,11 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	} else if request.Stock.StockType == models.StockTypePCS {
 		deductedQuantity = request.Stock.PCSNumber - request.Quantity
 	}
-	utils.Debug("Current stock: %d, Req	uested quantity: %d, Remaining: %d",
+	fmt.Println("---Current stock: %d, Requested quantity: %d, Remaining: %d---",
 		request.Stock.BoxNumber, request.Quantity, deductedQuantity)
 
 	if deductedQuantity < 0 {
-		utils.Warn("Insufficient stock - current: %d, requested: %d",
+		fmt.Println("---Insufficient stock - current: %d, requested: %d---",
 			request.Stock.BoxNumber, request.Quantity)
 		models.WriteServiceError(w, fmt.Sprintf("Stock can't be deducted more than you have. Current quantity %d, requested quantity %d",
 			request.Stock.BoxNumber, request.Quantity), false, true, http.StatusBadRequest)
@@ -399,11 +393,10 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get database instance and start a transaction
-	utils.Info("Getting database instance and starting transaction")
 	db := models.GetDBInstance(models.GetDBConfig())
 	tx, err := db.Begin()
 	if err != nil {
-		utils.Error("Failed to start transaction: %v", err)
+		fmt.Println("---Failed to start transaction: %v---", err)
 		models.WriteServiceError(w, "Internal server error", false, true, http.StatusInternalServerError)
 		return
 	}
@@ -412,7 +405,7 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	// If the transaction commits successfully, this rollback will be a no-op
 	defer func() {
 		if tx != nil {
-			utils.Warn("Rolling back transaction - this is expected if there was an error")
+			fmt.Println("---Rolling back transaction - this is expected if there was an error---")
 			tx.Rollback()
 		}
 	}()
@@ -420,79 +413,72 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	// Update or remove stock within the transaction
 	if deductedQuantity > 0 {
 		// Update stock quantity
-		utils.Info("Updating stock quantity")
 		query := "UPDATE stocks SET box_number = box_number - ? WHERE stock_id = ?"
 		_, err = tx.Exec(query, request.Quantity, request.Stock.StockId)
 		if err != nil {
-			utils.Error("Error updating stock in transaction: %v", err)
+			fmt.Println("---Error updating stock in transaction: %v---", err)
 			models.WriteServiceError(w, fmt.Sprintf("Failed to update stock: %v", err), false, true, http.StatusInternalServerError)
 			return
 		}
-		utils.Debug("Stock quantity updated successfully")
+		fmt.Println("---Stock quantity updated successfully---")
 	} else if deductedQuantity == 0 {
 		// Remove stock completely
-		utils.Info("Removing stock completely")
 		query := "DELETE FROM stocks WHERE stock_id = ?"
 		_, err = tx.Exec(query, request.Stock.StockId)
 		if err != nil {
-			utils.Error("Error removing stock in transaction: %v", err)
+			fmt.Println("---Error removing stock in transaction: %v---", err)
 			models.WriteServiceError(w, fmt.Sprintf("Failed to remove stock: %v", err), false, true, http.StatusInternalServerError)
 			return
 		}
-		utils.Debug("Stock removed successfully")
+		fmt.Println("---Stock removed successfully---")
 	}
 
 	// Record the transaction within the same DB transaction
-	utils.Info("Recording stock transaction")
 	transactionQuery := "INSERT INTO stock_transactions (fkitem_id, quantity, transaction_type, fkuser_email) VALUES (?, ?, ?, ?)"
 	_, err = tx.Exec(transactionQuery, request.Stock.ItemId, request.Quantity, "out", userEmail)
 	if err != nil {
-		utils.Error("Error recording transaction in DB: %v", err)
+		fmt.Println("---Error recording transaction in DB: %v---", err)
 		models.WriteServiceError(w, fmt.Sprintf("Failed to record transaction: %v", err), false, true, http.StatusInternalServerError)
 		return
 	}
-	utils.Debug("Transaction recorded successfully")
+	fmt.Println("---Transaction recorded successfully---")
 
 	// Commit the transaction
-	utils.Info("Committing transaction")
 	err = tx.Commit()
 	if err != nil {
-		utils.Error("Error committing transaction: %v", err)
+		fmt.Println("---Error committing transaction: %v---", err)
 		models.WriteServiceError(w, "Failed to complete the stock operation. Please try again.", false, true, http.StatusInternalServerError)
 		return
 	}
-	utils.Info("Transaction committed successfully")
 
 	// Set tx to nil to prevent the deferred rollback from doing anything
 	tx = nil
 
 	// Fetch the updated stock list for the item
-	utils.Info("Fetching updated stock list for item: %s", request.Stock.ItemId)
 	updatedStocks, err := models.GetStocksByItemId(request.Stock.ItemId)
 	if err != nil {
-		utils.Error("Error fetching updated stock list: %v", err)
+		fmt.Println("---Error fetching updated stock list: %v---", err)
 		// Continue anyway - we'll just return a success message without the updated stock list
 		models.WriteServiceResponse(w, "Stock removed successfully", nil, true, true, http.StatusOK)
 		return
 	}
-	utils.Debug("Successfully fetched %d updated stock records", len(updatedStocks))
+	fmt.Println("---Successfully fetched %d updated stock records---", len(updatedStocks))
 
 	// Get the updated item data
-	utils.Info("Fetching updated item data for item: %s", request.Stock.ItemId)
 	updatedItem, err := models.GetItemById(request.Stock.ItemId)
 	if err != nil {
-		utils.Error("Error fetching updated item: %v", err)
+		fmt.Println("---Error fetching updated item: %v---", err)
 		// Return just the updated stocks if we can't get the item
 		models.WriteServiceResponse(w, "Stock removed successfully", updatedStocks, true, true, http.StatusOK)
 		return
 	}
-	utils.Debug("Successfully fetched updated item data")
+	fmt.Println("---Successfully fetched updated item data---")
 
 	// Update the item with the new stock data
 	updatedItem.Stock = updatedStocks
 
 	// Create a response with the updated item and stock information
-	utils.Info("Preparing response with updated item and stock information")
+	fmt.Println("---Creating response with the updated item and stock information---")
 	response := map[string]interface{}{
 		"item":          updatedItem,
 		"message":       "Stock removed successfully",
@@ -500,23 +486,25 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Return success response with the updated stock list
-	utils.Info("Stock out operation completed successfully")
+	fmt.Println("---Returning success response with the updated stock list---")
 	models.WriteServiceResponse(w, "Stock removed successfully", response, true, true, http.StatusOK)
 }
 
 // HandleCreateItem handles POST requests to create a new item
 func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("---HandleCreateItem started --- ")
 	// Get authenticated user ID from context
 	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
 	userEmail := tokenClaims.Email
 	fmt.Println("@@@USER NAME", userEmail)
 	if userEmail == "" {
+		fmt.Println("---Unauthorized item creation attempt - missing user email---")
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
 	}
 
 	body, err := io.ReadAll(r.Body)
-	fmt.Println("@@@BODY", string(body))
+	fmt.Println("---BODY---", string(body))
 	if err != nil {
 		models.WriteServiceError(w, "Failed to read request body", false, true, http.StatusBadRequest)
 		return
@@ -525,7 +513,7 @@ func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
 	var item models.Item
 	err = json.Unmarshal(body, &item)
 	if err != nil {
-		fmt.Println("@@@err", err)
+		fmt.Println("---err---", err)
 		models.WriteServiceError(w, "Invalid request format", false, true, http.StatusBadRequest)
 		return
 	}
@@ -537,11 +525,13 @@ func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	if item.Name == "" {
+		fmt.Println("---Name is required---")
 		models.WriteServiceError(w, "Name is required", false, true, http.StatusBadRequest)
 		return
 	}
 
 	if item.Code == "" {
+		fmt.Println("---Code is required---")
 		models.WriteServiceError(w, "Code is required", false, true, http.StatusBadRequest)
 		return
 	}
@@ -555,6 +545,7 @@ func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
 
 	existingByCode, err := models.GetItemByCode(item.Code)
 	if err == nil && existingByCode.ID != "" {
+		fmt.Println("---An item with this code already exists---")
 		models.WriteServiceError(w, "An item with this code already exists", false, true, http.StatusBadRequest)
 		return
 	}
@@ -570,23 +561,26 @@ func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
 	item.ImagePath = filename
 
 	if err != nil {
+		fmt.Println("---Invalid image path format---")
 		models.WriteServiceError(w, "Invalid image path format", false, true, http.StatusBadRequest)
 		return
 	}
 	item.ImagePath = filename
 
 	if item.Price == 0 {
+		fmt.Println("---Price is required---")
 		item.Price = 0
 	}
 
 	if item.BoxPrice == 0 {
+		fmt.Println("---Box price is required---")
 		item.BoxPrice = 0
 	}
 
 	// Create the item (this will also handle tag associations)
 	createdItem, err := models.CreateItem(item)
 	if err != nil {
-		log.Printf("Error creating item: %v", err)
+		fmt.Println("---Error creating item: %v---", err)
 		models.WriteServiceError(w, fmt.Sprintf("Failed to create item: %v", err), false, true, http.StatusInternalServerError)
 		return
 	}
@@ -594,7 +588,7 @@ func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
 	// Fetch the complete item with all associated data for the response
 	completeItem, err := models.GetItemById(createdItem.ID)
 	if err != nil {
-		log.Printf("Error fetching complete item data: %v", err)
+		fmt.Println("---Error fetching complete item data: %v---", err)
 		// Continue with the basic item data if we can't fetch complete data
 		completeItem = createdItem
 	}
@@ -602,7 +596,7 @@ func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
 	// Get associated tags for the response
 	tags, err := models.GetTagsForItem(completeItem.ID)
 	if err != nil {
-		log.Printf("Error fetching tags for item: %v", err)
+		fmt.Println("---Error fetching tags for item: %v---", err)
 		// Continue with empty tags if error
 		tags = []models.Tag{}
 	}
@@ -611,7 +605,7 @@ func HandleCreateItem(w http.ResponseWriter, r *http.Request) {
 	// Get stocks for the item (should be empty for new items)
 	stocks, err := models.GetStocksByItemId(completeItem.ID)
 	if err != nil {
-		log.Printf("Error fetching stocks for item: %v", err)
+		fmt.Println("---Error fetching stocks for item: %v---", err)
 		stocks = []models.Stock{} // Empty array if error
 	}
 	completeItem.Stock = stocks
@@ -647,6 +641,7 @@ func HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
 	userEmail := tokenClaims.Email
 	fmt.Println("@@@USER NAME", userEmail)
 	if userEmail == "" {
+		fmt.Println("---Unauthorized item update attempt - missing user email---")
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
 	}
@@ -654,10 +649,11 @@ func HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
 	// Parse the request body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
+		fmt.Println("---Failed to read request body: %v---", err)
 		models.WriteServiceError(w, "Failed to read request body", false, true, http.StatusBadRequest)
 		return
 	}
-	fmt.Println("@@@item@@@@@@@@@@@@@@@@@@@@@ passed receved", string(body))
+	fmt.Println("---item@@@@@@@@@@@@@@@@@@@@@ passed receved---", string(body))
 
 	// Accept both `tag` and `tags` from the payload
 	type updateItemPayload struct {
@@ -668,7 +664,7 @@ func HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
 	var payload updateItemPayload
 	err = json.Unmarshal(body, &payload)
 	if err != nil {
-		fmt.Println("@@@err@@@@@@@@@@@@@@@@@@@@@ passed unmarshal", err)
+		fmt.Println("---err@@@@@@@@@@@@@@@@@@@@@ passed unmarshal---", err)
 		models.WriteServiceError(w, "Invalid request format", false, true, http.StatusBadRequest)
 		return
 	}
@@ -685,6 +681,7 @@ func HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
 
 	// Validate the item has the required fields for update (barcode or code)
 	if item.BarCode == "" && item.Code == "" && item.ID == "" {
+		fmt.Println("---At least one of barcode, code, or ID is required for update---")
 		models.WriteServiceError(w, "At least one of barcode, code, or ID is required for update", false, true, http.StatusBadRequest)
 		return
 	}
@@ -692,7 +689,7 @@ func HandleUpdateItem(w http.ResponseWriter, r *http.Request) {
 	// Update the item
 	updatedItem, err := models.UpdateItem(item)
 	if err != nil {
-		log.Printf("Error updating item: %v", err)
+		fmt.Println("---Error updating item: %v---", err)
 		models.WriteServiceError(w, fmt.Sprintf("Failed to update item: %v", err), false, true, http.StatusInternalServerError)
 		return
 	}
