@@ -9,6 +9,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 
@@ -22,15 +23,22 @@ import (
 var redisClient *redis.Client
 
 func getRedis() *redis.Client {
+	rawURL := os.Getenv("REDIS_URL")
+
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		log.Fatalf("failed to parse REDIS_URL: %v", err)
+	}
+	password, _ := u.User.Password()
 	if redisClient != nil {
 		return redisClient
 	}
-	addr := os.Getenv("REDIS_URL")
 
 	// password := os.Getenv("REDIS_PASSWORD")
 	redisClient = redis.NewClient(&redis.Options{
-		Addr: addr,
-		DB:   0,
+		Addr:     u.Host,
+		Password: password,
+		DB:       0,
 	})
 	return redisClient
 }
