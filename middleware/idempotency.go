@@ -130,6 +130,7 @@ func isMutatingMethod(m string) bool {
 }
 
 func IdempotencyMiddleware(next http.Handler) http.Handler {
+	fmt.Println("--IdempotencyMiddleware begin--")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !isMutatingMethod(r.Method) {
 			next.ServeHTTP(w, r)
