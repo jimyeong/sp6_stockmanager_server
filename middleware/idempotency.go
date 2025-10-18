@@ -124,8 +124,6 @@ func isMutatingMethod(m string) bool {
 	return m == http.MethodPost || m == http.MethodPut || m == http.MethodDelete
 }
 
-// 전역 미들웨어: POST/PUT/DELETE에 대해 멱등성 보장
-// 라우터에서 r.Use(apis.IdempotencyMiddleware)
 func IdempotencyMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !isMutatingMethod(r.Method) {
@@ -133,7 +131,7 @@ func IdempotencyMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// body 읽고 복원
+		// read the body and restore it
 		body, _ := io.ReadAll(r.Body)
 		_ = r.Body.Close()
 		r.Body = io.NopCloser(bytes.NewBuffer(body))
@@ -147,12 +145,12 @@ func IdempotencyMiddleware(next http.Handler) http.Handler {
 		switch code {
 		case 0:
 			w.Header().Set("Retry-After", "3")
-			// 중복 진행 방지
-			// 여기서 바로 return하므로 핸들러는 호출되지 않음
+			// prevent duplicate request
+			// return here so the handler is not called
 			models.WriteServiceError(w, "Duplicate request in progress. Please retry.", false, true, http.StatusConflict)
 			return
 		case 2:
-			// 이미 완료된 동일 요청 → 재응답
+			// it's already responded to the client
 			ref := parseDoneRef(val)
 			models.WriteServiceResponse(w, "Already processed (idempotent)", map[string]any{"ref": ref}, true, true, http.StatusOK)
 			return
@@ -162,20 +160,24 @@ func IdempotencyMiddleware(next http.Handler) http.Handler {
 		iw := &idemResponseWriter{ResponseWriter: w, status: 0}
 		next.ServeHTTP(iw, r)
 
-		// 성공(비 5xx)이면 done으로 마킹
 		if iw.status == 0 {
 			iw.status = http.StatusOK
 		}
 		if iw.status >= 200 && iw.status < 300 {
+			// if success (not 5xx) then mark as done
+
 			ref := iw.Header().Get("Idempotency-Ref")
 			if ref == "" {
 				ref = sha256Hex([]byte(r.Method + "|" + r.URL.Path + "|" + string(body)))
 			}
+
+			// mark as done
 			if err := finishIdempotency(r.Context(), idemKey, ref, config.DoneTTL()); err != nil {
 				log.Printf("idempotency finish error (middleware): %v", err)
 			}
 		} else {
 			// client error
+			// delete the idempotency key, so the next request can proceed
 			if iw.status >= 400 && iw.status < 500 {
 				_ = getRedis().Del(r.Context(), "idem:"+idemKey).Err()
 				models.WriteServiceError(w, "Client error. Please check your request and try again.", false, true, iw.status)
@@ -186,17 +188,3 @@ func IdempotencyMiddleware(next http.Handler) http.Handler {
 		}
 	})
 }
-
-// 아래 두 helper는 기존 models.WriteService*와 동일 시그니처면 생략 가능
-// 여기선 라우팅/미들웨어 레벨에서 쓰기 위해 래핑만 예시로 둡니다.
-// 실제 프로젝트에선 models.WriteServiceError/Response를 그대로 임포트해서 사용하세요.
-
-// func WriteServiceError(w http.ResponseWriter, message string, success, userExists bool, status int) {
-// 	w.WriteHeader(status)
-// 	_, _ = w.Write([]byte(`{"message":"` + message + `","success":false}`))
-// }
-
-// func WriteServiceResponse(w http.ResponseWriter, message string, payload any, success, userExists bool, status int) {
-// 	w.WriteHeader(status)
-// 	_, _ = w.Write([]byte(`{"message":"` + message + `","success":true}`))
-// }
