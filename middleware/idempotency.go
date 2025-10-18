@@ -25,15 +25,12 @@ func getRedis() *redis.Client {
 	if redisClient != nil {
 		return redisClient
 	}
-	addr := os.Getenv("REDIS_ADDR")
-	if addr == "" {
-		addr = "127.0.0.1:6379"
-	}
-	password := os.Getenv("REDIS_PASSWORD")
+	addr := os.Getenv("REDIS_URL")
+	// password := os.Getenv("REDIS_PASSWORD")
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     addr,
-		Password: password,
-		DB:       0,
+		Addr: addr,
+
+		DB: 0,
 	})
 	return redisClient
 }
