@@ -26,14 +26,12 @@ func getRedis() *redis.Client {
 		return redisClient
 	}
 	addr := os.Getenv("REDIS_URL")
-	// password := os.Getenv("REDIS_PASSWORD")
+	
 	redisClient = redis.NewClient(&redis.Options{
-		Addr: addr,
-
-		DB: 0,
+		Addr:     redis.ParseURL(addr),
+		DB:       0,
 	})
 	return redisClient
-}
 
 var beginScript = redis.NewScript(`
 local v = redis.call('GET', KEYS[1])
