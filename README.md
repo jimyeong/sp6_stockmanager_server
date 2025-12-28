@@ -93,6 +93,8 @@ Structure:
 - Go (HTTP API)
 - SQL database (see `db/schema.sql`)
 - Firebase token validation (see `firebase/`, `middleware/validate_token.go`)
+- Cloudflare R2
+- React Native
 
 ## Running locally
 
