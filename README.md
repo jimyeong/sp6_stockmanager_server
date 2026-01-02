@@ -96,14 +96,28 @@ Structure:
 - Cloudflare R2
 - React Native
 
-## Running locally
+## Why This Project Was Paused
+This project was paused not due to lack of usage, but because it did not address a true operational bottleneck.
 
-### 1) Configure environment
-Create a `.env` file (or use `.env.staging`) and set:
+Owlverload saw occasional use on the shop floor, mainly during quieter periods, to check expiry dates. This revealed that expiry tracking was a secondary task rather than a critical pain point demanding sustained attention.
 
-- `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`
-- Firebase credentials (if required)
+The original goal was to extend the system from expiry tracking into inventory visibility and eventually automated ordering. However, this progression was blocked by structural constraints. The in-store system does not provide stock-counting or sales visibility at the shop-floor level, and inventory data is managed by an external system outside the scope of integration. Improving accuracy would therefore require manual counting, effectively adding work instead of reducing it.
 
-### 2) Start API
-```bash
-go run main.go
+Further usability improvements would have required access to the company’s product barcode data, which is treated as a company asset. As this was an independent, non-sanctioned project, there was no pathway to access this data or integrate more deeply with internal systems.
+
+At that point, it became clear that further time and energy investment would not overcome these constraints, and the project was paused.
+
+## What I have learnt
+Lessons Learned
+	•	Not all visible problems are true bottlenecks.
+A task can exist, be performed, and even be mildly inefficient without being a critical operational pain point.
+	•	Automation only creates value when it reduces labour.
+If a system requires additional manual input to function, adoption drops rapidly — especially in high-rotation, low-ownership environments.
+	•	Data access defines the ceiling of impact.
+Without access to authoritative inventory, sales, or product barcode data, meaningful automation beyond surface-level tooling is structurally limited.
+	•	Ownership and incentives matter more than tooling.
+When no individual or role owns an outcome end-to-end, even well-designed systems struggle to sustain attention and usage.
+	•	Independent projects have organisational boundaries.
+Without official backing, access to internal systems and company-owned data is constrained, setting a clear limit on how far a project can realistically evolve.
+
+
