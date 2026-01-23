@@ -337,17 +337,17 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println("---Failed to read request body: %v---", err)
+		fmt.Printf("---Failed to read request body: %v---\n", err)
 		models.WriteServiceError(w, "Failed to read request body", false, true, http.StatusBadRequest)
 		return
 	}
 
 	var request StockOutRequest
 	err = json.Unmarshal(body, &request)
-	fmt.Println("---Request content: %+v---", request)
+	fmt.Printf("---Request content: %+v---\n", request)
 
 	if err != nil {
-		fmt.Println("---Invalid request format: %v---", err)
+		fmt.Printf("---Invalid request format: %v---\n", err)
 		models.WriteServiceError(w, "Invalid request format", false, true, http.StatusBadRequest)
 		return
 	}
@@ -360,35 +360,44 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if request.Quantity <= 0 {
-		fmt.Println("---Invalid quantity in request: %d---", request.Quantity)
+		fmt.Printf("---Invalid quantity in request: %d---\n", request.Quantity)
 		models.WriteServiceError(w, "Quantity must be greater than 0", false, true, http.StatusBadRequest)
 		return
 	}
 
 	if request.StockType == "" {
 		fmt.Println("---Missing stock type in request---")
-		models.WriteServiceError(w, "Stock type is required (BOX, BUNDLE, or SINGLE)", false, true, http.StatusBadRequest)
+		models.WriteServiceError(w, "Stock type is required (BOX, BUNDLE, or PCS)", false, true, http.StatusBadRequest)
 		return
 	}
 
-	// Calculate the amount of stock available
-	// deductedQuantity := request.Stock.BoxNumber - request.Quantity
-	deductedQuantity := 0
-	if request.Stock.StockType == models.StockTypeBox {
-		deductedQuantity = request.Stock.BoxNumber - request.Quantity
-	} else if request.Stock.StockType == models.StockTypeBundle {
-		deductedQuantity = request.Stock.BundleNumber - request.Quantity
-	} else if request.Stock.StockType == models.StockTypePCS {
-		deductedQuantity = request.Stock.PCSNumber - request.Quantity
+	// Normalize stock type (client may send lowercase)
+	normalizedType := strings.ToUpper(string(request.StockType))
+	if normalizedType != string(StockTypeBox) && normalizedType != string(StockTypeBundle) && normalizedType != string(StockTypePCS) {
+		models.WriteServiceError(w, "Invalid stock type. Must be BOX, BUNDLE, or PCS", false, true, http.StatusBadRequest)
+		return
 	}
-	fmt.Println("---Current stock: %d, Requested quantity: %d, Remaining: %d---",
-		request.Stock.BoxNumber, request.Quantity, deductedQuantity)
+
+	// Calculate current and remaining quantity based on the requested stock type
+	currentQuantity := 0
+	switch StockType(normalizedType) {
+	case StockTypeBox:
+		currentQuantity = request.Stock.BoxNumber
+	case StockTypeBundle:
+		currentQuantity = request.Stock.BundleNumber
+	case StockTypePCS:
+		currentQuantity = request.Stock.PCSNumber
+	}
+
+	deductedQuantity := currentQuantity - request.Quantity
+	fmt.Printf("---Current stock (%s): %d, Requested quantity: %d, Remaining: %d---\n",
+		normalizedType, currentQuantity, request.Quantity, deductedQuantity)
 
 	if deductedQuantity < 0 {
-		fmt.Println("---Insufficient stock - current: %d, requested: %d---",
-			request.Stock.BoxNumber, request.Quantity)
-		models.WriteServiceError(w, fmt.Sprintf("Stock can't be deducted more than you have. Current quantity %d, requested quantity %d",
-			request.Stock.BoxNumber, request.Quantity), false, true, http.StatusBadRequest)
+		models.WriteServiceError(w, fmt.Sprintf(
+			"Stock can't be deducted more than you have. Current quantity %d, requested quantity %d",
+			currentQuantity, request.Quantity,
+		), false, true, http.StatusBadRequest)
 		return
 	}
 
@@ -396,7 +405,7 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	db := models.GetDBInstance(models.GetDBConfig())
 	tx, err := db.Begin()
 	if err != nil {
-		fmt.Println("---Failed to start transaction: %v---", err)
+		fmt.Printf("---Failed to start transaction: %v---\n", err)
 		models.WriteServiceError(w, "Internal server error", false, true, http.StatusInternalServerError)
 		return
 	}
@@ -412,32 +421,42 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 
 	// Update or remove stock within the transaction
 	if deductedQuantity > 0 {
-		// Update stock quantity
-		query := "UPDATE stocks SET box_number = box_number - ? WHERE stock_id = ?"
+		// Update only the correct column based on type
+		column := ""
+		switch StockType(normalizedType) {
+		case StockTypeBox:
+			column = "box_number"
+		case StockTypeBundle:
+			column = "bundle_number"
+		case StockTypePCS:
+			column = "pcs_number"
+		}
+
+		query := fmt.Sprintf("UPDATE stocks SET %s = %s - ? WHERE stock_id = ?", column, column)
 		_, err = tx.Exec(query, request.Quantity, request.Stock.StockId)
 		if err != nil {
-			fmt.Println("---Error updating stock in transaction: %v---", err)
+			fmt.Printf("---Error updating stock in transaction: %v---\n", err)
 			models.WriteServiceError(w, fmt.Sprintf("Failed to update stock: %v", err), false, true, http.StatusInternalServerError)
 			return
 		}
-		fmt.Println("---Stock quantity updated successfully---")
-	} else if deductedQuantity == 0 {
-		// Remove stock completely
+		fmt.Printf("---Stock quantity (%s) updated successfully---\n", normalizedType)
+	} else {
+		// Remaining is exactly 0 for the selected type; remove the stock row
 		query := "DELETE FROM stocks WHERE stock_id = ?"
 		_, err = tx.Exec(query, request.Stock.StockId)
 		if err != nil {
-			fmt.Println("---Error removing stock in transaction: %v---", err)
+			fmt.Printf("---Error removing stock in transaction: %v---\n", err)
 			models.WriteServiceError(w, fmt.Sprintf("Failed to remove stock: %v", err), false, true, http.StatusInternalServerError)
 			return
 		}
-		fmt.Println("---Stock removed successfully---")
+		fmt.Printf("---Stock removed successfully (type=%s)---\n", normalizedType)
 	}
 
 	// Record the transaction within the same DB transaction
 	transactionQuery := "INSERT INTO stock_transactions (fkitem_id, quantity, transaction_type, fkuser_email) VALUES (?, ?, ?, ?)"
 	_, err = tx.Exec(transactionQuery, request.Stock.ItemId, request.Quantity, "out", userEmail)
 	if err != nil {
-		fmt.Println("---Error recording transaction in DB: %v---", err)
+		fmt.Printf("---Error recording transaction in DB: %v---\n", err)
 		models.WriteServiceError(w, fmt.Sprintf("Failed to record transaction: %v", err), false, true, http.StatusInternalServerError)
 		return
 	}
@@ -446,7 +465,7 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	// Commit the transaction
 	err = tx.Commit()
 	if err != nil {
-		fmt.Println("---Error committing transaction: %v---", err)
+		fmt.Printf("---Error committing transaction: %v---\n", err)
 		models.WriteServiceError(w, "Failed to complete the stock operation. Please try again.", false, true, http.StatusInternalServerError)
 		return
 	}
@@ -457,17 +476,17 @@ func HandleStockOut(w http.ResponseWriter, r *http.Request) {
 	// Fetch the updated stock list for the item
 	updatedStocks, err := models.GetStocksByItemId(request.Stock.ItemId)
 	if err != nil {
-		fmt.Println("---Error fetching updated stock list: %v---", err)
+		fmt.Printf("---Error fetching updated stock list: %v---\n", err)
 		// Continue anyway - we'll just return a success message without the updated stock list
 		models.WriteServiceResponse(w, "Stock removed successfully", nil, true, true, http.StatusOK)
 		return
 	}
-	fmt.Println("---Successfully fetched %d updated stock records---", len(updatedStocks))
+	fmt.Printf("---Successfully fetched %d updated stock records---\n", len(updatedStocks))
 
 	// Get the updated item data
 	updatedItem, err := models.GetItemById(request.Stock.ItemId)
 	if err != nil {
-		fmt.Println("---Error fetching updated item: %v---", err)
+		fmt.Printf("---Error fetching updated item: %v---\n", err)
 		// Return just the updated stocks if we can't get the item
 		models.WriteServiceResponse(w, "Stock removed successfully", updatedStocks, true, true, http.StatusOK)
 		return
