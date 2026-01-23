@@ -100,6 +100,7 @@ func main() {
 		fmt.Println("--- coming in here 2--- ")
 		return middleware.ValidateFirebaseToken(next, firebaseClient)
 	})
+	r.Use(middleware.IdempotencyMiddleware)
 
 	// Public routes (no authentication required)
 	r.HandleFunc("/public/api/v1/auth/signin", apis.HandleSignIn).Methods("POST")
