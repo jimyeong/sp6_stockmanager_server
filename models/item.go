@@ -1152,3 +1152,293 @@ func GetItemsExpiringWithinDays(withinDays int) ([]ItemWithDaysToExpiry, error) 
 
 	return results, nil
 }
+
+// ItemWithDaysSinceExpiry represents an item with days since expiry calculation
+// (days_since_expiry is >= 1 when the stock expired at least 1 day ago)
+type ItemWithDaysSinceExpiry struct {
+	Item            Item      `json:"item"`
+	DaysSinceExpiry int       `json:"daysSinceExpiry"`
+	StockId         string    `json:"stockId"`
+	ExpiryDate      time.Time `json:"expiryDate"`
+}
+
+// GetItemsWithExpiredStocksOlderThanDays retrieves items that have at least one stock
+// whose expiry_date is older than N days (e.g. olderThanDays=1 => expired at least 1 day ago).
+//
+// Notes:
+// - This returns a de-duplicated list of items.
+// - Each returned Item will include ONLY the expired stocks (older than N days) in Item.Stock.
+// - Tags are batch-fetched to avoid N+1.
+func GetItemsWithExpiredStocksOlderThanDays(olderThanDays int) ([]Item, error) {
+	fmt.Println("---GETITEMSWITHEXPIREDSTOCKSOLDERTHANDAYS---", olderThanDays)
+	if olderThanDays < 0 {
+		return nil, fmt.Errorf("olderThanDays must be >= 0")
+	}
+
+	db := GetDBInstance(GetDBConfig())
+	if db == nil {
+		return nil, fmt.Errorf("database connection error")
+	}
+
+	// 1) Get distinct items that have expired stocks older than N days
+	query := `
+		SELECT DISTINCT
+			i.item_id,
+			IFNULL(i.code, ''),
+			IFNULL(i.barcode, ''),
+			IFNULL(i.box_barcode, ''),
+			IFNULL(i.price, 0),
+			IFNULL(i.box_price, 0),
+			IFNULL(i.name, ''),
+			IFNULL(i.type, ''),
+			IFNULL(i.available_for_order, 0),
+			IFNULL(i.image_path, ''),
+			i.created_at,
+			IFNULL(i.name_jpn, ''),
+			IFNULL(i.name_chn, ''),
+			IFNULL(i.name_kor, ''),
+			IFNULL(i.name_eng, '')
+		FROM items i
+		JOIN stocks s ON i.item_id = s.fkproduct_id
+		WHERE s.expiry_date <= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+		ORDER BY i.created_at DESC
+	`
+
+	rows, err := db.Query(query, olderThanDays)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	itemMap := make(map[string]*Item)
+	var itemIDs []string
+
+	for rows.Next() {
+		var item Item
+		err := rows.Scan(
+			&item.ID,
+			&item.Code,
+			&item.BarCode,
+			&item.BoxBarcode,
+			&item.Price,
+			&item.BoxPrice,
+			&item.Name,
+			&item.Type,
+			&item.AvailableForOrder,
+			&item.ImagePath,
+			&item.CreatedAt,
+			&item.NameJpn,
+			&item.NameChn,
+			&item.NameKor,
+			&item.NameEng,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		if _, exists := itemMap[item.ID]; !exists {
+			// store pointer so we can enrich later
+			copied := item
+			itemMap[item.ID] = &copied
+			itemIDs = append(itemIDs, item.ID)
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	if len(itemIDs) == 0 {
+		return []Item{}, nil
+	}
+
+	// 2) Batch fetch tags
+	tagsByItemID, err := getTagsByItemIDs(itemIDs)
+	if err != nil {
+		// Non-fatal: keep going with empty tags
+		fmt.Printf("Error fetching tags in batch: %v\n", err)
+	}
+
+	for itemID, tags := range tagsByItemID {
+		if it, ok := itemMap[itemID]; ok {
+			it.Tag = tags
+		}
+	}
+
+	// 3) Batch fetch ONLY expired stocks older than N days
+	expiredStocksByItemID, err := getExpiredStocksByItemIDs(itemIDs, olderThanDays)
+	if err != nil {
+		// Non-fatal: keep going with empty stocks
+		fmt.Printf("Error fetching expired stocks in batch: %v\n", err)
+	}
+
+	for itemID, stocks := range expiredStocksByItemID {
+		if it, ok := itemMap[itemID]; ok {
+			it.Stock = stocks
+		}
+	}
+
+	// 4) Build result
+	result := make([]Item, 0, len(itemMap))
+	for _, it := range itemMap {
+		result = append(result, *it)
+	}
+
+	return result, nil
+}
+
+// getTagsByItemIDs batch fetches tags for the given item IDs.
+func getTagsByItemIDs(itemIDs []string) (map[string][]Tag, error) {
+	db := GetDBInstance(GetDBConfig())
+	if db == nil {
+		return nil, fmt.Errorf("database connection error")
+	}
+
+	placeholders := make([]string, len(itemIDs))
+	args := make([]interface{}, len(itemIDs))
+	for i, id := range itemIDs {
+		placeholders[i] = "?"
+		args[i] = id
+	}
+	inClause := strings.Join(placeholders, ", ")
+
+	query := `
+		SELECT it.item_id, t.id, t.name
+		FROM item_tags it
+		JOIN tags t ON it.tag_id = t.id
+		WHERE it.item_id IN (` + inClause + `)
+	`
+
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	out := make(map[string][]Tag)
+	for rows.Next() {
+		var itemID string
+		var tag Tag
+		if err := rows.Scan(&itemID, &tag.ID, &tag.TagName); err != nil {
+			return nil, err
+		}
+		out[itemID] = append(out[itemID], tag)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return out, nil
+}
+
+// getExpiredStocksByItemIDs batch fetches expired stocks older than N days for the given item IDs.
+func getExpiredStocksByItemIDs(itemIDs []string, olderThanDays int) (map[string][]Stock, error) {
+	db := GetDBInstance(GetDBConfig())
+	if db == nil {
+		return nil, fmt.Errorf("database connection error")
+	}
+
+	placeholders := make([]string, len(itemIDs))
+	args := make([]interface{}, 0, len(itemIDs)+1)
+	for i, id := range itemIDs {
+		placeholders[i] = "?"
+		args = append(args, id)
+	}
+	inClause := strings.Join(placeholders, ", ")
+	args = append(args, olderThanDays)
+
+	query := `
+		SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number,
+			expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at
+		FROM stocks
+		WHERE fkproduct_id IN (` + inClause + `)
+		  AND expiry_date <= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+		ORDER BY expiry_date ASC
+	`
+
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	out := make(map[string][]Stock)
+	for rows.Next() {
+		var stock Stock
+		if err := rows.Scan(
+			&stock.StockId,
+			&stock.ItemId,
+			&stock.StockType,
+			&stock.BoxNumber,
+			&stock.PCSNumber,
+			&stock.BundleNumber,
+			&stock.ExpiryDate,
+			&stock.Location,
+			&stock.RegisteringPerson,
+			&stock.Notes,
+			&stock.DiscountRate,
+			&stock.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		out[stock.ItemId] = append(out[stock.ItemId], stock)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return out, nil
+}
+
+func GetExpiredStock(stockId string) (Stock, error) {
+	fmt.Println("---GETEXPIREDSTOCK---", stockId)
+	if stockId == "" {
+		return Stock{}, fmt.Errorf("empty stockId")
+	}
+
+	db := GetDBInstance(GetDBConfig())
+	if db == nil {
+		return Stock{}, fmt.Errorf("database connection error")
+	}
+
+	// Fetch a single stock row and ensure it's expired (older than 1 day)
+	query := `
+		SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number,
+			expiry_date, location, registering_person, IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at
+		FROM stocks
+		WHERE stock_id = ?
+		LIMIT 1
+	`
+
+	var stock Stock
+	err := db.QueryRow(query, stockId).Scan(
+		&stock.StockId,
+		&stock.ItemId,
+		&stock.StockType,
+		&stock.BoxNumber,
+		&stock.PCSNumber,
+		&stock.BundleNumber,
+		&stock.ExpiryDate,
+		&stock.Location,
+		&stock.RegisteringPerson,
+		&stock.Notes,
+		&stock.DiscountRate,
+		&stock.CreatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return Stock{}, fmt.Errorf("stock not found")
+		}
+		return Stock{}, err
+	}
+
+	// Validate: expired at least 1 day ago
+	// (If you want inclusive of 'yesterday' as 1 day, keep this as <= CURDATE()-1)
+	// We implement the check in SQL style using date comparison in Go.
+	today := time.Now()
+	cutoff := time.Date(today.Year(), today.Month(), today.Day(), 0, 0, 0, 0, today.Location()).AddDate(0, 0, -1)
+	if !stock.ExpiryDate.Before(cutoff) && !stock.ExpiryDate.Equal(cutoff) {
+		return Stock{}, fmt.Errorf("stock is not expired older than 1 day")
+	}
+
+	return stock, nil
+}

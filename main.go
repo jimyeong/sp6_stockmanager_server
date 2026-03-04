@@ -138,7 +138,8 @@ func main() {
 	apiRouter.HandleFunc("/getItemsWithMissingInfo", apis.HandleGetItemsWithMissingInfo).Methods("GET")
 	apiRouter.HandleFunc("/lookupItems", apis.HandleLookupItems).Methods("POST")
 	apiRouter.HandleFunc("/getItemsExpiringWithinDays", apis.HandleGetItemsExpiringWithinDays).Methods("GET")
-
+	apiRouter.HandleFunc("/getItemsWithExpiredStocksOlderThanDays", apis.HandleGetItemsWithExpiredStocksOlderThanDays).Methods("GET")
+	apiRouter.HandleFunc("/getItemsWithExpiredStocksAheadOfDays", apis.HandleGetItemsWithExpiredStocksAheadOfDays).Methods("GET")
 	// Tag routes
 	apiRouter.HandleFunc("/tags", apis.HandleGetAllTags).Methods("GET")
 	apiRouter.HandleFunc("/tags/create", apis.HandleCreateTag).Methods("POST")
