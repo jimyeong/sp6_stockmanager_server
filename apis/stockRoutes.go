@@ -61,3 +61,11 @@ func HandleStockUpdate(w http.ResponseWriter, r *http.Request) {
 
 	models.WriteServiceResponse(w, "Stock updated successfully", updatedStock, true, true, http.StatusOK)
 }
+
+func HandleExpiryStockCheck(w http.ResponseWriter, r *http.Request) {
+
+	// check if the stock is expired
+	// get the stock id from the request body
+	// will return the whole stockc info with the given stock id
+
+}

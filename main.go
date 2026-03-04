@@ -104,6 +104,10 @@ func main() {
 
 	// Public routes (no authentication required)
 	r.HandleFunc("/public/api/v1/auth/signin", apis.HandleSignIn).Methods("POST")
+	r.HandleFunc("/public/api/v1/auth/refresh", func(w http.ResponseWriter, r *http.Request) {
+		apis.HandleRefreshToken(w, r, firebaseClient)
+	}).Methods("POST")
+	r.HandleFunc("/public/api/v1/auth/revoke", apis.HandleRevokeToken).Methods("POST")
 	r.HandleFunc("/public/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
@@ -154,6 +158,9 @@ func main() {
 	// Image upload routes
 	apiRouter.HandleFunc("/upload/image", apis.HandleImageUpload).Methods("POST")
 	apiRouter.HandleFunc("/delete/image", apis.HandleImageDelete).Methods("DELETE")
+
+	// Auth routes (protected)
+	apiRouter.HandleFunc("/auth/revoke-all", apis.HandleRevokeAllTokens).Methods("POST")
 
 	// Start server
 	log.Println("Server starting on port 8080...")

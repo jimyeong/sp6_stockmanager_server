@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/jimyeongjung/owlverload_api/models"
@@ -75,8 +76,67 @@ func HandleSignIn(w http.ResponseWriter, r *http.Request) {
 
 	result[0] = user
 
-	// return user data
-	// service response
-	models.WriteServiceResponse(w, "Success", result, true, true, http.StatusOK)
-	fmt.Println("---User response sent---")
+	// Generate refresh token for the user
+	refreshTokenString, err := models.GenerateRefreshToken()
+	if err != nil {
+		fmt.Println("Failed to generate refresh token:", err)
+		models.WriteServiceError(w, "Failed to generate refresh token", false, false, http.StatusInternalServerError)
+		return
+	}
+
+	// Create refresh token with 7 days expiration
+	refreshToken := &models.RefreshToken{
+		UserID:    user.Uid,
+		Token:     refreshTokenString,
+		ExpiresAt: time.Now().Add(7 * 24 * time.Hour),
+		UserAgent: r.Header.Get("User-Agent"),
+		IPAddress: getClientIP(r),
+	}
+
+	// Save the refresh token
+	err = refreshToken.Save()
+	if err != nil {
+		fmt.Println("Failed to save refresh token:", err)
+		models.WriteServiceError(w, "Failed to save refresh token", false, false, http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare response with user data and refresh token
+	responseData := map[string]interface{}{
+		"user":          user,
+		"refresh_token": refreshTokenString,
+		"expires_in":    7 * 24 * 60 * 60, // 7 days in seconds
+	}
+
+	// return user data with refresh token
+	models.WriteServiceResponse(w, "Success", responseData, true, true, http.StatusOK)
+	fmt.Println("---User response sent with refresh token---")
+}
+
+// getClientIP extracts the client IP address from the request
+func getClientIP(r *http.Request) string {
+	// Check X-Forwarded-For header first (for proxies)
+	forwarded := r.Header.Get("X-Forwarded-For")
+	if forwarded != "" {
+		// X-Forwarded-For can contain multiple IPs, get the first one
+		ips := strings.Split(forwarded, ",")
+		if len(ips) > 0 {
+			return strings.TrimSpace(ips[0])
+		}
+	}
+
+	// Check X-Real-IP header
+	realIP := r.Header.Get("X-Real-IP")
+	if realIP != "" {
+		return realIP
+	}
+
+	// Fall back to RemoteAddr
+	ip := r.RemoteAddr
+	// RemoteAddr includes port, strip it
+	if idx := strings.LastIndex(ip, ":"); idx != -1 {
+		ip = ip[:idx]
+	}
+
+	return ip
 }
