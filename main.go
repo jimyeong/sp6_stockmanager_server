@@ -141,11 +141,18 @@ func main() {
 	apiRouter.HandleFunc("/getItemsExpiringWithinDays", apis.HandleGetItemsExpiringWithinDays).Methods("GET")
 	apiRouter.HandleFunc("/getItemsWithExpiredStocksOlderThanDays", apis.HandleGetItemsWithExpiredStocksOlderThanDays).Methods("GET")
 	apiRouter.HandleFunc("/getItemsWithExpiredStocksAheadOfDays", apis.HandleGetItemsWithExpiredStocksAheadOfDays).Methods("GET")
+
+	// just stock request
+	apiRouter.HandleFunc("/getProductStockByItemId", apis.HandleGetStockByItemId).Methods("GET")
+
+	//v1
+
 	// Tag routes
 	apiRouter.HandleFunc("/tags", apis.HandleGetAllTags).Methods("GET")
 	apiRouter.HandleFunc("/tags/create", apis.HandleCreateTag).Methods("POST")
 	apiRouter.HandleFunc("/tags/popular", apis.HandleGetPopularTags).Methods("GET")
 	apiRouter.HandleFunc("/tags/search", apis.HandleSearchTags).Methods("GET")
+
 	apiRouter.HandleFunc("/tags/item/{itemId}", apis.HandleGetTagsForItem).Methods("GET")
 	apiRouter.HandleFunc("/tags/associate", apis.HandleAssociateItemWithTags).Methods("POST")
 	apiRouter.HandleFunc("/recommendations", apis.HandleGetRecommendedItems).Methods("POST")
