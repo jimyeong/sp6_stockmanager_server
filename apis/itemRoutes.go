@@ -69,20 +69,21 @@ type LookupItemRequest struct {
 	SearchType string `json:"search_type"` // item_code | barcode | name
 	Value      string `json:"value"`
 }
+
 type GetItemsWithExpiredStocksOlderThanDaysRequest struct {
 	OlderThanDays int `json:"older_than_days"`
 }
 type GetItemsWithExpiredStocksOlderThanDaysResponse struct {
-	ExpiredProducts []models.Item `json:"expiredProducts"`
-	Total           int           `json:"total"`
-	OlderThanDays   int           `json:"olderThanDays"`
-	Message         string        `json:"message"`
+	ExpiringItems []models.Item `json:"expiringProducts"`
+	Total         int           `json:"total"`
+	OlderThanDays int           `json:"olderThanDays"`
+	Message       string        `json:"message"`
 }
+
 type GetItemsWithExpiredStocksAheadOfDaysResponse struct {
-	ExpiringProducts []models.Item `json:"expiringProducts"`
-	Total            int           `json:"total"`
-	AheadDays        int           `json:"aheadDays"`
-	Message          string        `json:"message"`
+	ExpiringItems []models.Item `json:"expiringProducts"`
+	Total         int           `json:"total"`
+	Message       string        `json:"message"`
 }
 
 func HandleGetItemById(w http.ResponseWriter, r *http.Request) {
@@ -174,17 +175,14 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
 	userName := tokenClaims.DisplayName
 	userEmail := tokenClaims.Email
-	fmt.Println("@@@USER NAME", userName)
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println("@@@ERR1", err)
 		models.WriteServiceError(w, "Failed to read request body", false, true, http.StatusBadRequest)
 		return
 	}
 	var request StockInRequest
 	err = json.Unmarshal(body, &request)
 	if err != nil {
-		fmt.Println("@@@ERR2", err)
 		models.WriteServiceError(w, "Invalid request format", false, true, http.StatusBadRequest)
 		return
 	}
@@ -324,10 +322,10 @@ func HandleStockIn(w http.ResponseWriter, r *http.Request) {
 
 	// Create a response with the updated item and stock information
 	response := map[string]interface{}{
-		"item":          updatedItem,
+		"product":       updatedItem,
 		"message":       "Stock added successfully",
 		"updatedStocks": updatedStocks,
-		"addedStock":    stock,
+		"addedStocks":   stock,
 	}
 
 	// Return success response with the updated item and stock information
@@ -1386,11 +1384,11 @@ func HandleGetItemsWithExpiredStocksOlderThanDays(w http.ResponseWriter, r *http
 
 	// If no items found, return empty array with success
 	if len(items) == 0 {
-		response := map[string]interface{}{
-			"expired_items":   []models.Item{},
-			"total":           0,
-			"older_than_days": olderThanDays,
-			"message":         fmt.Sprintf("No items found with stocks expired older than %d day(s)", olderThanDays),
+		response := GetItemsWithExpiredStocksOlderThanDaysResponse{
+			ExpiringItems: []models.Item{},
+			Total:         len(items),
+			OlderThanDays: olderThanDays,
+			Message:       fmt.Sprintf("No items found with stocks expired older than %d day(s)", olderThanDays),
 		}
 		models.WriteServiceResponse(w, "No expired items", response, true, true, http.StatusOK)
 		return
@@ -1398,10 +1396,10 @@ func HandleGetItemsWithExpiredStocksOlderThanDays(w http.ResponseWriter, r *http
 
 	// Prepare response
 	response := GetItemsWithExpiredStocksOlderThanDaysResponse{
-		ExpiredProducts: items,
-		Total:           len(items),
-		OlderThanDays:   olderThanDays,
-		Message:         fmt.Sprintf("Found %d item(s) with stocks expired older than %d day(s)", len(items), olderThanDays),
+		ExpiringItems: items,
+		Total:         len(items),
+		OlderThanDays: olderThanDays,
+		Message:       fmt.Sprintf("Found %d item(s) with stocks expired older than %d day(s)", len(items), olderThanDays),
 	}
 
 	models.WriteServiceResponse(w, "Expired items retrieved successfully", response, true, true, http.StatusOK)
@@ -1419,7 +1417,7 @@ func HandleGetItemsWithExpiredStocksAheadOfDays(w http.ResponseWriter, r *http.R
 	// Query param: aheadDays (default: 1)
 	// Meaning: items that have at least one stock expiring within the next N days (including today).
 	aheadDays := 1
-	aheadStr := r.URL.Query().Get("aheadDays")
+	aheadStr := r.URL.Query().Get("aheadOfDays")
 
 	// Optional alias: allow using ?within=3 to match existing endpoint naming
 	if aheadStr == "" {
@@ -1429,7 +1427,7 @@ func HandleGetItemsWithExpiredStocksAheadOfDays(w http.ResponseWriter, r *http.R
 	if aheadStr != "" {
 		n, err := strconv.Atoi(aheadStr)
 		if err != nil || n < 0 {
-			models.WriteServiceError(w, "Parameter 'aheadDays' must be an integer >= 0", false, true, http.StatusBadRequest)
+			models.WriteServiceError(w, "Parameter 'aheadOfDays' must be an integer >= 0", false, true, http.StatusBadRequest)
 			return
 		}
 		aheadDays = n
@@ -1437,61 +1435,35 @@ func HandleGetItemsWithExpiredStocksAheadOfDays(w http.ResponseWriter, r *http.R
 
 	// sensible limit
 	if aheadDays > 365 {
-		models.WriteServiceError(w, "Parameter 'aheadDays' cannot exceed 365 days", false, true, http.StatusBadRequest)
+		models.WriteServiceError(w, "Parameter 'aheadOfDays' cannot exceed 365 days", false, true, http.StatusBadRequest)
 		return
 	}
 
 	// Reuse model that already calculates within N days
-	expiringItems, err := models.GetItemsExpiringWithinDays(aheadDays)
+	items, err := models.GetItemsWithExpiredStocksAheadOfDays(aheadDays)
+	fmt.Println("@@@ITEMS", items)
 	if err != nil {
 		models.WriteServiceError(w, fmt.Sprintf("Failed to retrieve expiring items: %v", err), false, true, http.StatusInternalServerError)
 		return
 	}
 
-	if len(expiringItems) == 0 {
+	if len(items) == 0 {
 		response := GetItemsWithExpiredStocksAheadOfDaysResponse{
-			ExpiringProducts: []models.Item{},
-			Total:            0,
-			AheadDays:        aheadDays,
-			Message:          fmt.Sprintf("No items found expiring within %d day(s)", aheadDays),
+			ExpiringItems: []models.Item{},
+			Total:         0,
+			Message:       fmt.Sprintf("No items found expiring within %d day(s)", aheadDays),
 		}
 		models.WriteServiceResponse(w, "No expiring items", response, true, true, http.StatusOK)
 		return
 	}
-	// if len(items) == 0 {
-	// 	response := map[string]interface{}{
-	// 		"expired_items":   []models.Item{},
-	// 		"total":           0,
-	// 		"older_than_days": olderThanDays,
-	// 		"message":         fmt.Sprintf("No items found with stocks expired older than %d day(s)", olderThanDays),
-	// 	}
-	// 	models.WriteServiceResponse(w, "No expired items", response, true, true, http.StatusOK)
-	// 	return
-	// }
 
 	// Enrich results: tag_names + metadata (same style as your expiring-within handler)
-	var enrichedResults []map[string]interface{}
-	for _, expiringItem := range expiringItems {
-		var tagNames []string
-		for _, tag := range expiringItem.Item.Tag {
-			tagNames = append(tagNames, tag.TagName)
-		}
-
-		enrichedResults = append(enrichedResults, map[string]interface{}{
-			"ExpiringItem": expiringItem.Item,
-			"DaysToExpiry": expiringItem.DaysToExpiry,
-			"StockId":      expiringItem.StockId,
-			"TagNames":     tagNames,
-		})
-	}
 
 	//
 	response := GetItemsWithExpiredStocksAheadOfDaysResponse{
-		ExpiringProducts: []models.Item{},
-		Total:            len(expiringItems),
-		AheadDays:        aheadDays,
-		Message:          fmt.Sprintf("Found %d item(s) expiring within %d day(s)", len(expiringItems), aheadDays),
+		ExpiringItems: items,
+		Total:         len(items),
+		Message:       fmt.Sprintf("Found %d item(s) expiring within %d day(s)", len(items), aheadDays),
 	}
-
 	models.WriteServiceResponse(w, "Expiring items retrieved successfully", response, true, true, http.StatusOK)
 }
