@@ -12,6 +12,8 @@ import (
 	"github.com/jimyeongjung/owlverload_api/firebase"
 	"github.com/jimyeongjung/owlverload_api/middleware"
 	"github.com/jimyeongjung/owlverload_api/models"
+	v1Controller "github.com/jimyeongjung/owlverload_api/v1/controller"
+
 	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 )
@@ -169,6 +171,10 @@ func main() {
 
 	// Auth routes (protected)
 	apiRouter.HandleFunc("/auth/revoke-all", apis.HandleRevokeAllTokens).Methods("POST")
+
+	// v1
+	// "/products/expiring-stocks?startDate=2026-03-20&endDate=2026-03-26"
+	apiRouter.HandleFunc("/products/expiring-stocks", v1Controller.HandleGetProductsWithExpiringStocksByDateRange).Methods("GET")
 
 	// Start server
 	log.Println("Server starting on port 8080...")

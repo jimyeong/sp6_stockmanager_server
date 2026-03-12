@@ -86,3 +86,33 @@ func GetStocksByProductID(productID string) ([]Stock, error) {
 	}
 	return stocks, nil
 }
+
+// GetStocksByExpiryDateRange retrieves all stocks whose expiry_date is between startDate and endDate (inclusive)
+func GetStocksByExpiryDateRange(startDate, endDate time.Time) ([]Stock, error) {
+	db := models.GetDBInstance(models.GetDBConfig())
+	query := `SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date,
+		IFNULL(location, ''), IFNULL(registering_person, ''), IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at
+		FROM stocks WHERE expiry_date >= ? AND expiry_date <= ?
+		ORDER BY expiry_date ASC`
+	rows, err := db.Query(query, startDate, endDate)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var stocks []Stock
+	for rows.Next() {
+		var s Stock
+		err := rows.Scan(
+			&s.StockId, &s.ItemId, &s.StockType, &s.BoxNumber, &s.PCSNumber, &s.BundleNumber,
+			&s.ExpiryDate, &s.Location, &s.RegisteringPerson, &s.Notes, &s.DiscountRate, &s.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		stocks = append(stocks, s)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return stocks, nil
+}
