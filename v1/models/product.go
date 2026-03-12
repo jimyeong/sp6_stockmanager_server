@@ -6,33 +6,33 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jimyeongjung/owlverload_api/v1/models"
+	"github.com/jimyeongjung/owlverload_api/models"
 )
 
 type Product struct {
-	ID                string    `json:"id"`
-	Code              string    `json:"code"`
-	BarCode           string    `json:"barcode"`
-	BoxBarcode        string    `json:"box_barcode"`
-	Price             float64   `json:"price"`
-	BoxPrice          float64   `json:"box_price"`
-	Name              string    `json:"name"`
-	Type              string    `json:"type"`
-	AvailableForOrder int       `json:"availableForOrder"`
-	ImagePath         string    `json:"image_path"`
-	CreatedAt         time.Time `json:"createdAt,omitempty"`
-	NameJpn           string    `json:"name_jpn"`
-	NameChn           string    `json:"name_chn"`
-	NameKor           string    `json:"name_kor"`
-	NameEng           string    `json:"name_eng"`
-	Stock             []Stock   `json:"stock"`
-	Tag               []Tag     `json:"tag"`
-	Ingredients       string    `json:"ingredients"`
-	IsBeefContained   bool      `json:"is_beef_contained"`
-	IsPorkContained   bool      `json:"is_pork_contained"`
-	IsHalal           bool      `json:"is_halal"`
-	IsPlantBased      bool      `json:"is_plant_based"`
-	Reasoning         string    `json:"reasoning"`
+	ID                string    `json:"product_id" db:"item_id"`
+	Code              string    `json:"code" db:"code"`
+	BarCode           string    `json:"barcode" db:"barcode"`
+	BoxBarcode        string    `json:"box_barcode" db:"box_barcode"`
+	Price             float64   `json:"price" db:"price"`
+	BoxPrice          float64   `json:"box_price" db:"box_price"`
+	Name              string    `json:"name" db:"name"`
+	Type              string    `json:"type" db:"type"`
+	AvailableForOrder int       `json:"availableForOrder" db:"available_for_order"`
+	ImagePath         string    `json:"image_path" db:"image_path"`
+	CreatedAt         time.Time `json:"createdAt,omitempty" db:"created_at"`
+	NameJpn           string    `json:"name_jpn" db:"name_jpn"`
+	NameChn           string    `json:"name_chn" db:"name_chn"`
+	NameKor           string    `json:"name_kor" db:"name_kor"`
+	NameEng           string    `json:"name_eng" db:"name_eng"`
+	Stock             []Stock   `json:"stock" db:"stock"`
+	Tag               []Tag     `json:"tag" db:"tag"`
+	Ingredients       string    `json:"ingredients" db:"ingredients"`
+	IsBeefContained   bool      `json:"is_beef_contained" db:"is_beef_contained"`
+	IsPorkContained   bool      `json:"is_pork_contained" db:"is_pork_contained"`
+	IsHalal           bool      `json:"is_halal" db:"is_halal"`
+	IsPlantBased      bool      `json:"is_plant_based" db:"is_plant_based"`
+	Reasoning         string    `json:"reasoning" db:"reasoning"`
 }
 
 // GetProductByID retrieves a product by its ID (item_id)
