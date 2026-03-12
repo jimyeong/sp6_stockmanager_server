@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/jimyeongjung/owlverload_api/models"
 )
 
@@ -12,6 +13,27 @@ type GetStockByItemIdResponse struct {
 	ItemId string         `json:"itemId"`
 	Total  int            `json:"total"`
 	Stocks []models.Stock `json:"stocks"`
+}
+
+func HandleStockDeleteById(w http.ResponseWriter, r *http.Request) {
+	// delete stock by stock id
+	// get the stock id from the request body
+	// will return the whole stockc info with the given stock id
+	fmt.Println("---HandleStockDeleteById started---")
+	stockId := mux.Vars(r)["stockId"]
+	if stockId == "" {
+		fmt.Println("---stockId is required---")
+		http.Error(w, "stockId is required", http.StatusBadRequest)
+		return
+	}
+
+	err := models.RemoveStock(stockId)
+	if err != nil {
+		fmt.Println("---Error deleting stock: %v---", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	models.WriteServiceResponse(w, "Stock deleted successfully", nil, true, true, http.StatusOK)
 }
 
 func HandleStockUpdate(w http.ResponseWriter, r *http.Request) {
@@ -34,9 +56,25 @@ func HandleStockUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if stock.StockType == models.StockTypeBox {
+		if stock.BoxNumber == 0 {
+			models.RemoveStock(stock.StockId)
+			models.WriteServiceResponse(w, "Stock deleted successfully", nil, true, true, http.StatusOK)
+			return
+		}
+	}
+	if stock.StockType == models.StockTypePCS {
+		if stock.PCSNumber == 0 {
+			models.RemoveStock(stock.StockId)
+			models.WriteServiceResponse(w, "Stock deleted successfully", nil, true, true, http.StatusOK)
+			return
+		}
+	}
+
 	db := models.GetDBInstance(models.GetDBConfig())
-	query := "UPDATE stocks SET expiry_date = ?, location = ?, discount_rate = ? WHERE stock_id = ?"
-	_, err = db.Exec(query, stock.ExpiryDate, stock.Location, stock.DiscountRate, stock.StockId)
+	fmt.Println("@@@stock@@", stock)
+	query := "UPDATE stocks SET box_number = ?, pcs_number = ?, bundle_number = ?,registering_person = ?, expiry_date = ?, location = ?, discount_rate = ? WHERE stock_id = ?"
+	_, err = db.Exec(query, stock.BoxNumber, stock.PCSNumber, stock.BundleNumber, stock.RegisteringPerson, stock.ExpiryDate, stock.Location, stock.DiscountRate, stock.StockId)
 	if err != nil {
 		fmt.Println("---Error updating stock: %v---", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -44,7 +82,7 @@ func HandleStockUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var updatedStock models.Stock
-	querySelect := "SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, location, registering_person, notes, discount_rate, created_at FROM stocks WHERE stock_id = ?"
+	querySelect := "SELECT stock_id, fkproduct_id, stock_type, box_number, pcs_number, bundle_number, expiry_date, IFNULL(location, ''), IFNULL(registering_person, ''), IFNULL(notes, ''), IFNULL(discount_rate, 0), created_at FROM stocks WHERE stock_id = ?"
 	err = db.QueryRow(querySelect, stock.StockId).Scan(
 		&updatedStock.StockId,
 		&updatedStock.ItemId,
