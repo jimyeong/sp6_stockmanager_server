@@ -174,7 +174,11 @@ func main() {
 
 	// v1
 	// "/products/expiring-stocks?startDate=2026-03-20&endDate=2026-03-26"
+
+	apiRouter.HandleFunc("/products/inventory/{productId}", v1Controller.HandleGetInventoryByProductId).Methods("GET")
 	apiRouter.HandleFunc("/products/expiring-stocks", v1Controller.HandleGetProductsWithExpiringStocksByDateRange).Methods("GET")
+	apiRouter.HandleFunc("/products/expiring-stocks-with-days-left", v1Controller.HandleGetProductsWithStockWithDaysLeft).Methods("GET")
+	apiRouter.HandleFunc("/products/expired-inventory", v1Controller.HandleGetExpiredInventoryOlderThanDays).Methods("GET")
 
 	// Start server
 	log.Println("Server starting on port 8080...")

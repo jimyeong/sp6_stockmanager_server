@@ -74,7 +74,7 @@ type GetItemsWithExpiredStocksOlderThanDaysRequest struct {
 	OlderThanDays int `json:"older_than_days"`
 }
 type GetItemsWithExpiredStocksOlderThanDaysResponse struct {
-	ExpiringItems []models.Item `json:"expiringProducts"`
+	ExpiringItems []models.Item `json:"expiredProducts"`
 	Total         int           `json:"total"`
 	OlderThanDays int           `json:"olderThanDays"`
 	Message       string        `json:"message"`
