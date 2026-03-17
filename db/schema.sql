@@ -1,16 +1,4 @@
--- Items table
-CREATE TABLE IF NOT EXISTS items (
-    id VARCHAR(128) PRIMARY KEY,
-    barcode VARCHAR(50) UNIQUE NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    category VARCHAR(50),
-    quantity_in_stock INT NOT NULL DEFAULT 0,
-    unit_price DECIMAL(10, 2) NOT NULL,
-    last_updated TIMESTAMP NOT NULL,
-    creator_id VARCHAR(128),
-    created_at TIMESTAMP NOT NULL
-);
+
 
 -- Stock Transactions table
 CREATE TABLE IF NOT EXISTS stock_transactions (
@@ -24,6 +12,7 @@ CREATE TABLE IF NOT EXISTS stock_transactions (
     FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
 );
 
+-- v1
 -- Index for faster queries
 CREATE INDEX idx_stock_transactions_item_id ON stock_transactions(item_id);
 CREATE INDEX idx_stock_transactions_user_id ON stock_transactions(user_id);
@@ -47,3 +36,35 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
 CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens(user_id);
 CREATE INDEX idx_refresh_tokens_token ON refresh_tokens(token);
 CREATE INDEX idx_refresh_tokens_expires_at ON refresh_tokens(expires_at);
+
+CREATE TABLE IF NOT EXISTS inventory_logs (
+    inventory_log_id int AUTO_INCREMENT PRIMARY KEY,
+    event_type enum('stock_in', 'stock_out', 'expired', 'damaged', 'sold', 'discounted') NOT NULL,
+    product_id INT NOT NULL,
+    product_code VARCHAR(50) NOT NULL,
+    product_name VARCHAR(255) NOT NULL,
+    product_image_path VARCHAR(255) NULL,
+    stock_id INT NOT NULL,
+    stock_type ENUM('BOX', 'PCS') NOT NULL,
+    stock_quantity INT NOT NULL,
+    expiry_date DATE,
+    original_price DECIMAL(10, 2),
+    discounted_price DECIMAL(10, 2),
+    discount_rate DECIMAL(5, 2),
+    performer_id INT NOT NULL,
+    performer_name VARCHAR(50) NOT NULL,
+    performer_email VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+)
+
+CREATE INDEX idx_inventory_logs_product_id ON inventory_logs(product_id);
+CREATE INDEX idx_inventory_logs_product_event_date 
+ON inventory_logs(product_id, event_type, created_at)
+CREATE INDEX idx_inventory_logs_event_date ON inventory_logs(event_type, created_at)
+CREATE INDEX idx_inventory_logs_created_at ON inventory_logs(created_at)
+
+-- CREATE INDEX idx_inventory_logs_product_event_date 
+-- ON inventory_logs(product_id, event_type, created_at);
+
+-- CREATE INDEX idx_inventory_logs_event_date 
+-- ON inventory_logs(event_type, created_at);

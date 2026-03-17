@@ -10,14 +10,17 @@ type V1ServiceResponse[T any] struct {
 	Payload T      `json:"payload"`
 	Success bool   `json:"success"`
 }
-type V1PagenatedServiceResponse[T any] struct {
-	V1ServiceResponse[[]T]
+type V1Pagination struct {
 	Total      int  `json:"total"`
 	Page       int  `json:"page"`
 	Limit      int  `json:"limit"`
 	HasNext    bool `json:"hasNext"`
 	HasPrev    bool `json:"hasPrev"`
 	TotalPages int  `json:"totalPages"`
+}
+type V1PagenatedServiceResponse[T any] struct {
+	V1ServiceResponse[[]T]
+	Pagination V1Pagination `json:"pagination"`
 }
 
 func WriteV1ServiceResponse[T any](w http.ResponseWriter, response V1ServiceResponse[T]) error {
