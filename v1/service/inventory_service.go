@@ -20,11 +20,11 @@ type InventoryWithExpiredStock struct {
 }
 
 type FinaliseExpiredStockParams struct {
-	StockId     int
-	ProductId   int
-	EventType   v1.EventType
-	StockType   v1.StockType
-	PerformerId int
+	StockId        string
+	ProductId      int
+	EventType      v1.EventType
+	StockType      v1.StockType
+	PerformerEmail string
 }
 
 // GetExpiryInventoryBetweenDays finds stocks that expire between startDate and endDate (inclusive),
@@ -171,6 +171,7 @@ func GetInventoryWithDaysLeft(daysLeft int) ([]v1.Product, error) {
 		FROM items p
 		JOIN stocks s ON p.item_id = s.fkproduct_id
 		WHERE DATEDIFF(s.expiry_date, CURDATE()) <= ?
+	
 		ORDER BY p.item_id, s.expiry_date
 	`
 
@@ -349,17 +350,25 @@ func FinaliseExpiredStock(params FinaliseExpiredStockParams) error {
 	}
 	defer tx.Rollback()
 
-	product, err := respositories.GetInventoryByStockId(params.StockId)
+	stockIdInt, err := strconv.Atoi(params.StockId)
+	if err != nil {
+		return err
+	}
+	product, err := respositories.GetInventoryByStockId(stockIdInt)
 	if err != nil {
 		return err
 	}
 
-	performer, err := v1.GetUserByID(params.PerformerId)
+	performer, err := v1.GetUserByEmail(params.PerformerEmail)
 	if err != nil {
 		return err
 	}
 
-	err = v1.DeleteStockByIDWithTx(tx, params.StockId)
+	if err != nil {
+		return err
+	}
+
+	err = v1.DeleteStockByIDWithTx(tx, stockIdInt)
 	if err != nil {
 		return err
 	}
@@ -370,7 +379,8 @@ func FinaliseExpiredStock(params FinaliseExpiredStockParams) error {
 	// write log
 	_, err = v1.CreateInventoryLogWithTx(tx, &v1.InventoryLog{
 		ProductId:        productIdInt,
-		StockId:          params.StockId,
+		StockId:          stockIdInt,
+		StockType:        params.StockType,
 		EventType:        params.EventType,
 		ExpiryDate:       product.Stock[0].ExpiryDate,
 		OriginalPrice:    float64(product.Price),

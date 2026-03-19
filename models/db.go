@@ -27,66 +27,49 @@ type SQLDB struct {
 }
 
 func NewSQLDB(dbConfig DBConfig) *SQLDB {
-	// Trace function entry and exit for debugging
-	fmt.Println("@@@@@@@@@@@@@@@@@@---NewSQLDB---", dbConfig)
-	// Log connection string without password for security
-	connStrRedacted := fmt.Sprintf("%s:***@tcp(%s:%s)/%s?parseTime=true",
-		dbConfig.DB_USER, dbConfig.DB_HOST, dbConfig.DB_PORT, dbConfig.DB_NAME)
-	fmt.Println("@@@@@@@@@@@@@@@@@@---connStrRedacted---", connStrRedacted)
-	// Actual connection string with password
-	connStr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true",
+	connStr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true&loc=Local",
 		dbConfig.DB_USER, dbConfig.DB_PASSWORD, dbConfig.DB_HOST, dbConfig.DB_PORT, dbConfig.DB_NAME)
-	fmt.Println("@@@@@@@@@@@@@@@@@@---connStr---", connStr)
-	fmt.Println("@@@@@@@@@@@@@@@@@@---dbConfig.DB_HOST---", dbConfig.DB_HOST)
-	fmt.Println("@@@@@@@@@@@@@@@@@@---dbConfig.DB_PORT---", dbConfig.DB_PORT)
-	fmt.Println("@@@@@@@@@@@@@@@@@@---dbConfig.DB_NAME---", dbConfig.DB_NAME)
+
 	db, err := sql.Open("mysql", connStr)
 	if err != nil {
-		fmt.Println("@@@@@@@@@@@@@@@@@@---err---", err)
 		log.Fatal(err)
 		return &SQLDB{DB: nil, Err: err}
 	}
 
 	// Test the connection
 	if err := db.Ping(); err != nil {
-		fmt.Println("@@@@@@@@@@@@@@@@@@---err---", err)
 		return &SQLDB{DB: nil, Err: err}
 	}
-	fmt.Println("@@@@@@@@@@@@@@@@@@---db---", db)
 	return &SQLDB{DB: db, Err: nil}
 }
 
 // Enhanced Query method with logging
 func (s *SQLDB) Query(query string, args ...interface{}) (*sql.Rows, error) {
-	fmt.Println("Query: %s\nArgs: %v", query, args)
+	fmt.Printf("Query: %s\nArgs: %v\n", query, args)
 	rows, err := s.DB.Query(query, args...)
 	if err != nil {
-		fmt.Println("Query failed: %v\nQuery: %s\nArgs: %v", err, query, args)
+		fmt.Printf("Query failed: %v\nQuery: %s\nArgs: %v\n", err, query, args)
 	}
 	return rows, err
 }
 
 // Enhanced QueryRow method with logging
 func (s *SQLDB) QueryRow(query string, args ...interface{}) *sql.Row {
-	row := s.DB.QueryRow(query, args...)
-	if row != nil {
-		fmt.Println("QueryRow failed: %v\nQuery: %s\nArgs: %v", row, query, args)
-	}
-	return row
+	fmt.Printf("QueryRow: %s\nArgs: %v\n", query, args)
+	return s.DB.QueryRow(query, args...)
 }
 
 // Enhanced Exec method with logging
 func (s *SQLDB) Exec(query string, args ...interface{}) (sql.Result, error) {
-	fmt.Println("Query: %s\nArgs: %v", query, args)
+	fmt.Printf("Exec: %s\nArgs: %v\n", query, args)
 	result, err := s.DB.Exec(query, args...)
 	if err != nil {
-		fmt.Println("Exec failed: %v\nQuery: %s\nArgs: %v", err, query, args)
+		fmt.Printf("Exec failed: %v\nQuery: %s\nArgs: %v\n", err, query, args)
 	} else {
-		// Log affected rows for INSERT/UPDATE/DELETE queries
 		if rowsAffected, err := result.RowsAffected(); err == nil {
-			fmt.Println("Query affected %d rows", rowsAffected)
+			fmt.Printf("Exec affected %d rows\n", rowsAffected)
 		} else {
-			fmt.Println("Query affected %d rows", rowsAffected)
+			fmt.Printf("Exec succeeded but failed to fetch affected rows: %v\n", err)
 		}
 	}
 	return result, err
@@ -94,10 +77,10 @@ func (s *SQLDB) Exec(query string, args ...interface{}) (sql.Result, error) {
 
 // Enhanced Prepare method with logging
 func (s *SQLDB) Prepare(query string) (*sql.Stmt, error) {
-	fmt.Println("Prepare: %s", query)
+	fmt.Printf("Prepare: %s\n", query)
 	stmt, err := s.DB.Prepare(query)
 	if err != nil {
-		fmt.Println("Prepare failed: %v\nQuery: %s", err, query)
+		fmt.Printf("Prepare failed: %v\nQuery: %s\n", err, query)
 	}
 	return stmt, err
 }
@@ -114,7 +97,7 @@ func GetDBConfig() DBConfig {
 
 	// Verify that we have all required configuration
 	if config.DB_USER == "" || config.DB_HOST == "" || config.DB_PORT == "" || config.DB_NAME == "" {
-		fmt.Println("Incomplete database configuration: User=%s, Host=%s, Port=%s, Name=%s",
+		fmt.Printf("Incomplete database configuration: User=%s, Host=%s, Port=%s, Name=%s\n",
 			maskEmpty(config.DB_USER), maskEmpty(config.DB_HOST),
 			maskEmpty(config.DB_PORT), maskEmpty(config.DB_NAME))
 	}

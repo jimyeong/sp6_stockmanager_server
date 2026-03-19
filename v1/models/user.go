@@ -61,20 +61,31 @@ func GetUserByUID(uid string) (*User, error) {
 	query := `
 		SELECT firebase_uid, IFNULL(email, ''), IFNULL(display_name, ''), IFNULL(photo_url, ''),
 			IFNULL(phone_number, ''), IFNULL(email_verified, 0), IFNULL(is_anonymous, 0),
-			IFNULL(provider_id, ''), IFNULL(login_at, NOW())
+			IFNULL(provider_id, ''), login_at
 		FROM users WHERE firebase_uid = ?
 	`
 	var u User
+	var loginAt sql.NullString
 	u.Uid = uid
 	err := db.QueryRow(query, uid).Scan(
 		&u.Uid, &u.Email, &u.DisplayName, &u.PhotoURL, &u.PhoneNumber,
-		&u.EmailVerified, &u.IsAnonymous, &u.ProviderId, &u.LoginAt,
+		&u.EmailVerified, &u.IsAnonymous, &u.ProviderId, &loginAt,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.New("user not found")
 		}
 		return nil, err
+	}
+	if loginAt.Valid && loginAt.String != "" && loginAt.String != "0000-00-00" && loginAt.String != "0000-00-00 00:00:00" {
+		layouts := []string{"2006-01-02 15:04:05", "2006-01-02"}
+		for _, layout := range layouts {
+			parsed, parseErr := time.Parse(layout, loginAt.String)
+			if parseErr == nil {
+				u.LoginAt = parsed
+				break
+			}
+		}
 	}
 	return &u, nil
 }
@@ -88,19 +99,31 @@ func GetUserByEmail(email string) (*User, error) {
 	query := `
 		SELECT firebase_uid, IFNULL(email, ''), IFNULL(display_name, ''), IFNULL(photo_url, ''),
 			IFNULL(phone_number, ''), IFNULL(email_verified, 0), IFNULL(is_anonymous, 0),
-			IFNULL(provider_id, ''), IFNULL(login_at, NOW())
+			IFNULL(provider_id, ''), login_at
 		FROM users WHERE email = ?
 	`
 	var u User
+	var loginAt sql.NullString
 	err := db.QueryRow(query, email).Scan(
 		&u.Uid, &u.Email, &u.DisplayName, &u.PhotoURL, &u.PhoneNumber,
-		&u.EmailVerified, &u.IsAnonymous, &u.ProviderId, &u.LoginAt,
+		&u.EmailVerified, &u.IsAnonymous, &u.ProviderId, &loginAt,
 	)
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.New("user not found")
 		}
 		return nil, err
+	}
+	if loginAt.Valid && loginAt.String != "" && loginAt.String != "0000-00-00" && loginAt.String != "0000-00-00 00:00:00" {
+		layouts := []string{"2006-01-02 15:04:05", "2006-01-02"}
+		for _, layout := range layouts {
+			parsed, parseErr := time.Parse(layout, loginAt.String)
+			if parseErr == nil {
+				u.LoginAt = parsed
+				break
+			}
+		}
 	}
 	return &u, nil
 }
@@ -111,7 +134,7 @@ func GetAllUsers(limit, offset int) ([]User, error) {
 	query := `
 		SELECT firebase_uid, IFNULL(email, ''), IFNULL(display_name, ''), IFNULL(photo_url, ''),
 			IFNULL(phone_number, ''), IFNULL(email_verified, 0), IFNULL(is_anonymous, 0),
-			IFNULL(provider_id, ''), IFNULL(login_at, NOW())
+			IFNULL(provider_id, ''), login_at
 		FROM users ORDER BY login_at DESC
 	`
 	args := []interface{}{}
@@ -139,12 +162,23 @@ func GetAllUsers(limit, offset int) ([]User, error) {
 	var users []User
 	for rows.Next() {
 		var u User
+		var loginAt sql.NullString
 		err := rows.Scan(
 			&u.Uid, &u.Email, &u.DisplayName, &u.PhotoURL, &u.PhoneNumber,
-			&u.EmailVerified, &u.IsAnonymous, &u.ProviderId, &u.LoginAt,
+			&u.EmailVerified, &u.IsAnonymous, &u.ProviderId, &loginAt,
 		)
 		if err != nil {
 			return nil, err
+		}
+		if loginAt.Valid && loginAt.String != "" && loginAt.String != "0000-00-00" && loginAt.String != "0000-00-00 00:00:00" {
+			layouts := []string{"2006-01-02 15:04:05", "2006-01-02"}
+			for _, layout := range layouts {
+				parsed, parseErr := time.Parse(layout, loginAt.String)
+				if parseErr == nil {
+					u.LoginAt = parsed
+					break
+				}
+			}
 		}
 		users = append(users, u)
 	}
@@ -207,25 +241,45 @@ func DeleteUser(uid string) error {
 	}
 	return nil
 }
+
 // GetUserByID retrieves a user by numeric id
 func GetUserByID(id int) (*User, error) {
 	db := models.GetDBInstance(models.GetDBConfig())
 	query := `
-		SELECT id, firebase_uid, IFNULL(email, ''), IFNULL(display_name, ''), IFNULL(photo_url, ''),
-			IFNULL(phone_number, ''), IFNULL(email_verified, 0), IFNULL(is_anonymous, 0),
-			IFNULL(provider_id, ''), IFNULL(login_at, NOW())
+		SELECT id, 
+			IFNULL(firebase_uid, ''), 
+			IFNULL(email, ''), 
+			IFNULL(display_name, ''), 
+			IFNULL(photo_url, ''),
+			IFNULL(phone_number, ''), 
+			IFNULL(email_verified, 0), 
+			IFNULL(is_anonymous, 0),
+			IFNULL(provider_id, ''), 
+			login_at
 		FROM users WHERE id = ?
 	`
 	var u User
+	var loginAt sql.NullString
 	err := db.QueryRow(query, id).Scan(
 		&u.ID, &u.Uid, &u.Email, &u.DisplayName, &u.PhotoURL, &u.PhoneNumber,
-		&u.EmailVerified, &u.IsAnonymous, &u.ProviderId, &u.LoginAt,
+		&u.EmailVerified, &u.IsAnonymous, &u.ProviderId, &loginAt,
 	)
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.New("user not found")
 		}
 		return nil, err
+	}
+	if loginAt.Valid && loginAt.String != "" && loginAt.String != "0000-00-00" && loginAt.String != "0000-00-00 00:00:00" {
+		layouts := []string{"2006-01-02 15:04:05", "2006-01-02"}
+		for _, layout := range layouts {
+			parsed, parseErr := time.Parse(layout, loginAt.String)
+			if parseErr == nil {
+				u.LoginAt = parsed
+				break
+			}
+		}
 	}
 	return &u, nil
 }

@@ -1,6 +1,8 @@
 package respositories
 
 import (
+	"database/sql"
+
 	"github.com/jimyeongjung/owlverload_api/models"
 	v1 "github.com/jimyeongjung/owlverload_api/v1/models"
 )
@@ -11,32 +13,32 @@ func GetInventoryByProductId(productId string) (map[string]*v1.Product, error) {
 	SELECT 
 		p.item_id,
 		p.code,
-		p.barcode,
-		p.box_barcode,
-		p.price,
-		p.box_price,
-		p.name,
-		p.type,
-		p.available_for_order,
-		p.image_path,
+		IFNULL(p.barcode, ''),
+		IFNULL(p.box_barcode, ''),
+		IFNULL(p.price, 0),
+		IFNULL(p.box_price, 0),
+		IFNULL(p.name, ''),
+		IFNULL(p.type, ''),
+		IFNULL(p.available_for_order, 0),
+		IFNULL(p.image_path, ''),
 		p.created_at,
-		p.name_jpn,
-		p.name_chn,
-		p.name_kor,
-		p.name_eng,
-		s.stock_id,
-		s.expiry_date,
-		s.stock_type,
-		s.box_number,
-		s.pcs_number,
-		s.bundle_number,
-		s.location,
-		s.registering_person,
-		s.notes,
-		s.discount_rate,
-		s.created_at,
+		IFNULL(p.name_jpn, ''),
+		IFNULL(p.name_chn, ''),
+		IFNULL(p.name_kor, ''),
+		IFNULL(p.name_eng, ''),
+		IFNULL(s.stock_id, 0),
+		expiry_date,
+		IFNULL(s.stock_type, ''),
+		IFNULL(s.box_number, 0),
+		IFNULL(s.pcs_number, 0),
+		IFNULL(s.bundle_number, 0),
+		IFNULL(s.location, ''),
+		IFNULL(s.registering_person, ''),
+		IFNULL(s.notes, ''),
+		IFNULL(s.discount_rate, 0),
+		s.created_at
 	FROM items as p
-	LEFT JOIN stocks as s ON p.item_id = s.fkproduct_id
+	JOIN stocks as s ON p.item_id = s.fkproduct_id
 	WHERE p.item_id = ?
 	`
 	rows, err := db.Query(query, productId)
@@ -87,6 +89,9 @@ func GetInventoryByProductId(productId string) (map[string]*v1.Product, error) {
 		}
 		existing.Stock = append(existing.Stock, s)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 	return pMap, nil
 }
 
@@ -94,44 +99,39 @@ func GetInventoryByStockId(stockId int) (*v1.Product, error) {
 	db := models.GetDBInstance(models.GetDBConfig())
 	query := `
 	SELECT 
-		p.item_id,
-		p.code,
-		p.barcode,
-		p.box_barcode,
-		p.price,
-		p.box_price,
-		p.name,
-		p.type,
-		p.available_for_order,
-		p.image_path,
+		IFNULL(p.item_id, 0),
+		IFNULL(p.code, ''),
+		IFNULL(p.barcode, ''),
+		IFNULL(p.box_barcode, ''),
+		IFNULL(p.price, 0),
+		IFNULL(p.box_price, 0),
+		IFNULL(p.name, ''),
+		IFNULL(p.type, ''),
+		IFNULL(p.available_for_order, 0),
+		IFNULL(p.image_path, ''),
 		p.created_at,
-		p.name_jpn,
-		p.name_chn,
-		p.name_kor,
-		p.name_eng,
-		s.stock_id,
+		IFNULL(p.name_jpn, ''),
+		IFNULL(p.name_chn, ''),
+		IFNULL(p.name_kor, ''),
+		IFNULL(p.name_eng, ''),
+		IFNULL(s.stock_id, 0),
 		s.expiry_date,
-		s.stock_type,
-		s.box_number,
-		s.pcs_number,
-		s.bundle_number,
-		s.location,
-		s.registering_person,
-		s.notes,
-		s.discount_rate,
-		s.created_at,
+		IFNULL(s.stock_type, ''),
+		IFNULL(s.box_number, 0),
+		IFNULL(s.pcs_number, 0),
+		IFNULL(s.bundle_number, 0),
+		IFNULL(s.location, ''),
+		IFNULL(s.registering_person, ''),
+		IFNULL(s.notes, ''),
+		IFNULL(s.discount_rate, 0),
+		IFNULL(s.created_at, p.created_at)
 	FROM items as p
-	LEFT JOIN stocks as s ON p.item_id = s.fkproduct_id
+	JOIN stocks as s ON p.item_id = s.fkproduct_id
 	WHERE s.stock_id = ?
 	`
-	rows, err := db.Query(query, stockId)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
 	var p v1.Product
 	var s v1.Stock
-	err = rows.Scan(
+	err := db.QueryRow(query, stockId).Scan(
 		&p.ID,
 		&p.Code,
 		&p.BarCode,
@@ -160,7 +160,11 @@ func GetInventoryByStockId(stockId int) (*v1.Product, error) {
 		&s.CreatedAt,
 	)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
 		return nil, err
 	}
+	p.Stock = []v1.Stock{s}
 	return &p, nil
 }

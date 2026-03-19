@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -215,28 +216,32 @@ func HandleFinaliseExpiredStock(w http.ResponseWriter, r *http.Request) {
 		response.WriteV1ServiceError(w, "User authentication required", false, http.StatusUnauthorized)
 		return
 	}
-	stockId := mux.Vars(r)["stockId"]
+
 	var req FinaliseExpiredStockRequest
 	// print request body
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		response.WriteV1ServiceError(w, "Invalid request body", false, http.StatusBadRequest)
 		return
 	}
+	fmt.Println("-----HandleFinaliseExpiredStock-----", req)
 
-	if stockId == "" {
+	if req.StockId == "" {
 		response.WriteV1ServiceError(w, "stockId is required", false, http.StatusBadRequest)
 		return
 	}
+	req.PerformerEmail = tokenClaims.Email
 	err := service.FinaliseExpiredStock(service.FinaliseExpiredStockParams{
-		StockId:     req.StockId,
-		EventType:   req.EventType,
-		StockType:   req.StockType,
-		PerformerId: req.PerformerId,
+		StockId:        req.StockId,
+		EventType:      req.EventType,
+		StockType:      req.StockType,
+		PerformerEmail: req.PerformerEmail,
 	})
 	if err != nil {
+		fmt.Println("-----Error-----", err)
 		response.WriteV1ServiceError(w, "Failed to finalise expired stock", false, http.StatusInternalServerError)
 		return
 	}
+
 	response.WriteV1ServiceResponse(w, response.V1ServiceResponse[string]{
 		Message: "Expired stock finalised successfully",
 		Success: true,

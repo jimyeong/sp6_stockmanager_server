@@ -5,8 +5,8 @@ import (
 )
 
 type FinaliseExpiredStockRequest struct {
-	StockId     int
-	EventType   v1.EventType
-	StockType   v1.StockType
-	PerformerId int
+	StockId        string       `json:"stock_id"` // pointer: nil = omitted, 0 = explicitly sent
+	EventType      v1.EventType `json:"event_type"`
+	StockType      v1.StockType `json:"stock_type"`
+	PerformerEmail string       `json:"performer_email"`
 }

@@ -84,7 +84,9 @@ func CreateInventoryLogWithTx(tx *sql.Tx, log *InventoryLog) (*InventoryLog, err
 	if err != nil {
 		return nil, err
 	}
-	return GetInventoryLogByID(int(id))
+	log.InventoryLogId = int(id)
+	return log, nil
+
 }
 
 // CreateInventoryLog inserts a new inventory log and returns the created record with ID
@@ -112,7 +114,8 @@ func CreateInventoryLog(log *InventoryLog) (*InventoryLog, error) {
 	if err != nil {
 		return nil, err
 	}
-	return GetInventoryLogByID(int(id))
+	log.InventoryLogId = int(id)
+	return log, nil
 }
 
 // GetInventoryLogByID retrieves an inventory log by its ID
