@@ -980,7 +980,6 @@ func HandleLookupItems(w http.ResponseWriter, r *http.Request) {
 	// Get authenticated user ID from context
 	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
 	userEmail := tokenClaims.Email
-	fmt.Println("@@@USER NAME", userEmail)
 	if userEmail == "" {
 		models.WriteServiceError(w, "User authentication required", false, true, http.StatusUnauthorized)
 		return
@@ -997,20 +996,17 @@ func HandleLookupItems(w http.ResponseWriter, r *http.Request) {
 	var lookupRequest LookupItemRequest
 	err = json.Unmarshal(body, &lookupRequest)
 	if err != nil {
-		fmt.Println("@@@err1", err)
 		models.WriteServiceError(w, "Invalid request format", false, true, http.StatusBadRequest)
 		return
 	}
 
 	// Validate request
 	if lookupRequest.SearchType == "" {
-		fmt.Println("@@@err2", err)
 		models.WriteServiceError(w, "Search type is required (code, barcode, or name)", false, true, http.StatusBadRequest)
 		return
 	}
 
 	if lookupRequest.Value == "" {
-		fmt.Println("@@@err3", err)
 		models.WriteServiceError(w, "Search value is required", false, true, http.StatusBadRequest)
 		return
 	}

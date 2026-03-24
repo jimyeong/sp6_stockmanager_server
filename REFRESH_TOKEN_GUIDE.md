@@ -31,7 +31,6 @@ Apply the database migration to create the `refresh_tokens` table:
 ```bash
 mysql -h YOUR_HOST -u YOUR_USER -pYOUR_PASSWORD YOUR_DATABASE < db/migration_refresh_tokens.sql
 ```
-
 Or manually execute the SQL in `db/schema.sql` (lines 33-49).
 
 ### 2. Verify Table Creation

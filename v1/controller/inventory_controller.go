@@ -15,35 +15,8 @@ import (
 	"github.com/jimyeongjung/owlverload_api/v1/service"
 )
 
-type GetProductWithExpiringStocksBetweenDaysRequest struct {
-	StartPeriod time.Time `json:"start_period"`
-	EndPeriod   time.Time `json:"end_period"`
-}
-type GetProductWithExpiringStocksBetweenDaysResponse struct {
-	Products  []v1.Product `json:"products"`
-	StartDate string       `json:"start_date"`
-	EndDate   string       `json:"end_date"`
-	Total     int          `json:"total"`
-	Message   string       `json:"message"`
-}
-type GetProductsWithStockWithDaysLeftRequest struct {
-	DaysLeft int `json:"days_left"`
-}
-type GetProductsWithStockWithDaysLeftResponse struct {
-	ExpiringProducts []v1.Product `json:"expiring_products"`
-	DaysLeft         int          `json:"days_left"`
-	Total            int          `json:"total"`
-	Message          string       `json:"message"`
-	IsExpired        bool         `json:"is_expired"`
-}
-type GetExpiredInventoryOlderThanDaysResponse struct {
-	ProductsWithExpiredStocks []service.InventoryWithExpiredStock `json:"products_with_expired_stocks"`
-	Total                     int                                 `json:"total"`
-}
-type GetInventoryByProductIdResponse struct {
-	Products  map[string]*v1.Product `json:"products"`
-	ProductId string                 `json:"product_id"`
-	Total     int                    `json:"total"`
+type SearchedProduct struct {
+	Product v1.Product `json:"product"`
 }
 
 // GET /products/expiring-stocks?startDate={startDate}&endDate={endDate}
@@ -202,6 +175,7 @@ func HandleGetInventoryByProductId(w http.ResponseWriter, r *http.Request) {
 		ProductId: productId,
 		Total:     len(productMap),
 	}
+	fmt.Println("-----result-----", result.Products)
 	response.WriteV1ServiceResponse(w, response.V1ServiceResponse[GetInventoryByProductIdResponse]{
 		Message: "Product inventory retrieved successfully",
 		Payload: result,
@@ -244,6 +218,77 @@ func HandleFinaliseExpiredStock(w http.ResponseWriter, r *http.Request) {
 
 	response.WriteV1ServiceResponse(w, response.V1ServiceResponse[string]{
 		Message: "Expired stock finalised successfully",
+		Success: true,
+	})
+}
+func HandleSearchInventory(w http.ResponseWriter, r *http.Request) {
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	if tokenClaims.Email == "" {
+		response.WriteV1ServiceError(w, "User authentication required", false, http.StatusUnauthorized)
+		return
+	}
+
+	var req SearchInventoryRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		response.WriteV1ServiceError(w, "Invalid request body", false, http.StatusBadRequest)
+		return
+	}
+	if req.SearchType == "" {
+		response.WriteV1ServiceError(w, "Search type is required", false, http.StatusBadRequest)
+		return
+	}
+	if req.Value == "" {
+		response.WriteV1ServiceError(w, "Value is required", false, http.StatusBadRequest)
+		return
+	}
+	products, err := service.SearchInventoryService(req.SearchType, req.Value)
+	if err != nil {
+		response.WriteV1ServiceError(w, "Failed to search inventory", false, http.StatusInternalServerError)
+		return
+	}
+	var results []SearchedProduct
+	for _, product := range products {
+		results = append(results, SearchedProduct{Product: product})
+	}
+	fmt.Println("-----result-----", results)
+	result := SearchInventoryResponse{
+		Results:    results,
+		SearchType: req.SearchType,
+		Value:      req.Value,
+		Total:      len(products),
+	}
+	response.WriteV1ServiceResponse(w, response.V1ServiceResponse[SearchInventoryResponse]{
+		Message: "Inventory searched successfully",
+		Payload: result,
+		Success: true,
+	})
+}
+
+func HandleGetStocksByProductId(w http.ResponseWriter, r *http.Request) {
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	if tokenClaims.Email == "" {
+		response.WriteV1ServiceError(w, "User authentication required", false, http.StatusUnauthorized)
+		return
+	}
+
+	productId := mux.Vars(r)["productId"]
+	if productId == "" {
+		response.WriteV1ServiceError(w, "productId is required", false, http.StatusBadRequest)
+		return
+	}
+	stocks, err := service.GetStocksServiceByProductId(productId)
+	if err != nil {
+		response.WriteV1ServiceError(w, "Failed to get stocks by productId", false, http.StatusInternalServerError)
+		return
+	}
+	fmt.Println("-----HandleGetStocksByProductId-----", stocks)
+	result := GetStocksByProductIdResponse{
+		Stocks: stocks,
+		Total:  len(stocks),
+	}
+	response.WriteV1ServiceResponse(w, response.V1ServiceResponse[GetStocksByProductIdResponse]{
+		Message: "Stocks retrieved successfully",
+		Payload: result,
 		Success: true,
 	})
 }

@@ -100,6 +100,7 @@ func HandleImageUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// service
 	// Process the image
 	processedData, err := processImage(fileData, ImageProcessingConfig{
 		MaxWidth:  600,
@@ -112,14 +113,11 @@ func HandleImageUpload(w http.ResponseWriter, r *http.Request) {
 		models.WriteServiceError(w, "Failed to process image", false, true, http.StatusInternalServerError)
 		return
 	}
-
 	// Generate UUID for the image
 	imageID := uuid.New().String()
 
 	// Create filename with UUID
 	filename := fmt.Sprintf("%s.jpg", imageID)
-	fmt.Println("filename@@@@@@@@@@@@@@@@@@@@@", filename)
-
 	// Upload to R2 Cloudflare
 	imagePath, err := uploadToR2(processedData, filename)
 	if err != nil {
@@ -297,8 +295,6 @@ func extractFilenameFromPath(imagePath string) (string, error) {
 	// If it's a full URL, parse it
 	if strings.HasPrefix(imagePath, "http://") || strings.HasPrefix(imagePath, "https://") {
 		parsedURL, err := url.Parse(imagePath)
-		fmt.Println("parsedURL@@@@@@@@@@@@@@@@@@@@@", parsedURL)
-		fmt.Println("imagePath@@@@@@@@@@@@@@@@@@@@@", imagePath)
 		if err != nil {
 			return "", fmt.Errorf("invalid URL format: %v", err)
 		}

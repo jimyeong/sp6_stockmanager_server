@@ -1,7 +1,9 @@
 package service
 
 import (
+	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/jimyeongjung/owlverload_api/models"
@@ -377,10 +379,20 @@ func FinaliseExpiredStock(params FinaliseExpiredStockParams) error {
 		return err
 	}
 	// write log
+	var stockQuantity int
+	switch params.StockType {
+	case v1.StockTypeBox:
+		stockQuantity = product.Stock[0].BoxNumber
+	case v1.StockTypePCS:
+		stockQuantity = product.Stock[0].PCSNumber
+	case v1.StockTypeBundle:
+		stockQuantity = product.Stock[0].BundleNumber
+	}
 	_, err = v1.CreateInventoryLogWithTx(tx, &v1.InventoryLog{
 		ProductId:        productIdInt,
 		StockId:          stockIdInt,
 		StockType:        params.StockType,
+		StockQuantity:    stockQuantity,
 		EventType:        params.EventType,
 		ExpiryDate:       product.Stock[0].ExpiryDate,
 		OriginalPrice:    float64(product.Price),
@@ -401,4 +413,19 @@ func FinaliseExpiredStock(params FinaliseExpiredStockParams) error {
 		return err
 	}
 	return nil
+}
+func SearchInventoryService(searchType string, value string) ([]v1.Product, error) {
+	if searchType == "" {
+		return nil, fmt.Errorf("search type is required")
+	}
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return nil, fmt.Errorf("value is required")
+	}
+
+	if searchType == "code" || searchType == "barcode" || searchType == "name" {
+		// sanitize value
+		return respositories.GetInventoryByValue(searchType, value)
+	}
+	return nil, fmt.Errorf("invalid search type: %s", searchType)
 }

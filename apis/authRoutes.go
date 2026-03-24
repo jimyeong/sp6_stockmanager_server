@@ -19,7 +19,7 @@ type RefreshTokenRequest struct {
 
 // RefreshTokenResponse defines the response structure for token refresh
 type RefreshTokenResponse struct {
-	IDToken      string `json:"id_token"`
+	CustomToken  string `json:"custom_token"`
 	RefreshToken string `json:"refresh_token"`
 	ExpiresIn    int64  `json:"expires_in"`
 }
@@ -112,7 +112,7 @@ func HandleRefreshToken(w http.ResponseWriter, r *http.Request, firebaseClient *
 
 	// Return the new tokens
 	response := RefreshTokenResponse{
-		IDToken:      customToken,
+		CustomToken:  customToken,
 		RefreshToken: newRefreshTokenString,
 		ExpiresIn:    3600, // Firebase custom tokens are valid for 1 hour
 	}

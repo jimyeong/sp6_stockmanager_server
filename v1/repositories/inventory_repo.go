@@ -9,10 +9,12 @@ import (
 
 func GetInventoryByProductId(productId string) (map[string]*v1.Product, error) {
 	db := models.GetDBInstance(models.GetDBConfig())
-	query := `
+
+	// 1. Fetch product from items (works even if product has no stocks)
+	productQuery := `
 	SELECT 
 		p.item_id,
-		p.code,
+		IFNULL(p.code, ''),
 		IFNULL(p.barcode, ''),
 		IFNULL(p.box_barcode, ''),
 		IFNULL(p.price, 0),
@@ -25,9 +27,40 @@ func GetInventoryByProductId(productId string) (map[string]*v1.Product, error) {
 		IFNULL(p.name_jpn, ''),
 		IFNULL(p.name_chn, ''),
 		IFNULL(p.name_kor, ''),
-		IFNULL(p.name_eng, ''),
+		IFNULL(p.name_eng, '')
+	FROM items as p
+	WHERE p.item_id = ?
+	`
+	var p v1.Product
+	err := db.QueryRow(productQuery, productId).Scan(
+		&p.ID,
+		&p.Code,
+		&p.BarCode,
+		&p.BoxBarcode,
+		&p.Price,
+		&p.BoxPrice,
+		&p.Name,
+		&p.Type,
+		&p.AvailableForOrder,
+		&p.ImagePath,
+		&p.CreatedAt,
+		&p.NameJpn,
+		&p.NameChn,
+		&p.NameKor,
+		&p.NameEng,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return map[string]*v1.Product{}, nil
+		}
+		return nil, err
+	}
+
+	// 2. Fetch stocks for this product
+	stocksQuery := `
+	SELECT 
 		IFNULL(s.stock_id, 0),
-		expiry_date,
+		s.expiry_date,
 		IFNULL(s.stock_type, ''),
 		IFNULL(s.box_number, 0),
 		IFNULL(s.pcs_number, 0),
@@ -37,35 +70,19 @@ func GetInventoryByProductId(productId string) (map[string]*v1.Product, error) {
 		IFNULL(s.notes, ''),
 		IFNULL(s.discount_rate, 0),
 		s.created_at
-	FROM items as p
-	JOIN stocks as s ON p.item_id = s.fkproduct_id
-	WHERE p.item_id = ?
+	FROM stocks as s
+	WHERE s.fkproduct_id = ?
 	`
-	rows, err := db.Query(query, productId)
+	rows, err := db.Query(stocksQuery, productId)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	pMap := make(map[string]*v1.Product)
+
+	var stocks []v1.Stock
 	for rows.Next() {
-		var p v1.Product
 		var s v1.Stock
 		err := rows.Scan(
-			&p.ID,
-			&p.Code,
-			&p.BarCode,
-			&p.BoxBarcode,
-			&p.Price,
-			&p.BoxPrice,
-			&p.Name,
-			&p.Type,
-			&p.AvailableForOrder,
-			&p.ImagePath,
-			&p.CreatedAt,
-			&p.NameJpn,
-			&p.NameChn,
-			&p.NameKor,
-			&p.NameEng,
 			&s.StockId,
 			&s.ExpiryDate,
 			&s.StockType,
@@ -81,17 +98,14 @@ func GetInventoryByProductId(productId string) (map[string]*v1.Product, error) {
 		if err != nil {
 			return nil, err
 		}
-		existing, ok := pMap[p.ID]
-		if !ok {
-			p.Stock = []v1.Stock{}
-			pMap[p.ID] = &p
-			existing = &p
-		}
-		existing.Stock = append(existing.Stock, s)
+		stocks = append(stocks, s)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
+
+	p.Stock = stocks
+	pMap := map[string]*v1.Product{p.ID: &p}
 	return pMap, nil
 }
 
@@ -167,4 +181,84 @@ func GetInventoryByStockId(stockId int) (*v1.Product, error) {
 	}
 	p.Stock = []v1.Stock{s}
 	return &p, nil
+}
+
+func GetInventoryByValue(searchType string, value string) ([]v1.Product, error) {
+	db := models.GetDBInstance(models.GetDBConfig())
+
+	// Whitelist of allowed columns for LIKE search (prevents SQL injection)
+	allowedColumns := map[string]string{
+		"code":        "code",
+		"barcode":     "barcode",
+		"box_barcode": "box_barcode",
+		"name":        "name",
+		"name_jpn":    "name_jpn",
+		"name_chn":    "name_chn",
+		"name_kor":    "name_kor",
+		"name_eng":    "name_eng",
+	}
+	column := allowedColumns[searchType]
+	if column == "" {
+		column = "code"
+	}
+
+	// Add % wildcards for LIKE query
+	searchValue := "%" + value + "%"
+
+	query := `
+	SELECT 
+		p.item_id,
+		IFNULL(p.code, ''),
+		IFNULL(p.barcode, ''),
+		IFNULL(p.box_barcode, ''),
+		IFNULL(p.price, 0),
+		IFNULL(p.box_price, 0),
+		IFNULL(p.name, ''),
+		IFNULL(p.type, ''),
+		IFNULL(p.available_for_order, 0),
+		IFNULL(p.image_path, ''),
+		p.created_at,
+		IFNULL(p.name_jpn, ''),
+		IFNULL(p.name_chn, ''),
+		IFNULL(p.name_kor, ''),
+		IFNULL(p.name_eng, '')
+	FROM items as p
+	WHERE p.` + column + ` LIKE ?
+	`
+
+	rows, err := db.Query(query, searchValue)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var products []v1.Product
+
+	for rows.Next() {
+		var p v1.Product
+		err := rows.Scan(
+			&p.ID,
+			&p.Code,
+			&p.BarCode,
+			&p.BoxBarcode,
+			&p.Price,
+			&p.BoxPrice,
+			&p.Name,
+			&p.Type,
+			&p.AvailableForOrder,
+			&p.ImagePath,
+			&p.CreatedAt,
+			&p.NameJpn,
+			&p.NameChn,
+			&p.NameKor,
+			&p.NameEng,
+		)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, p)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return products, nil
 }

@@ -140,7 +140,7 @@ func main() {
 	apiRouter.HandleFunc("/getItemsPaginated", apis.HandleGetItemsPaginated).Methods("GET")
 	apiRouter.HandleFunc("/searchItems", apis.HandleSearchItems).Methods("POST")
 	apiRouter.HandleFunc("/getItemsWithMissingInfo", apis.HandleGetItemsWithMissingInfo).Methods("GET")
-	apiRouter.HandleFunc("/lookupItems", apis.HandleLookupItems).Methods("POST")
+
 	apiRouter.HandleFunc("/getItemsExpiringWithinDays", apis.HandleGetItemsExpiringWithinDays).Methods("GET")
 	apiRouter.HandleFunc("/getItemsWithExpiredStocksOlderThanDays", apis.HandleGetItemsWithExpiredStocksOlderThanDays).Methods("GET")
 	apiRouter.HandleFunc("/getItemsWithExpiredStocksAheadOfDays", apis.HandleGetItemsWithExpiredStocksAheadOfDays).Methods("GET")
@@ -167,20 +167,26 @@ func main() {
 	apiRouter.HandleFunc("/analyze_barcode", apis.HandleBarcodeAnalyze).Methods("POST")
 
 	// Image upload routes
-	apiRouter.HandleFunc("/upload/image", apis.HandleImageUpload).Methods("POST")
+	// apiRouter.HandleFunc("/upload/image", apis.HandleImageUpload).Methods("POST")
 	apiRouter.HandleFunc("/delete/image", apis.HandleImageDelete).Methods("DELETE")
-
-	// Auth routes (protected)
-	apiRouter.HandleFunc("/auth/revoke-all", apis.HandleRevokeAllTokens).Methods("POST")
 
 	// v1
 	// "/products/expiring-stocks?startDate=2026-03-20&endDate=2026-03-26"
 
+	// Auth routes (protected)
+	apiRouter.HandleFunc("/auth/revoke-all", apis.HandleRevokeAllTokens).Methods("POST")
+
+	apiRouter.HandleFunc("/product/update", v1Controller.HandleProductUpdate).Methods("PUT")
 	apiRouter.HandleFunc("/products/inventory/{productId}", v1Controller.HandleGetInventoryByProductId).Methods("GET")
 	apiRouter.HandleFunc("/products/expiring-stocks", v1Controller.HandleGetProductsWithExpiringStocksByDateRange).Methods("GET")
 	apiRouter.HandleFunc("/products/expiring-stocks-with-days-left", v1Controller.HandleGetProductsWithStockWithDaysLeft).Methods("GET")
 	apiRouter.HandleFunc("/products/expired-inventory", v1Controller.HandleGetExpiredInventoryOlderThanDays).Methods("GET")
 	apiRouter.HandleFunc("/products/finalise-expired-stock", v1Controller.HandleFinaliseExpiredStock).Methods("POST")
+	apiRouter.HandleFunc("/inventory/search", v1Controller.HandleSearchInventory).Methods("POST")
+	apiRouter.HandleFunc("/stocks/{productId}", v1Controller.HandleGetStocksByProductId).Methods("GET")
+
+	apiRouter.HandleFunc("/image/upload", v1Controller.HandleImageUpload).Methods("POST")
+	apiRouter.HandleFunc("/image/delete", v1Controller.HandleImageDelete).Methods("DELETE")
 
 	// Start server
 	log.Println("Server starting on port 8080...")
