@@ -58,3 +58,22 @@ type GetStocksByProductIdResponse struct {
 	Stocks []v1.Stock `json:"stocks"`
 	Total  int        `json:"total"`
 }
+
+type CreateStockRequest struct {
+	Barcode      string       `json:"barcode"`
+	Code         string       `json:"code"`
+	ItemID       string       `json:"item_id"`
+	StockType    v1.StockType `json:"stock_type"`
+	Quantity     int          `json:"quantity"`
+	ExpiryDate   time.Time    `json:"expiry_date"`
+	Location     string       `json:"location"`
+	UserID       string       `json:"user_id"`
+	Notes        string       `json:"notes"`
+	DiscountRate int          `json:"discount_rate"`
+}
+
+type CreateStockResponse struct {
+	Message       string     `json:"message"`
+	UpdatedStocks []v1.Stock `json:"updated_stocks"`
+	AddedStocks   []v1.Stock `json:"added_stocks"`
+}

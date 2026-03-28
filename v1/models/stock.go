@@ -21,15 +21,16 @@ type Stock struct {
 	StockId           string    `json:"stock_id"`
 	ItemId            string    `json:"item_id"`
 	StockType         StockType `json:"stock_type"`
-	BoxNumber         int       `json:"box_number"`
-	PCSNumber         int       `json:"pcs_number"`
-	BundleNumber      int       `json:"bundle_number"`
+	BoxNumber         int       `json:"box_number"`    // deprecated
+	PCSNumber         int       `json:"pcs_number"`    // deprecated
+	BundleNumber      int       `json:"bundle_number"` // deprecated
 	ExpiryDate        time.Time `json:"expiry_date"`
 	Location          string    `json:"location"`
 	RegisteringPerson string    `json:"registering_person"`
 	Notes             string    `json:"notes"`
 	CreatedAt         time.Time `json:"created_at,omitempty"`
 	DiscountRate      int       `json:"discount_rate"`
+	Quantity          int       `json:"quantity"`
 }
 type ExpiredStock struct {
 	Stock           Stock `json:"stock"`

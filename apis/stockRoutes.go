@@ -76,7 +76,6 @@ func HandleStockUpdate(w http.ResponseWriter, r *http.Request) {
 	query := "UPDATE stocks SET box_number = ?, pcs_number = ?, bundle_number = ?,registering_person = ?, expiry_date = ?, location = ?, discount_rate = ? WHERE stock_id = ?"
 	_, err = db.Exec(query, stock.BoxNumber, stock.PCSNumber, stock.BundleNumber, stock.RegisteringPerson, stock.ExpiryDate, stock.Location, stock.DiscountRate, stock.StockId)
 	if err != nil {
-		fmt.Println("---Error updating stock: %v---", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -139,7 +138,6 @@ func HandleGetStockByItemId(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := db.Query(query, itemId)
 	if err != nil {
-		fmt.Println("---Error querying stocks by itemId: %v---", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -163,14 +161,12 @@ func HandleGetStockByItemId(w http.ResponseWriter, r *http.Request) {
 			&s.CreatedAt,
 		)
 		if err != nil {
-			fmt.Println("---Error scanning stock row: %v---", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		stocks = append(stocks, s)
 	}
 	if err := rows.Err(); err != nil {
-		fmt.Println("---Row iteration error: %v---", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

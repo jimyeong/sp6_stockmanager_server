@@ -80,22 +80,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// Define authentication middleware
-	// authConfig := middleware.AuthenticationConfig{
-	// 	ValidateToken:     middleware.FirebaseTokenValidator,
-	// 	ExcludedPaths:     []string{"/public/api/v1/auth/signin", "/public/health", "/public/api/v1/health"},
-	// 	TokenErrorMessage: "Authentication required. Please provide a valid Bearer token.",
-	// }
-
-	// Apply authentication middleware to protected routes
-	// You can use either the original middleware or the new ValidateFirebaseToken middleware
-
-	// Option 1: Original authentication middleware
-	// apiRouter.Use(middleware.NewAuthentication(authConfig))
-
-	// Option 2: New token validation middleware (simpler and more focused)
-
 	// Create a subrouter for protected routes
 	apiRouter := r.PathPrefix("/api/v1/").Subrouter()
 	apiRouter.Use(func(next http.Handler) http.Handler {
@@ -119,61 +103,49 @@ func main() {
 		w.Write([]byte("OK"))
 	}).Methods("GET")
 
-	// Protected routes (authentication required)
-	// Stock/Item routes
-	fmt.Println("--- coming in here --- ")
-	// apiRouter.HandleFunc("/getItem", apis.HandleGetItemByBarcode).Methods("GET")
-	apiRouter.HandleFunc("/createNewItem", apis.HandleCreateItem).Methods("POST")
-	// apiRouter.HandleFunc("/editItem/{itemId}", apis.HandleGetItemById).Methods("GET")
-	apiRouter.HandleFunc("/getItemByBarcode", apis.HandleGetItemByBarcode).Methods("GET")
-	apiRouter.HandleFunc("/getItemByCode", apis.HandleGetItemByCode).Methods("GET")
-	apiRouter.HandleFunc("/getItemById", apis.HandleGetItemById).Methods("GET")
-	apiRouter.HandleFunc("/updateItemById", apis.HandleUpdateItemById).Methods("PUT")
-	apiRouter.HandleFunc("/stockIn", apis.HandleStockIn).Methods("POST")
-	apiRouter.HandleFunc("/stockOut", apis.HandleStockOut).Methods("POST")
-	apiRouter.HandleFunc("/stockUpdate", apis.HandleStockUpdate).Methods("PUT")
-	apiRouter.HandleFunc("/stock/{stockId}", apis.HandleStockDeleteById).Methods("DELETE")
-	// apiRouter.HandleFunc("/createItem", apis.HandleCreateItem).Methods("POST")
-	apiRouter.HandleFunc("/registerItem", apis.HandleRegisterItem).Methods("POST")
-	apiRouter.HandleFunc("/updateItem", apis.HandleUpdateItem).Methods("PUT")
-	apiRouter.HandleFunc("/getItems", apis.HandleGetItems).Methods("GET")
-	apiRouter.HandleFunc("/getItemsPaginated", apis.HandleGetItemsPaginated).Methods("GET")
-	apiRouter.HandleFunc("/searchItems", apis.HandleSearchItems).Methods("POST")
-	apiRouter.HandleFunc("/getItemsWithMissingInfo", apis.HandleGetItemsWithMissingInfo).Methods("GET")
+	// apiRouter.HandleFunc("/createNewItem", apis.HandleCreateItem).Methods("POST")
+	//apiRouter.HandleFunc("/getItemByBarcode", apis.HandleGetItemByBarcode).Methods("GET")
+	//apiRouter.HandleFunc("/getItemByCode", apis.HandleGetItemByCode).Methods("GET")
+	//apiRouter.HandleFunc("/getItemById", apis.HandleGetItemById).Methods("GET")
+	//apiRouter.HandleFunc("/updateItemById", apis.HandleUpdateItemById).Methods("PUT")
 
-	apiRouter.HandleFunc("/getItemsExpiringWithinDays", apis.HandleGetItemsExpiringWithinDays).Methods("GET")
-	apiRouter.HandleFunc("/getItemsWithExpiredStocksOlderThanDays", apis.HandleGetItemsWithExpiredStocksOlderThanDays).Methods("GET")
-	apiRouter.HandleFunc("/getItemsWithExpiredStocksAheadOfDays", apis.HandleGetItemsWithExpiredStocksAheadOfDays).Methods("GET")
+	//apiRouter.HandleFunc("/stockOut", apis.HandleStockOut).Methods("POST")
+	//apiRouter.HandleFunc("/stockUpdate", apis.HandleStockUpdate).Methods("PUT")
+	// apiRouter.HandleFunc("/stock/{stockId}", apis.HandleStockDeleteById).Methods("DELETE")
+	//apiRouter.HandleFunc("/registerItem", apis.HandleRegisterItem).Methods("POST")
+	//apiRouter.HandleFunc("/updateItem", apis.HandleUpdateItem).Methods("PUT")
+	// apiRouter.HandleFunc("/getItems", apis.HandleGetItems).Methods("GET")
+	//apiRouter.HandleFunc("/getItemsPaginated", apis.HandleGetItemsPaginated).Methods("GET")
+	//apiRouter.HandleFunc("/searchItems", apis.HandleSearchItems).Methods("POST")
+	//apiRouter.HandleFunc("/getItemsWithMissingInfo", apis.HandleGetItemsWithMissingInfo).Methods("GET")
+
+	// apiRouter.HandleFunc("/getItemsExpiringWithinDays", apis.HandleGetItemsExpiringWithinDays).Methods("GET")
+	// apiRouter.HandleFunc("/getItemsWithExpiredStocksOlderThanDays", apis.HandleGetItemsWithExpiredStocksOlderThanDays).Methods("GET")
+	// apiRouter.HandleFunc("/getItemsWithExpiredStocksAheadOfDays", apis.HandleGetItemsWithExpiredStocksAheadOfDays).Methods("GET")
 
 	// just stock request
-	apiRouter.HandleFunc("/getProductStockByItemId", apis.HandleGetStockByItemId).Methods("GET")
+	// apiRouter.HandleFunc("/getProductStockByItemId", apis.HandleGetStockByItemId).Methods("GET")
 
-	//v1
+	// apiRouter.HandleFunc("/tags", apis.HandleGetAllTags).Methods("GET")
+	// apiRouter.HandleFunc("/tags/create", apis.HandleCreateTag).Methods("POST")
+	// apiRouter.HandleFunc("/tags/popular", apis.HandleGetPopularTags).Methods("GET")
+	// apiRouter.HandleFunc("/tags/search", apis.HandleSearchTags).Methods("GET")
 
-	// Tag routes
-	apiRouter.HandleFunc("/tags", apis.HandleGetAllTags).Methods("GET")
-	apiRouter.HandleFunc("/tags/create", apis.HandleCreateTag).Methods("POST")
-	apiRouter.HandleFunc("/tags/popular", apis.HandleGetPopularTags).Methods("GET")
-	apiRouter.HandleFunc("/tags/search", apis.HandleSearchTags).Methods("GET")
-
-	apiRouter.HandleFunc("/tags/item/{itemId}", apis.HandleGetTagsForItem).Methods("GET")
-	apiRouter.HandleFunc("/tags/associate", apis.HandleAssociateItemWithTags).Methods("POST")
-	apiRouter.HandleFunc("/recommendations", apis.HandleGetRecommendedItems).Methods("POST")
+	// apiRouter.HandleFunc("/tags/item/{itemId}", apis.HandleGetTagsForItem).Methods("GET")
+	// apiRouter.HandleFunc("/tags/associate", apis.HandleAssociateItemWithTags).Methods("POST")
+	// apiRouter.HandleFunc("/recommendations", apis.HandleGetRecommendedItems).Methods("POST")
 
 	// Barcode routes
-	apiRouter.HandleFunc("/saveBarcode", apis.HandleSaveBarcode).Methods("POST")
+	// apiRouter.HandleFunc("/saveBarcode", apis.HandleSaveBarcode).Methods("POST")
 
 	// AI Helper routes
-	apiRouter.HandleFunc("/analyze_barcode", apis.HandleBarcodeAnalyze).Methods("POST")
+	// apiRouter.HandleFunc("/analyze_barcode", apis.HandleBarcodeAnalyze).Methods("POST")
 
 	// Image upload routes
 	// apiRouter.HandleFunc("/upload/image", apis.HandleImageUpload).Methods("POST")
 	apiRouter.HandleFunc("/delete/image", apis.HandleImageDelete).Methods("DELETE")
 
 	// v1
-	// "/products/expiring-stocks?startDate=2026-03-20&endDate=2026-03-26"
-
-	// Auth routes (protected)
 	apiRouter.HandleFunc("/auth/revoke-all", apis.HandleRevokeAllTokens).Methods("POST")
 
 	apiRouter.HandleFunc("/product/update", v1Controller.HandleProductUpdate).Methods("PUT")
@@ -184,6 +156,7 @@ func main() {
 	apiRouter.HandleFunc("/products/finalise-expired-stock", v1Controller.HandleFinaliseExpiredStock).Methods("POST")
 	apiRouter.HandleFunc("/inventory/search", v1Controller.HandleSearchInventory).Methods("POST")
 	apiRouter.HandleFunc("/stocks/{productId}", v1Controller.HandleGetStocksByProductId).Methods("GET")
+	apiRouter.HandleFunc("/stocks/create", v1Controller.HandleCreateStock).Methods("POST")
 
 	apiRouter.HandleFunc("/image/upload", v1Controller.HandleImageUpload).Methods("POST")
 	apiRouter.HandleFunc("/image/delete", v1Controller.HandleImageDelete).Methods("DELETE")
