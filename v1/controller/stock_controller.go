@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
 	"encoding/json"
@@ -52,6 +53,7 @@ func HandleCreateStock(w http.ResponseWriter, r *http.Request) {
 
 	err := service.CreateStockService(r.Context(), stock, idempotencyKey)
 	if err != nil {
+		fmt.Println("@@@ERR1", err)
 		response.WriteV1ServiceError(w, "Failed to create stock", false, http.StatusInternalServerError)
 		return
 	}
