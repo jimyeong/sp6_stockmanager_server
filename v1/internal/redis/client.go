@@ -37,11 +37,9 @@ func LoadOptionsFromEnv() (*redis.Options, error) {
 		db = parsed
 	}
 
-	// redis://default:bmQLGHjwQgxtcpczTDvxccckhVfGEWSO@tramway.proxy.rlwy.net:24638
 	return &redis.Options{
-		Addr:     addr,
-		Password: os.Getenv("REDIS_PASSWORD"),
-		DB:       db,
+		Addr: addr,
+		DB:   db,
 	}, nil
 }
 
