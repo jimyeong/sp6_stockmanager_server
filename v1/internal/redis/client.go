@@ -16,26 +16,26 @@ var (
 )
 
 // LoadOptionsFromEnv builds go-redis options from the environment.
-// Addr is taken from REDIS_ADDR, or REDIS_URL if REDIS_ADDR is empty.
+// Addr is taken from REDIS_HOST, or REDIS_URL if REDIS_HOST is empty.
 // REDIS_DB defaults to 0 when unset or empty. REDIS_PASSWORD is optional.
 func LoadOptionsFromEnv() (*redis.Options, error) {
 	fmt.Println("REDIS_USER", os.Getenv("REDIS_USER"))
 	fmt.Println("REDIS_PASSWORD", os.Getenv("REDIS_PASSWORD"))
-	fmt.Println("REDIS_ADDR", os.Getenv("REDIS_ADDR"))
+	fmt.Println("REDIS_HOST", os.Getenv("REDIS_HOST"))
 	if os.Getenv("REDIS_USER") != "" {
 		return nil, errors.New("redis: REDIS_USER is required")
 	}
 	if os.Getenv("REDIS_PASSWORD") != "" {
 		return nil, errors.New("redis: REDIS_PASSWORD is required")
 	}
-	if os.Getenv("REDIS_ADDR") != "" {
-		return nil, errors.New("redis: REDIS_ADDR is required")
+	if os.Getenv("REDIS_HOST") != "" {
+		return nil, errors.New("redis: REDIS_HOST is required")
 	}
 
 	db := 0
 
 	return &redis.Options{
-		Addr:     os.Getenv("REDIS_ADDR"),
+		Addr:     os.Getenv("REDIS_HOST"),
 		Username: os.Getenv("REDIS_USER"),
 		Password: os.Getenv("REDIS_PASSWORD"),
 		DB:       db,
