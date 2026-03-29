@@ -3,6 +3,7 @@ package respositories
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/jimyeongjung/owlverload_api/models"
 	v1 "github.com/jimyeongjung/owlverload_api/v1/models"
@@ -85,6 +86,11 @@ func CreateStock(stock v1.Stock) (int64, error) {
 		stock.Notes,
 		stock.DiscountRate,
 	)
+	// check result
+	if err != nil {
+		return 0, fmt.Errorf("failed to insert stock: %w", err)
+	}
+	fmt.Println("@@@@@@@@@@@@@@@result", result)
 	// return the last insert id
 	lastInsertId, err := result.LastInsertId()
 	if err != nil {
