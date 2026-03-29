@@ -52,8 +52,9 @@ func HandleCreateStock(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := service.CreateStockService(r.Context(), stock, idempotencyKey)
+	fmt.Println("@@@@@@@@@@@@@@@ERR1", err)
 	if err != nil {
-		fmt.Println("@@@ERR1", err)
+
 		response.WriteV1ServiceError(w, "Failed to create stock", false, http.StatusInternalServerError)
 		return
 	}
