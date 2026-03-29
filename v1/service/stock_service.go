@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"time"
 
 	"strconv"
@@ -100,12 +99,9 @@ func CreateStockService(ctx context.Context, stock v1.Stock, idempotencyKey stri
 	if !ok {
 		return errors.New("duplicate request")
 	}
-	fmt.Println("@@@@@@@@@@@@@@@OK1")
-	fmt.Println("@@@@@@@@@@@@@@@stock", stock)
 
 	lastInsertId, err := respositories.CreateStock(stock)
 	if err != nil {
-		fmt.Println("@@@@@@@@@@@@@@@ERR2", err)
 		cmd := redisClient.Del(ctx, redisKey)
 		if cmd.Err() != nil {
 			return cmd.Err()

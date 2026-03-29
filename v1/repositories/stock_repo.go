@@ -90,7 +90,6 @@ func CreateStock(stock v1.Stock) (int64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("failed to insert stock: %w", err)
 	}
-	fmt.Println("@@@@@@@@@@@@@@@result", result)
 	// return the last insert id
 	lastInsertId, err := result.LastInsertId()
 	if err != nil {

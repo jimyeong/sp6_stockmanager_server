@@ -255,7 +255,6 @@ func HandleImageDelete(w http.ResponseWriter, r *http.Request) {
 
 	// Parse request body
 	imagePath := r.URL.Query().Get("imagePath")
-	fmt.Println("imagePath", imagePath)
 
 	// Validate imagePath
 	if imagePath == "" {

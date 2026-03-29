@@ -26,7 +26,6 @@ type RefreshTokenResponse struct {
 
 // HandleRefreshToken handles POST requests to refresh Firebase ID tokens using a refresh token
 func HandleRefreshToken(w http.ResponseWriter, r *http.Request, firebaseClient *auth.Client) {
-	fmt.Println("---HandleRefreshToken---")
 
 	// Parse the request body
 	body, err := io.ReadAll(r.Body)
@@ -50,14 +49,12 @@ func HandleRefreshToken(w http.ResponseWriter, r *http.Request, firebaseClient *
 	// Find the refresh token in the database
 	storedToken, err := models.FindRefreshTokenByToken(refreshReq.RefreshToken)
 	if err != nil {
-		fmt.Println("Refresh token not found:", err)
 		models.WriteServiceError(w, "Invalid or expired refresh token", false, false, http.StatusUnauthorized)
 		return
 	}
 
 	// Check if the token is valid
 	if !storedToken.IsValid() {
-		fmt.Println("Refresh token is invalid or expired")
 		models.WriteServiceError(w, "Refresh token has expired or been revoked", false, false, http.StatusUnauthorized)
 		return
 	}
@@ -65,7 +62,6 @@ func HandleRefreshToken(w http.ResponseWriter, r *http.Request, firebaseClient *
 	// Update the last used timestamp
 	err = storedToken.UpdateLastUsed()
 	if err != nil {
-		fmt.Println("Failed to update last used timestamp:", err)
 		// Continue anyway - this is not a critical error
 	}
 
@@ -73,7 +69,6 @@ func HandleRefreshToken(w http.ResponseWriter, r *http.Request, firebaseClient *
 	ctx := context.Background()
 	customToken, err := firebaseClient.CustomToken(ctx, storedToken.UserID)
 	if err != nil {
-		fmt.Println("Failed to create custom token:", err)
 		models.WriteServiceError(w, "Failed to generate new token", false, false, http.StatusInternalServerError)
 		return
 	}
@@ -81,7 +76,6 @@ func HandleRefreshToken(w http.ResponseWriter, r *http.Request, firebaseClient *
 	// Generate a new refresh token (rotate the refresh token for security)
 	newRefreshTokenString, err := models.GenerateRefreshToken()
 	if err != nil {
-		fmt.Println("Failed to generate new refresh token:", err)
 		models.WriteServiceError(w, "Failed to generate new refresh token", false, false, http.StatusInternalServerError)
 		return
 	}
@@ -98,7 +92,6 @@ func HandleRefreshToken(w http.ResponseWriter, r *http.Request, firebaseClient *
 	// Save the new refresh token
 	err = newRefreshToken.Save()
 	if err != nil {
-		fmt.Println("Failed to save new refresh token:", err)
 		models.WriteServiceError(w, "Failed to save new refresh token", false, false, http.StatusInternalServerError)
 		return
 	}
@@ -118,12 +111,10 @@ func HandleRefreshToken(w http.ResponseWriter, r *http.Request, firebaseClient *
 	}
 
 	models.WriteServiceResponse(w, "Token refreshed successfully", response, true, true, http.StatusOK)
-	fmt.Println("---Token refresh successful---")
 }
 
 // HandleRevokeToken handles POST requests to revoke a refresh token (logout)
 func HandleRevokeToken(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("---HandleRevokeToken---")
 
 	// Parse the request body
 	body, err := io.ReadAll(r.Body)
@@ -147,7 +138,6 @@ func HandleRevokeToken(w http.ResponseWriter, r *http.Request) {
 	// Find the refresh token in the database
 	storedToken, err := models.FindRefreshTokenByToken(revokeReq.RefreshToken)
 	if err != nil {
-		fmt.Println("Refresh token not found:", err)
 		// Return success even if token not found (idempotent operation)
 		models.WriteServiceResponse(w, "Token revoked successfully", nil, true, true, http.StatusOK)
 		return
@@ -156,18 +146,15 @@ func HandleRevokeToken(w http.ResponseWriter, r *http.Request) {
 	// Revoke the token
 	err = storedToken.Revoke()
 	if err != nil {
-		fmt.Println("Failed to revoke token:", err)
 		models.WriteServiceError(w, "Failed to revoke token", false, false, http.StatusInternalServerError)
 		return
 	}
 
 	models.WriteServiceResponse(w, "Token revoked successfully", nil, true, true, http.StatusOK)
-	fmt.Println("---Token revocation successful---")
 }
 
 // HandleRevokeAllTokens handles POST requests to revoke all refresh tokens for a user
 func HandleRevokeAllTokens(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("---HandleRevokeAllTokens---")
 
 	// Get user ID from the authenticated context (requires authentication middleware)
 	// This is a protected endpoint
@@ -180,11 +167,9 @@ func HandleRevokeAllTokens(w http.ResponseWriter, r *http.Request) {
 	// Revoke all tokens for the user
 	err := models.RevokeAllUserTokens(userID.(string))
 	if err != nil {
-		fmt.Println("Failed to revoke all tokens:", err)
 		models.WriteServiceError(w, "Failed to revoke all tokens", false, false, http.StatusInternalServerError)
 		return
 	}
 
 	models.WriteServiceResponse(w, "All tokens revoked successfully", nil, true, true, http.StatusOK)
-	fmt.Println("---All tokens revoked successfully---")
 }

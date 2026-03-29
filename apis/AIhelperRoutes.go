@@ -70,47 +70,36 @@ type ProductAnalysisResult struct {
 
 // HandleBarcodeAnalyze handles the request to analyze a barcode
 func HandleBarcodeAnalyze(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("---HandleBarcodeAnalyze---")
 	// Get authenticated user from context
 	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
 	userEmail := tokenClaims.Email
-	fmt.Println("---USER EMAIL---", userEmail)
 
 	if userEmail == "" {
-		fmt.Println("---Unauthorized barcode analysis attempt - missing user email---")
 		models.WriteServiceError(w, "User authentication required", false, false, http.StatusUnauthorized)
 		return
 	}
 
 	// Read and parse request body
-	fmt.Println("---Reading request body---")
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println("---Failed to read request body: %v---", err)
 		models.WriteServiceError(w, "Failed to read request body", false, true, http.StatusBadRequest)
 		return
 	}
 
 	var request BarcodeAnalyzeRequest
-	fmt.Println("---Unmarshaling request JSON---")
 	err = json.Unmarshal(body, &request)
 	if err != nil {
-		fmt.Println("---Invalid request format: %v---", err)
 		models.WriteServiceError(w, "Invalid request format", false, true, http.StatusBadRequest)
 		return
 	}
 
 	// Validate request
-	fmt.Println("---Validating request---")
 	if request.Barcode == "" {
-		fmt.Println("---Missing barcode in request---")
 		models.WriteServiceError(w, "Barcode is required", false, true, http.StatusBadRequest)
 		return
 	}
-	fmt.Println("request.ProductName", request.ProductName)
 
 	// Prepare OpenAI request
-	fmt.Println("---Preparing OpenAI request---")
 	openAIRequest := OpenAIChatRequest{
 		Model: "gpt-4o",
 		Messages: []OpenAIChatMessage{
@@ -146,7 +135,6 @@ func HandleBarcodeAnalyze(w http.ResponseWriter, r *http.Request) {
 	// Convert request to JSON
 	openAIRequestJSON, err := json.Marshal(openAIRequest)
 	if err != nil {
-		fmt.Println("---Failed to marshal OpenAI request: %v---", err)
 		models.WriteServiceError(w, "Failed to prepare API request", false, true, http.StatusInternalServerError)
 		return
 	}
@@ -154,17 +142,14 @@ func HandleBarcodeAnalyze(w http.ResponseWriter, r *http.Request) {
 	// Get OpenAI API key from environment variable
 	apiKey := os.Getenv("OPENAI_API_KEY")
 	if apiKey == "" {
-		fmt.Println("---OpenAI API key not configured on server---")
 		models.WriteServiceError(w, "Server configuration error", false, true, http.StatusInternalServerError)
 		return
 	}
 
 	// Make request to OpenAI API
-	fmt.Println("---Making request to OpenAI API---")
 	client := &http.Client{}
 	openAIReq, err := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(openAIRequestJSON))
 	if err != nil {
-		fmt.Println("---Failed to create OpenAI request: %v---", err)
 		models.WriteServiceError(w, "Failed to create API request", false, true, http.StatusInternalServerError)
 		return
 	}
@@ -174,41 +159,34 @@ func HandleBarcodeAnalyze(w http.ResponseWriter, r *http.Request) {
 
 	response, err := client.Do(openAIReq)
 	if err != nil {
-		fmt.Println("---Failed to send request to OpenAI: %v---", err)
 		models.WriteServiceError(w, "Failed to connect to OpenAI API", false, true, http.StatusServiceUnavailable)
 		return
 	}
 	defer response.Body.Close()
 
 	// Read OpenAI response
-	fmt.Println("---Reading OpenAI API response---")
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		fmt.Println("---Failed to read OpenAI response: %v---", err)
 		models.WriteServiceError(w, "Failed to read API response", false, true, http.StatusInternalServerError)
 		return
 	}
 
 	// Check for non-200 response
 	if response.StatusCode != http.StatusOK {
-		fmt.Println("---OpenAI API returned non-200 status code: %d, response: %s---", response.StatusCode, string(responseBody))
 		models.WriteServiceError(w, fmt.Sprintf("OpenAI API error: %s", string(responseBody)), false, true, http.StatusInternalServerError)
 		return
 	}
 
 	// Parse OpenAI response
-	fmt.Println("---Parsing OpenAI API response---")
 	var openAIResponse OpenAIChatResponse
 	err = json.Unmarshal(responseBody, &openAIResponse)
 	if err != nil {
-		fmt.Println("---Failed to parse OpenAI response: %v---", err)
 		models.WriteServiceError(w, "Failed to parse API response", false, true, http.StatusInternalServerError)
 		return
 	}
 
 	// Extract the analysis content
 	if len(openAIResponse.Choices) == 0 {
-		fmt.Println("---No content in OpenAI response---")
 		models.WriteServiceError(w, "No content returned from analysis", false, true, http.StatusInternalServerError)
 		return
 	}
@@ -216,11 +194,9 @@ func HandleBarcodeAnalyze(w http.ResponseWriter, r *http.Request) {
 	analysisContent := openAIResponse.Choices[0].Message.Content
 
 	// Parse the JSON response from GPT
-	fmt.Println("---Parsing analysis content into structured format---")
 	var analysisResult ProductAnalysisResult
 	err = json.Unmarshal([]byte(analysisContent), &analysisResult)
 	if err != nil {
-		fmt.Println("---Failed to parse analysis content as JSON: %v---", err)
 		models.WriteServiceError(w, "Failed to parse analysis content", false, true, http.StatusInternalServerError)
 		return
 	}
