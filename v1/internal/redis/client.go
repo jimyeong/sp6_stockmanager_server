@@ -19,6 +19,9 @@ var (
 // Addr is taken from REDIS_ADDR, or REDIS_URL if REDIS_ADDR is empty.
 // REDIS_DB defaults to 0 when unset or empty. REDIS_PASSWORD is optional.
 func LoadOptionsFromEnv() (*redis.Options, error) {
+	fmt.Println("REDIS_USER", os.Getenv("REDIS_USER"))
+	fmt.Println("REDIS_PASSWORD", os.Getenv("REDIS_PASSWORD"))
+	fmt.Println("REDIS_ADDR", os.Getenv("REDIS_ADDR"))
 	if os.Getenv("REDIS_USER") != "" {
 		return nil, errors.New("redis: REDIS_USER is required")
 	}
