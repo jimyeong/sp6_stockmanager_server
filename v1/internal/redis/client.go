@@ -22,13 +22,13 @@ func LoadOptionsFromEnv() (*redis.Options, error) {
 	fmt.Println("REDIS_USER", os.Getenv("REDIS_USER"))
 	fmt.Println("REDIS_PASSWORD", os.Getenv("REDIS_PASSWORD"))
 	fmt.Println("REDIS_HOST", os.Getenv("REDIS_HOST"))
-	if os.Getenv("REDIS_USER") != "" {
+	if os.Getenv("REDIS_USER") == "" {
 		return nil, errors.New("redis: REDIS_USER is required")
 	}
-	if os.Getenv("REDIS_PASSWORD") != "" {
+	if os.Getenv("REDIS_PASSWORD") == "" {
 		return nil, errors.New("redis: REDIS_PASSWORD is required")
 	}
-	if os.Getenv("REDIS_HOST") != "" {
+	if os.Getenv("REDIS_HOST") == "" {
 		return nil, errors.New("redis: REDIS_HOST is required")
 	}
 
