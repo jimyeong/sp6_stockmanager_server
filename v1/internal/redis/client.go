@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strconv"
 	"sync"
 
 	"github.com/redis/go-redis/v9"
@@ -20,26 +19,23 @@ var (
 // Addr is taken from REDIS_ADDR, or REDIS_URL if REDIS_ADDR is empty.
 // REDIS_DB defaults to 0 when unset or empty. REDIS_PASSWORD is optional.
 func LoadOptionsFromEnv() (*redis.Options, error) {
-	addr := os.Getenv("REDIS_ADDR")
-	if addr == "" {
-		addr = os.Getenv("REDIS_URL")
+	if os.Getenv("REDIS_USER") != "" {
+		return nil, errors.New("redis: REDIS_USER is required")
 	}
-	if addr == "" {
-		return nil, errors.New("redis: set REDIS_ADDR or REDIS_URL")
+	if os.Getenv("REDIS_PASSWORD") != "" {
+		return nil, errors.New("redis: REDIS_PASSWORD is required")
+	}
+	if os.Getenv("REDIS_ADDR") != "" {
+		return nil, errors.New("redis: REDIS_ADDR is required")
 	}
 
 	db := 0
-	if raw := os.Getenv("REDIS_DB"); raw != "" {
-		parsed, err := strconv.Atoi(raw)
-		if err != nil {
-			return nil, fmt.Errorf("redis: invalid REDIS_DB: %w", err)
-		}
-		db = parsed
-	}
 
 	return &redis.Options{
-		Addr: addr,
-		DB:   db,
+		Addr:     os.Getenv("REDIS_ADDR"),
+		Username: os.Getenv("REDIS_USER"),
+		Password: os.Getenv("REDIS_PASSWORD"),
+		DB:       db,
 	}, nil
 }
 
