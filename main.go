@@ -83,10 +83,9 @@ func main() {
 	// Create a subrouter for protected routes
 	apiRouter := r.PathPrefix("/api/v1/").Subrouter()
 	apiRouter.Use(func(next http.Handler) http.Handler {
-		fmt.Println("--- coming in here 2--- ")
 		return middleware.ValidateFirebaseToken(next, firebaseClient)
 	})
-	r.Use(middleware.IdempotencyMiddleware)
+	// r.Use(middleware.IdempotencyMiddleware)
 
 	// Public routes (no authentication required)
 	r.HandleFunc("/public/api/v1/auth/signin", apis.HandleSignIn).Methods("POST")
