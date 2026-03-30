@@ -39,13 +39,10 @@ func main() {
 	// Load environment variables
 	if os.Getenv("ENV") == "development" {
 		err = godotenv.Load(".env.development")
-		fmt.Println("---Loading .env.development---")
 	} else if os.Getenv("ENV") == "staging" {
 		err = godotenv.Load(".env.staging")
-		fmt.Println("---Loading .env.staging---")
 	} else {
 		err = godotenv.Load(".env.production")
-		fmt.Println("---Loading .env.production---")
 	}
 	if err != nil {
 		fmt.Printf("Error loading .env file: %v\n", err)
