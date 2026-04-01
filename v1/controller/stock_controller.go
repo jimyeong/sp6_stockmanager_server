@@ -1,11 +1,11 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 
 	"encoding/json"
 
+	"github.com/gorilla/mux"
 	"github.com/jimyeongjung/owlverload_api/firebase"
 	v1 "github.com/jimyeongjung/owlverload_api/v1/models"
 	v1Models "github.com/jimyeongjung/owlverload_api/v1/models"
@@ -52,7 +52,6 @@ func HandleCreateStock(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := service.CreateStockService(r.Context(), stock, idempotencyKey)
-	fmt.Println("@@@@@@@@@@@@@@@ERR1", err)
 	if err != nil {
 
 		response.WriteV1ServiceError(w, "Failed to create stock", false, http.StatusInternalServerError)
@@ -68,6 +67,30 @@ func HandleCreateStock(w http.ResponseWriter, r *http.Request) {
 	response.WriteV1ServiceResponse(w, response.V1ServiceResponse[CreateStockResponse]{
 		Message: createStockResponse.Message,
 		Payload: createStockResponse,
+		Success: true,
+	})
+}
+
+func HandleDeleteStockById(w http.ResponseWriter, r *http.Request) {
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	if userEmail == "" {
+		response.WriteV1ServiceError(w, "User authentication required", false, http.StatusUnauthorized)
+		return
+	}
+	// apiRouter.HandleFunc("/stocks/delete/{stockId}", v1Controller.HandleDeleteStockById).Methods("DELETE")
+	stockId := mux.Vars(r)["stockId"]
+	if stockId == "" {
+		response.WriteV1ServiceError(w, "Stock ID is required", false, http.StatusBadRequest)
+		return
+	}
+	err := service.DeleteStockByIdService(r.Context(), stockId)
+	if err != nil {
+		response.WriteV1ServiceError(w, "Failed to delete stock", false, http.StatusInternalServerError)
+		return
+	}
+	response.WriteV1ServiceResponse(w, response.V1ServiceResponse[string]{
+		Message: "Stock deleted successfully",
 		Success: true,
 	})
 }

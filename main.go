@@ -153,6 +153,7 @@ func main() {
 	apiRouter.HandleFunc("/inventory/search", v1Controller.HandleSearchInventory).Methods("POST")
 	apiRouter.HandleFunc("/stocks/{productId}", v1Controller.HandleGetStocksByProductId).Methods("GET")
 	apiRouter.HandleFunc("/stocks/create", v1Controller.HandleCreateStock).Methods("POST")
+	apiRouter.HandleFunc("/stocks/delete/{stockId}", v1Controller.HandleDeleteStockById).Methods("DELETE")
 
 	apiRouter.HandleFunc("/image/upload", v1Controller.HandleImageUpload).Methods("POST")
 	apiRouter.HandleFunc("/image/delete", v1Controller.HandleImageDelete).Methods("DELETE")

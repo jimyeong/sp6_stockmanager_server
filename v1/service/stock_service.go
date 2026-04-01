@@ -131,3 +131,10 @@ func CreateStockService(ctx context.Context, stock v1.Stock, idempotencyKey stri
 
 	return nil
 }
+
+func DeleteStockByIdService(ctx context.Context, stockId string) error {
+	if stockId == "" {
+		return errors.New("stockId is required")
+	}
+	return respositories.DeleteStockById(stockId)
+}
