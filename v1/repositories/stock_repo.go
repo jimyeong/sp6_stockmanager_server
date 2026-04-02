@@ -116,3 +116,12 @@ func CreateStockWithTx(tx *sql.Tx, stock v1.Stock) error {
 	)
 	return err
 }
+
+func DeleteStockById(stockId string) error {
+	db := models.GetDBInstance(models.GetDBConfig())
+	_, err := db.Exec("DELETE FROM stocks WHERE stock_id = ?", stockId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
