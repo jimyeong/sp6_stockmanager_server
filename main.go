@@ -98,47 +98,6 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	}).Methods("GET")
-
-	// apiRouter.HandleFunc("/createNewItem", apis.HandleCreateItem).Methods("POST")
-	//apiRouter.HandleFunc("/getItemByBarcode", apis.HandleGetItemByBarcode).Methods("GET")
-	//apiRouter.HandleFunc("/getItemByCode", apis.HandleGetItemByCode).Methods("GET")
-	//apiRouter.HandleFunc("/getItemById", apis.HandleGetItemById).Methods("GET")
-	//apiRouter.HandleFunc("/updateItemById", apis.HandleUpdateItemById).Methods("PUT")
-
-	//apiRouter.HandleFunc("/stockOut", apis.HandleStockOut).Methods("POST")
-	//apiRouter.HandleFunc("/stockUpdate", apis.HandleStockUpdate).Methods("PUT")
-	// apiRouter.HandleFunc("/stock/{stockId}", apis.HandleStockDeleteById).Methods("DELETE")
-	//apiRouter.HandleFunc("/registerItem", apis.HandleRegisterItem).Methods("POST")
-	//apiRouter.HandleFunc("/updateItem", apis.HandleUpdateItem).Methods("PUT")
-	// apiRouter.HandleFunc("/getItems", apis.HandleGetItems).Methods("GET")
-	//apiRouter.HandleFunc("/getItemsPaginated", apis.HandleGetItemsPaginated).Methods("GET")
-	//apiRouter.HandleFunc("/searchItems", apis.HandleSearchItems).Methods("POST")
-	//apiRouter.HandleFunc("/getItemsWithMissingInfo", apis.HandleGetItemsWithMissingInfo).Methods("GET")
-
-	// apiRouter.HandleFunc("/getItemsExpiringWithinDays", apis.HandleGetItemsExpiringWithinDays).Methods("GET")
-	// apiRouter.HandleFunc("/getItemsWithExpiredStocksOlderThanDays", apis.HandleGetItemsWithExpiredStocksOlderThanDays).Methods("GET")
-	// apiRouter.HandleFunc("/getItemsWithExpiredStocksAheadOfDays", apis.HandleGetItemsWithExpiredStocksAheadOfDays).Methods("GET")
-
-	// just stock request
-	// apiRouter.HandleFunc("/getProductStockByItemId", apis.HandleGetStockByItemId).Methods("GET")
-
-	// apiRouter.HandleFunc("/tags", apis.HandleGetAllTags).Methods("GET")
-	// apiRouter.HandleFunc("/tags/create", apis.HandleCreateTag).Methods("POST")
-	// apiRouter.HandleFunc("/tags/popular", apis.HandleGetPopularTags).Methods("GET")
-	// apiRouter.HandleFunc("/tags/search", apis.HandleSearchTags).Methods("GET")
-
-	// apiRouter.HandleFunc("/tags/item/{itemId}", apis.HandleGetTagsForItem).Methods("GET")
-	// apiRouter.HandleFunc("/tags/associate", apis.HandleAssociateItemWithTags).Methods("POST")
-	// apiRouter.HandleFunc("/recommendations", apis.HandleGetRecommendedItems).Methods("POST")
-
-	// Barcode routes
-	// apiRouter.HandleFunc("/saveBarcode", apis.HandleSaveBarcode).Methods("POST")
-
-	// AI Helper routes
-	// apiRouter.HandleFunc("/analyze_barcode", apis.HandleBarcodeAnalyze).Methods("POST")
-
-	// Image upload routes
-	// apiRouter.HandleFunc("/upload/image", apis.HandleImageUpload).Methods("POST")
 	apiRouter.HandleFunc("/delete/image", apis.HandleImageDelete).Methods("DELETE")
 
 	// v1

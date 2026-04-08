@@ -380,13 +380,21 @@ func FinaliseExpiredStock(params FinaliseExpiredStockParams) error {
 	}
 	// write log
 	var stockQuantity int
+	var originalPrice float64
+	var discountedPrice float64
 	switch params.StockType {
 	case v1.StockTypeBox:
 		stockQuantity = product.Stock[0].BoxNumber
+		originalPrice = product.BoxPrice
+		discountedPrice = product.BoxPrice * (1 - float64(product.Stock[0].DiscountRate)/100)
 	case v1.StockTypePCS:
 		stockQuantity = product.Stock[0].PCSNumber
+		originalPrice = product.Price
+		discountedPrice = product.Price * (1 - float64(product.Stock[0].DiscountRate)/100)
 	case v1.StockTypeBundle:
 		stockQuantity = product.Stock[0].BundleNumber
+		originalPrice = product.BoxPrice
+		discountedPrice = product.BoxPrice * (1 - float64(product.Stock[0].DiscountRate)/100)
 	}
 	_, err = v1.CreateInventoryLogWithTx(tx, &v1.InventoryLog{
 		ProductId:        productIdInt,
@@ -395,8 +403,8 @@ func FinaliseExpiredStock(params FinaliseExpiredStockParams) error {
 		StockQuantity:    stockQuantity,
 		EventType:        params.EventType,
 		ExpiryDate:       product.Stock[0].ExpiryDate,
-		OriginalPrice:    float64(product.Price),
-		DiscountedPrice:  float64(product.Price),
+		OriginalPrice:    originalPrice,
+		DiscountedPrice:  discountedPrice,
 		DiscountRate:     float64(product.Stock[0].DiscountRate),
 		PerformerId:      performer.ID,
 		PerformerName:    performer.DisplayName,
