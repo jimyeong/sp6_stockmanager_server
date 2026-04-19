@@ -138,3 +138,14 @@ func DeleteStockByIdService(ctx context.Context, stockId string) error {
 	}
 	return respositories.DeleteStockById(stockId)
 }
+
+func UpdateStockByIdService(ctx context.Context, stockId string, stock v1.Stock) error {
+	if stockId == "" {
+		return errors.New("stockId is required")
+	}
+	err := respositories.UpdateStockById(stockId, stock)
+	if err != nil {
+		return err
+	}
+	return nil
+}
