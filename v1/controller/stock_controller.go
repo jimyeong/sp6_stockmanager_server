@@ -96,3 +96,31 @@ func HandleDeleteStockById(w http.ResponseWriter, r *http.Request) {
 		Success: true,
 	})
 }
+
+func HandleUpdateStock(w http.ResponseWriter, r *http.Request) {
+	tokenClaims := firebase.GetTokenClaimsFromContext(r.Context())
+	userEmail := tokenClaims.Email
+	if userEmail == "" {
+		response.WriteV1ServiceError(w, "User authentication required", false, http.StatusUnauthorized)
+		return
+	}
+	stockId := mux.Vars(r)["stockId"]
+	if stockId == "" {
+		response.WriteV1ServiceError(w, "Stock ID is required", false, http.StatusBadRequest)
+		return
+	}
+	var stock v1.Stock
+	if err := json.NewDecoder(r.Body).Decode(&stock); err != nil {
+		response.WriteV1ServiceError(w, "Invalid request body", false, http.StatusBadRequest)
+		return
+	}
+	err := service.UpdateStockByIdService(r.Context(), stockId, stock)
+	if err != nil {
+		response.WriteV1ServiceError(w, "Failed to update stock", false, http.StatusInternalServerError)
+		return
+	}
+	response.WriteV1ServiceResponse(w, response.V1ServiceResponse[string]{
+		Message: "Stock updated successfully",
+		Success: true,
+	})
+}

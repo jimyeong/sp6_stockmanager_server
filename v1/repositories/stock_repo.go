@@ -125,3 +125,30 @@ func DeleteStockById(stockId string) error {
 	}
 	return nil
 }
+
+func UpdateStockById(stockId string, stock v1.Stock) error {
+	db := models.GetDBInstance(models.GetDBConfig())
+	_, err := db.Exec(`
+		UPDATE stocks SET expiry_date = ?, 
+		location = ?, 
+		registering_person = ?, 
+		notes = ?, 
+		discount_rate = ?,
+		box_number = ?,
+		pcs_number = ?,
+		stock_type = ?
+		WHERE stock_id = ?
+	`, stock.ExpiryDate,
+		stock.Location,
+		stock.RegisteringPerson,
+		stock.Notes,
+		stock.DiscountRate,
+		stock.BoxNumber,
+		stock.PCSNumber,
+		stock.StockType,
+		stockId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
